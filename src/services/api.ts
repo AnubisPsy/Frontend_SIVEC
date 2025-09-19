@@ -1,19 +1,19 @@
 // src/services/api.ts
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'http://localhost:3000';
+const API_URL = "http://localhost:3000";
 
 // Configurar interceptor para incluir token automáticamente
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Interceptor para agregar token a todas las requests
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('sivec_token');
+  const token = localStorage.getItem("sivec_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -26,9 +26,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expirado o inválido
-      localStorage.removeItem('sivec_token');
-      localStorage.removeItem('sivec_user');
-      window.location.href = '/login';
+      localStorage.removeItem("sivec_token");
+      localStorage.removeItem("sivec_user");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
@@ -101,13 +101,11 @@ export interface ApiResponse<T> {
 
 export const authApi = {
   login: (credentials: LoginCredentials) =>
-    api.post<LoginResponse>('/auth/login', credentials),
+    api.post<LoginResponse>("/auth/login", credentials),
 
-  verificarToken: () =>
-    api.post('/auth/verificar'),
+  verificarToken: () => api.post("/auth/verificar"),
 
-  logout: () =>
-    api.post('/auth/logout'),
+  logout: () => api.post("/auth/logout"),
 };
 
 // ==========================================
@@ -116,25 +114,24 @@ export const authApi = {
 
 export const usuariosApi = {
   obtenerTodos: (params?: any) =>
-    api.get<ApiResponse<Usuario[]>>('/api/usuarios', { params }),
+    api.get<ApiResponse<Usuario[]>>("/api/usuarios", { params }),
 
   obtenerPorId: (id: number) =>
     api.get<ApiResponse<Usuario>>(`/api/usuarios/${id}`),
 
   crear: (usuario: Partial<Usuario>) =>
-    api.post<ApiResponse<Usuario>>('/api/usuarios', usuario),
+    api.post<ApiResponse<Usuario>>("/api/usuarios", usuario),
 
   actualizar: (id: number, usuario: Partial<Usuario>) =>
     api.put<ApiResponse<Usuario>>(`/api/usuarios/${id}`, usuario),
 
-  eliminar: (id: number) =>
-    api.delete<ApiResponse<any>>(`/api/usuarios/${id}`),
+  eliminar: (id: number) => api.delete<ApiResponse<any>>(`/api/usuarios/${id}`),
 
   obtenerPilotos: () =>
-    api.get<ApiResponse<Usuario[]>>('/api/usuarios/roles/pilotos'),
+    api.get<ApiResponse<Usuario[]>>("/api/usuarios/roles/pilotos"),
 
   obtenerJefesYarda: () =>
-    api.get<ApiResponse<Usuario[]>>('/api/usuarios/roles/jefes-yarda'),
+    api.get<ApiResponse<Usuario[]>>("/api/usuarios/roles/jefes-yarda"),
 };
 
 // ==========================================
@@ -143,7 +140,7 @@ export const usuariosApi = {
 
 export const facturasApi = {
   obtenerTodas: (params?: any) =>
-    api.get<ApiResponse<FacturaAsignada[]>>('/api/facturas', { params }),
+    api.get<ApiResponse<FacturaAsignada[]>>("/api/facturas", { params }),
 
   obtenerPorId: (id: number) =>
     api.get<ApiResponse<FacturaAsignada>>(`/api/facturas/${id}`),
@@ -154,28 +151,33 @@ export const facturasApi = {
     numero_vehiculo: string;
     fecha_asignacion?: string;
     notas_jefe?: string;
-  }) =>
-    api.post<ApiResponse<FacturaAsignada>>('/api/facturas', factura),
+  }) => api.post<ApiResponse<FacturaAsignada>>("/api/facturas", factura),
 
   actualizar: (id: number, factura: Partial<FacturaAsignada>) =>
     api.put<ApiResponse<FacturaAsignada>>(`/api/facturas/${id}`, factura),
 
-  eliminar: (id: number) =>
-    api.delete<ApiResponse<any>>(`/api/facturas/${id}`),
+  eliminar: (id: number) => api.delete<ApiResponse<any>>(`/api/facturas/${id}`),
 
   obtenerPendientes: () =>
-    api.get<ApiResponse<FacturaAsignada[]>>('/api/facturas/status/pendientes'),
+    api.get<ApiResponse<FacturaAsignada[]>>("/api/facturas/status/pendientes"),
 
   obtenerDespachadas: (params?: any) =>
-    api.get<ApiResponse<FacturaAsignada[]>>('/api/facturas/status/despachadas', { params }),
+    api.get<ApiResponse<FacturaAsignada[]>>(
+      "/api/facturas/status/despachadas",
+      { params }
+    ),
 
   obtenerEstadisticas: (params?: any) =>
-    api.get<ApiResponse<{
-      total: number;
-      asignadas: number;
-      despachadas: number;
-      porcentaje_completado: number;
-    }>>('/api/facturas/reportes/estadisticas', { params }),
+    api.get<
+      ApiResponse<{
+        total: number;
+        asignadas: number;
+        despachadas: number;
+        porcentaje_completado: number;
+      }>
+    >("/api/facturas/reportes/estadisticas", { params }),
+
+  obtenerDatosFormulario: () => api.get("/api/facturas/form-data"),
 };
 
 export default api;
