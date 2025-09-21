@@ -267,16 +267,25 @@ const Dashboard: React.FC = () => {
         )}
 
         {/* Acciones principales */}
-        {(user?.rol_id === 2 || user?.rol_id === 3) && ( // Jefe o Admin
-          <div className="mb-8">
+        <div className="mb-8 flex gap-4">
+          {(user?.rol_id === 2 || user?.rol_id === 3) && ( // Jefe o Admin
             <button
               onClick={() => setMostrarFormulario(!mostrarFormulario)}
               className="btn-primary"
             >
               + Asignar Factura
             </button>
-          </div>
-        )}
+          )}
+
+          {user?.rol_id === 3 && ( // Solo Admin
+            <button
+              onClick={() => (window.location.href = "/admin/usuarios")}
+              className="btn-secondary"
+            >
+              👥 Administrar Usuarios
+            </button>
+          )}
+        </div>
 
         {/* Formulario de asignar factura */}
         {mostrarFormulario && (

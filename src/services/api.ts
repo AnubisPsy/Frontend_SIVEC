@@ -73,7 +73,7 @@ export interface FacturaAsignada {
 }
 
 export interface LoginCredentials {
-  correo: string;
+  loginInput: string; // Cambiar de 'correo' a 'loginInput'
   password: string;
 }
 
@@ -93,6 +93,11 @@ export interface ApiResponse<T> {
   total?: number;
   filtros?: any;
   error?: string;
+}
+
+export interface LoginCredentials {
+  loginInput: string; // Cambiar de 'correo' a 'loginInput'
+  password: string;
 }
 
 // ==========================================
