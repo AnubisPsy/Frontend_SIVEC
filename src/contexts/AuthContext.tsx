@@ -65,12 +65,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     password: string
   ): Promise<boolean> => {
     try {
-      // Cambiar el parámetro para que coincida con el backend actualizado
       const response = await authApi.login({ loginInput, password });
 
       if (response.data.success) {
         const { token, usuario } = response.data.data;
 
+        // ✅ VALIDACIÓN: Bloquear pilotos en panel web
+        // rol_id: 1 = piloto, 2 = jefe_yarda, 3 = admin
+        if (usuario.rol_id === 1) {
+          alert(
+            "⚠️ Acceso denegado\n\nLos pilotos deben usar la aplicación móvil.\nEl panel web es solo para jefes y administradores."
+          );
+          return false;
+        }
+
+        // ✅ Todo OK, guardar sesión
         localStorage.setItem("sivec_token", token);
         localStorage.setItem("sivec_user", JSON.stringify(usuario));
 

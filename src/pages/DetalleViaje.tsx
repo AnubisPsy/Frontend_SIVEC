@@ -37,9 +37,6 @@ interface Viaje {
   viaje_id: number;
   numero_vehiculo: string;
   piloto: string;
-  timestamp_salida: string | null;
-  timestamp_regreso: string | null;
-  estado_viaje: string;
   created_at: string;
   vehiculo: Vehiculo;
   facturas: Factura[];
@@ -70,6 +67,10 @@ const DetalleViaje = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
+      console.log("📦 Viaje cargado:", response.data); // ← AGREGAR
+      console.log("📊 Total guías:", response.data.total_guias); // ← AGREGAR
+      console.log("✅ Guías entregadas:", response.data.guias_entregadas); // ← AGREGAR
 
       setViaje(response.data);
       setError(null);
@@ -182,9 +183,6 @@ const DetalleViaje = () => {
                 {viaje.vehiculo?.agrupacion || "Sin información del vehículo"}
               </p>
             </div>
-            <span className="px-4 py-2 bg-yellow-100 text-yellow-700 text-sm font-semibold rounded-full">
-              {viaje.estado_viaje}
-            </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -261,10 +259,20 @@ const DetalleViaje = () => {
               </span>
               <span className="font-bold text-gray-700">{progreso}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all"
-                style={{ width: `${progreso}%` }}
+                className="h-full rounded-full transition-all duration-500 ease-out"
+                style={{
+                  width: `${progreso}%`,
+                  background:
+                    progreso === 0
+                      ? "#d1d5db" // gris
+                      : progreso < 50
+                      ? "linear-gradient(to right, #ef4444, #f97316)" // rojo a naranja
+                      : progreso < 100
+                      ? "linear-gradient(to right, #facc15, #3b82f6)" // amarillo a azul
+                      : "linear-gradient(to right, #22c55e, #10b981)", // verde
+                }}
               ></div>
             </div>
           </div>
@@ -384,27 +392,7 @@ const DetalleViaje = () => {
                         </div>
 
                         <div className="space-y-2 text-sm">
-                          <div className="flex items-start">
-                            <svg
-                              className="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                              />
-                            </svg>
-                            <div>
-                              <p className="text-gray-500">Cliente</p>
-                              <p className="text-gray-800 font-medium">
-                                {guia.cliente}
-                              </p>
-                            </div>
-                          </div>
+                          <div className="flex items-start"></div>
 
                           <div className="flex items-start">
                             <svg

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // ✨ Agregar useLocation
+import { useAuth } from "../contexts/AuthContext"; // ✨ AGREGAR ESTE
+import { facturasApi } from "../services/api"; // ✨ AGREGAR ESTE
+import FormularioAsignarFactura from "../components/FormularioAsignarFactura"; // ✨ AGREGAR ESTE
 
 // Tipos
 interface Vehiculo {
@@ -36,9 +39,6 @@ interface Viaje {
   viaje_id: number;
   numero_vehiculo: string;
   piloto: string;
-  timestamp_salida: string | null;
-  timestamp_regreso: string | null;
-  estado_viaje: string;
   created_at: string;
   vehiculo: Vehiculo;
   facturas: Factura[];
@@ -51,15 +51,39 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const { user } = useAuth();
+  const location = useLocation();
 
   useEffect(() => {
     cargarViajes();
-  }, []);
+  }, [location]);
+
+  const puedeAsignar = user?.rol_id === 2 || user?.rol_id === 3;
+
+  const handleAsignarFactura = async (nuevaFactura: any) => {
+    try {
+      await facturasApi.asignar(nuevaFactura);
+      alert("✅ Factura asignada correctamente");
+      setMostrarFormulario(false);
+      cargarViajes(); // Recargar viajes después de asignar
+    } catch (error: any) {
+      alert("❌ Error: " + (error.response?.data?.error || error.message));
+      throw error;
+    }
+  };
 
   const cargarViajes = async () => {
+    console.log("🚀 INICIANDO cargarViajes...");
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("sivec_token");
+
+      if (!token) {
+        setError("No hay token de autenticación");
+        navigate("/login");
+        return;
+      }
 
       const response = await axios.get<Viaje[]>(
         "http://localhost:3000/api/viajes?estado=activo",
@@ -68,11 +92,29 @@ const Dashboard = () => {
         }
       );
 
+      console.log("✅ Viajes recibidos:", response.data.length);
+
+      console.log("📦 Datos completos del primer viaje:", response.data[0]);
+      console.log("📊 Total guías:", response.data[0]?.total_guias);
+      console.log("✅ Guías entregadas:", response.data[0]?.guias_entregadas);
+      console.log("📋 Facturas:", response.data[0]?.facturas);
+
       setViajes(response.data);
+
       setError(null);
-    } catch (err) {
-      console.error("Error cargando viajes:", err);
-      setError("No se pudieron cargar los viajes activos");
+    } catch (err: any) {
+      console.error(
+        "❌ Error cargando viajes:",
+        err.response?.status,
+        err.message
+      );
+
+      if (err.response?.status === 401) {
+        setError("Sesión expirada. Redirigiendo al login...");
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        setError("No se pudieron cargar los viajes activos");
+      }
     } finally {
       setLoading(false);
     }
@@ -98,6 +140,16 @@ const Dashboard = () => {
     );
   }
 
+  console.log(
+    "🎨 Viajes a renderizar:",
+    viajes.map((v) => ({
+      vehiculo: v.numero_vehiculo,
+      progreso: calcularProgreso(v),
+      entregadas: v.guias_entregadas,
+      total: v.total_guias,
+    }))
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -109,7 +161,25 @@ const Dashboard = () => {
           <p className="text-gray-600">
             Monitorea el estado de todos los viajes activos en tiempo real
           </p>
+
+          {/* Botón asignar facturas (solo para jefes/admins) */}
+          {puedeAsignar && (
+            <button
+              onClick={() => setMostrarFormulario(!mostrarFormulario)}
+              className="btn-primary"
+            >
+              {mostrarFormulario ? "Cancelar" : "+ Asignar Factura"}
+            </button>
+          )}
         </div>
+
+        {/* Formulario de asignación */}
+        {mostrarFormulario && puedeAsignar && (
+          <FormularioAsignarFactura
+            onAsignarFactura={handleAsignarFactura}
+            onCancelar={() => setMostrarFormulario(false)}
+          />
+        )}
 
         {/* Resumen rápido */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -241,9 +311,6 @@ const Dashboard = () => {
                         {viaje.vehiculo?.placa || "Sin placa"}
                       </p>
                     </div>
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm font-semibold rounded-full">
-                      {viaje.estado_viaje}
-                    </span>
                   </div>
 
                   <div className="flex items-center text-gray-700 mb-3">
@@ -273,11 +340,23 @@ const Dashboard = () => {
                         {viaje.guias_entregadas} / {viaje.total_guias}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full transition-all"
-                        style={{ width: `${calcularProgreso(viaje)}%` }}
-                      ></div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500 ease-out"
+                          style={{
+                            width: `${calcularProgreso(viaje)}%`,
+                            background:
+                              calcularProgreso(viaje) === 0
+                                ? "#d1d5db" // gris
+                                : calcularProgreso(viaje) < 50
+                                ? "linear-gradient(to right, #ef4444, #f97316)" // rojo a naranja
+                                : calcularProgreso(viaje) < 100
+                                ? "linear-gradient(to right, #facc15, #3b82f6)" // amarillo a azul
+                                : "linear-gradient(to right, #22c55e, #10b981)", // verde
+                          }}
+                        ></div>
+                      </div>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {calcularProgreso(viaje)}% completado

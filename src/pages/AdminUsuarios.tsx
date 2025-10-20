@@ -17,11 +17,6 @@ const ROLES = [
   { id: 3, nombre: "Administrador" },
 ];
 
-const SUCURSALES = [
-  { id: 1, nombre: "SATUYE" },
-  // Puedes agregar más sucursales según tu base de datos
-];
-
 const AdminUsuarios: React.FC = () => {
   const { user } = useAuth();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -43,6 +38,7 @@ const AdminUsuarios: React.FC = () => {
       return;
     }
     cargarUsuarios();
+    cargarSucursales(); // ← SOLO AGREGAR ESTA LÍNEA
   }, [user]);
 
   const cargarUsuarios = async () => {
@@ -57,6 +53,33 @@ const AdminUsuarios: React.FC = () => {
       alert("Error al cargar usuarios");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const [sucursales, setSucursales] = useState<
+    Array<{ sucursal_id: number; nombre_sucursal: string }>
+  >([]);
+
+  const cargarSucursales = async () => {
+    console.log("🔍 Iniciando carga de sucursales...");
+    try {
+      const token = localStorage.getItem("sivec_token");
+      console.log("🔑 Token:", token ? "existe" : "no existe");
+
+      const response = await fetch("http://localhost:3000/api/sucursales", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("📡 Status de respuesta:", response.status);
+
+      const data = await response.json();
+      console.log("📦 Datos recibidos:", data);
+
+      setSucursales(data.data || []);
+      console.log("✅ Sucursales cargadas:", data.data?.length || 0);
+    } catch (error) {
+      console.error("❌ Error cargando sucursales:", error);
+      setSucursales([{ sucursal_id: 1, nombre_sucursal: "SATUYE" }]);
     }
   };
 
@@ -125,7 +148,8 @@ const AdminUsuarios: React.FC = () => {
 
   const handleEliminar = async (usuario: Usuario) => {
     if (
-      !confirm(
+      !window.confirm(
+        // ← CAMBIAR: agregar "window."
         `¿Estás seguro de eliminar al usuario ${usuario.nombre_usuario}?`
       )
     ) {
@@ -320,11 +344,18 @@ const AdminUsuarios: React.FC = () => {
                       })
                     }
                   >
-                    {SUCURSALES.map((sucursal) => (
-                      <option key={sucursal.id} value={sucursal.id}>
-                        {sucursal.nombre}
-                      </option>
-                    ))}
+                    {sucursales.length === 0 ? (
+                      <option>Cargando sucursales...</option>
+                    ) : (
+                      sucursales.map((sucursal) => (
+                        <option
+                          key={sucursal.sucursal_id}
+                          value={sucursal.sucursal_id}
+                        >
+                          {sucursal.nombre_sucursal}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
               </div>

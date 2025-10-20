@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import DetalleViaje from "./pages/DetalleViaje";
 import Layout from "./components/Layout";
+import AdminUsuarios from "./pages/AdminUsuarios";
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -46,6 +47,7 @@ function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="viaje/:id" element={<DetalleViaje />} />
+            <Route path="admin/usuarios" element={<AdminUsuarios />} />
           </Route>
 
           {/* Redirigir cualquier ruta no encontrada */}
