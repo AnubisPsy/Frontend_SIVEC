@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import DetalleViaje from "./pages/DetalleViaje";
 import Layout from "./components/Layout";
 import AdminUsuarios from "./pages/AdminUsuarios";
+import AdminPilotosTemporales from "./pages/AdminPilotosTemporales";
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -48,6 +49,10 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="viaje/:id" element={<DetalleViaje />} />
             <Route path="admin/usuarios" element={<AdminUsuarios />} />
+            <Route
+              path="admin/pilotos-temporales"
+              element={<AdminPilotosTemporales />}
+            />
           </Route>
 
           {/* Redirigir cualquier ruta no encontrada */}

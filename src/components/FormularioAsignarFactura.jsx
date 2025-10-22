@@ -130,10 +130,15 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
             <datalist id="pilotos-list">
               {datosFormulario.pilotos.map((piloto, index) => (
                 <option key={index} value={piloto.nombre_piloto}>
-                  {piloto.nombre_piloto}
+                  {piloto.nombre_piloto}{" "}
+                  {piloto.es_temporal ? "(Temporal)" : ""}
                 </option>
               ))}
             </datalist>
+            {/* Indicador visual */}
+            <p className="text-xs text-gray-500 mt-1">
+              🔵 Pilotos regulares | 🟡 Pilotos temporales
+            </p>
           </div>
 
           {/* Vehículo con datalist */}
