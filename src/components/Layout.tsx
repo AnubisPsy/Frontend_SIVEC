@@ -125,6 +125,7 @@ const Layout = () => {
                   </div>
 
                   {/* Opciones del menú */}
+                  {/* Opciones del menú */}
                   <button
                     onClick={() => {
                       setMenuAbierto(false);
@@ -148,9 +149,60 @@ const Layout = () => {
                     Dashboard
                   </button>
 
-                  {/* ← AGREGAR ESTO (solo para admins) */}
+                  {/* ✨ Historial (para Jefes y Admins) */}
+                  {(usuario?.rol_id === 2 || usuario?.rol_id === 3) && (
+                    <button
+                      onClick={() => {
+                        setMenuAbierto(false);
+                        navigate("/historial");
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
+                      <svg
+                        className="w-5 h-5 mr-3 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Historial (24h)
+                    </button>
+                  )}
+
+                  {/* ✨ NUEVO (solo para admins) */}
                   {usuario?.rol_id === 3 && (
                     <>
+                      <button
+                        onClick={() => {
+                          setMenuAbierto(false);
+                          navigate("/reportes");
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                      >
+                        <svg
+                          className="w-5 h-5 mr-3 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        Reportes Avanzados
+                      </button>
+
+                      <div className="border-t border-gray-100 my-2"></div>
+
                       <button
                         onClick={() => {
                           setMenuAbierto(false);
@@ -173,6 +225,7 @@ const Layout = () => {
                         </svg>
                         Administrar Usuarios
                       </button>
+
                       <button
                         onClick={() => {
                           setMenuAbierto(false);

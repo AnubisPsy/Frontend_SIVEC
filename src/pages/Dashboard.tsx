@@ -44,6 +44,7 @@ interface Viaje {
   facturas: Factura[];
   total_guias: number;
   guias_entregadas: number;
+  estado_viaje?: number;
 }
 
 const Dashboard = () => {
@@ -70,6 +71,20 @@ const Dashboard = () => {
     } catch (error: any) {
       alert("❌ Error: " + (error.response?.data?.error || error.message));
       throw error;
+    }
+  };
+
+  const obtenerEstadoViaje = (viaje: Viaje): string => {
+    // Suponiendo que agregaste estado_viaje al tipo Viaje
+    // Si no, puedes inferirlo por las guías
+    if (viaje.total_guias === 0) {
+      return "⏳ Sin guías asignadas";
+    } else if (viaje.guias_entregadas === viaje.total_guias) {
+      return "✅ Completado";
+    } else if (viaje.guias_entregadas > 0) {
+      return "🚛 En ruta";
+    } else {
+      return "📋 Preparando";
     }
   };
 
@@ -328,6 +343,12 @@ const Dashboard = () => {
                       />
                     </svg>
                     <span className="font-medium">{viaje.piloto}</span>
+                  </div>
+
+                  <div className="mt-2">
+                    <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+                      {obtenerEstadoViaje(viaje)}
+                    </span>
                   </div>
 
                   {/* Barra de progreso */}

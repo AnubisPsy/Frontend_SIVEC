@@ -138,7 +138,36 @@ export const usuariosApi = {
   obtenerJefesYarda: () =>
     api.get<ApiResponse<Usuario[]>>("/api/usuarios/roles/jefes-yarda"),
 };
+interface HistorialResponse {
+  success: boolean;
+  data: any[];
+  estadisticas: {
+    total_viajes: number;
+    total_facturas: number;
+    total_guias: number;
+    total_entregadas: number;
+    pilotos_activos: number;
+  };
+  filtros: any;
+}
 
+export const viajesApi = {
+  obtenerTodos: (params?: any) =>
+    api.get<ApiResponse<any[]>>("/api/viajes", { params }),
+
+  obtenerPorId: (id: number) => api.get<ApiResponse<any>>(`/api/viajes/${id}`),
+
+  // ✨ NUEVO: Viajes recientes (últimas 24h por sucursal)
+  obtenerRecientes: () => api.get<HistorialResponse>("/api/viajes/recientes"),
+
+  // Para reportes (solo admin)
+  obtenerHistorial: (params?: {
+    fecha_desde?: string;
+    fecha_hasta?: string;
+    piloto?: string;
+    numero_vehiculo?: string;
+  }) => api.get<HistorialResponse>("/api/viajes/historial", { params }),
+};
 // ==========================================
 // FACTURAS API
 // ==========================================
