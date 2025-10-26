@@ -11,12 +11,14 @@ interface FormularioUsuario {
   sucursal_id: number;
   piloto_sql_id: number | null;
   piloto_temporal_id: number | null;
+  activo?: boolean;
 }
 
 interface Piloto {
   nombre_piloto: string;
   es_temporal: boolean;
   piloto_temporal_id?: number;
+  piloto_id?: number;
   fuente: string;
 }
 
@@ -24,6 +26,7 @@ interface UsuarioConPiloto extends Usuario {
   sucursal_id: number;
   piloto_sql_id: number | null;
   piloto_temporal_id: number | null;
+  activo?: boolean;
   piloto_vinculado?: {
     nombre: string;
     tipo: string;
@@ -54,16 +57,13 @@ const AdminUsuarios: React.FC = () => {
     piloto_temporal_id: null,
   });
 
-  type Sucursal = { sucursal_id: number; nombre_sucursal: string };
-  const [sucursales, setSucursales] = useState<
-    Array<{ sucursal_id: number; nombre_sucursal: string }>
-  >([]);
+const [mostrarInactivos, setMostrarInactivos] = useState(false);
 
-  const [pilotos, setPilotos] = useState<Piloto[]>([]);
-  const [loadingPilotos, setLoadingPilotos] = useState(false);
-  const [tipoVinculacion, setTipoVinculacion] = useState<
-    "ninguno" | "sql" | "temporal"
-  >("ninguno");
+const [sucursales, setSucursales] = useState<Array<{ sucursal_id: number; nombre_sucursal: string }>>([]);
+
+const [pilotos, setPilotos] = useState<Piloto[]>([]);
+const [loadingPilotos, setLoadingPilotos] = useState(false);
+const [tipoVinculacion, setTipoVinculacion] = useState<"ninguno" | "sql" | "temporal">("ninguno");
 
   // Verificar que el usuario sea admin
   useEffect(() => {
@@ -81,7 +81,7 @@ const AdminUsuarios: React.FC = () => {
     try {
       const response = await usuariosApi.obtenerTodos();
       if (response.data.success) {
-        setUsuarios(response.data.data as UsuarioConPiloto[]); // ← Agregar "as UsuarioConPiloto[]"
+        setUsuarios(response.data.data as UsuarioConPiloto[]);
       }
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
@@ -216,6 +216,38 @@ const AdminUsuarios: React.FC = () => {
     }
   };
 
+const handleReactivar = async (usuario: UsuarioConPiloto) => {
+  if (
+    !window.confirm(
+      `¿Estás seguro de reactivar al usuario ${usuario.nombre_usuario}?`
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const datosActualizados: any = {
+      nombre_usuario: usuario.nombre_usuario,
+      correo: usuario.correo,
+      rol_id: usuario.rol_id,
+      sucursal_id: usuario.sucursal_id,
+      piloto_sql_id: usuario.piloto_sql_id,
+      piloto_temporal_id: usuario.piloto_temporal_id,
+      activo: true,
+    };
+
+    await usuariosApi.actualizar(usuario.usuario_id, datosActualizados);
+
+    alert("Usuario reactivado exitosamente");
+    cargarUsuarios();
+  } catch (error: any) {
+    alert(
+      "Error al reactivar usuario: " +
+        (error.response?.data?.error || error.message)
+    );
+  }
+};
+
   const handleTipoVinculacionChange = (
     tipo: "ninguno" | "sql" | "temporal"
   ) => {
@@ -229,15 +261,15 @@ const AdminUsuarios: React.FC = () => {
 
   const handlePilotoChange = (valor: string) => {
     if (tipoVinculacion === "sql") {
-      // Para SQL, guardamos el nombre del piloto como ID temporal
-      // En un caso real, deberías tener el ID real del piloto en SQL
       setFormulario({
         ...formulario,
         piloto_sql_id: parseInt(valor) || null,
+        piloto_temporal_id: null,
       });
     } else if (tipoVinculacion === "temporal") {
       setFormulario({
         ...formulario,
+        piloto_sql_id: null,
         piloto_temporal_id: parseInt(valor) || null,
       });
     }
@@ -298,6 +330,13 @@ const AdminUsuarios: React.FC = () => {
 
   const pilotosSQL = pilotos.filter((p) => !p.es_temporal);
   const pilotosTemporales = pilotos.filter((p) => p.es_temporal);
+
+  // Filtrar usuarios según el toggle
+  const usuariosFiltrados = mostrarInactivos
+    ? usuarios
+    : usuarios.filter((u) => u.activo !== false);
+
+  const usuariosInactivos = usuarios.filter((u) => u.activo === false).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -524,15 +563,18 @@ const AdminUsuarios: React.FC = () => {
                           {loadingPilotos ? (
                             <option>Cargando...</option>
                           ) : (
-                            pilotosSQL.map((piloto, index) => (
-                              <option key={index} value={index + 1}>
+                            pilotosSQL.map((piloto) => (
+                              <option
+                                key={piloto.piloto_id}
+                                value={piloto.piloto_id}
+                              >
                                 {piloto.nombre_piloto}
                               </option>
                             ))
                           )}
                         </select>
                         <p className="text-xs text-gray-500 mt-1">
-                          Nota: Los IDs de SQL son temporales para este demo
+                          Pilotos de SQL Server
                         </p>
                       </div>
                     )}
@@ -595,9 +637,32 @@ const AdminUsuarios: React.FC = () => {
         {/* Tabla de usuarios */}
         <div className="card">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Usuarios del Sistema
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Usuarios del Sistema
+              </h3>
+
+              {/* Toggle para mostrar inactivos */}
+              <label className="flex items-center cursor-pointer group">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={mostrarInactivos}
+                    onChange={(e) => setMostrarInactivos(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </div>
+                <span className="ml-3 text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                  Mostrar inactivos
+                  {usuariosInactivos > 0 && (
+                    <span className="ml-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
+                      {usuariosInactivos}
+                    </span>
+                  )}
+                </span>
+              </label>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -617,48 +682,96 @@ const AdminUsuarios: React.FC = () => {
                     Piloto Vinculado
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Estado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Acciones
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {usuarios.map((usuario) => (
-                  <tr key={usuario.usuario_id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">
-                        {usuario.nombre_usuario}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        ID: {usuario.usuario_id}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {usuario.correo}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getRolBadge(usuario.rol_id)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getPilotoBadge(usuario)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => handleEditar(usuario)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        Editar
-                      </button>
-                      {usuario.usuario_id !== user?.usuario_id && (
-                        <button
-                          onClick={() => handleEliminar(usuario)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Eliminar
-                        </button>
-                      )}
+                {usuariosFiltrados.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-8 text-center text-gray-500"
+                    >
+                      {mostrarInactivos
+                        ? "No hay usuarios inactivos"
+                        : "No hay usuarios activos"}
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  usuariosFiltrados.map((usuario) => (
+                    <tr
+                      key={usuario.usuario_id}
+                      className={`hover:bg-gray-50 ${
+                        usuario.activo === false ? "bg-gray-50 opacity-60" : ""
+                      }`}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-900">
+                          {usuario.nombre_usuario}
+                          {usuario.activo === false && (
+                            <span className="ml-2 text-xs text-gray-500">
+                              (Inactivo)
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ID: {usuario.usuario_id}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {usuario.correo}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getRolBadge(usuario.rol_id)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getPilotoBadge(usuario)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {usuario.activo === false ? (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            ❌ Inactivo
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            ✅ Activo
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        {usuario.activo !== false ? (
+                          <>
+                            <button
+                              onClick={() => handleEditar(usuario)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              Editar
+                            </button>
+                            {usuario.usuario_id !== user?.usuario_id && (
+                              <button
+                                onClick={() => handleEliminar(usuario)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Eliminar
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => handleReactivar(usuario)}
+                            className="text-green-600 hover:text-green-900"
+                          >
+                            Reactivar
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

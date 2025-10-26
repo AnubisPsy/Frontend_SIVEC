@@ -125,7 +125,6 @@ const Layout = () => {
                   </div>
 
                   {/* Opciones del menú */}
-                  {/* Opciones del menú */}
                   <button
                     onClick={() => {
                       setMenuAbierto(false);
@@ -310,7 +309,7 @@ const Layout = () => {
       {/* Overlay para cerrar el menú al hacer clic fuera */}
       {menuAbierto && (
         <div
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
           onClick={() => setMenuAbierto(false)}
         ></div>
       )}

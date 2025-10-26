@@ -61,21 +61,26 @@ const DetalleViaje = () => {
       setLoading(true);
       const token = localStorage.getItem("sivec_token");
 
-      const response = await axios.get<Viaje>(
+      const response = await axios.get(
         `http://localhost:3000/api/viajes/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      console.log("📦 Viaje cargado:", response.data); // ← AGREGAR
-      console.log("📊 Total guías:", response.data.total_guias); // ← AGREGAR
-      console.log("✅ Guías entregadas:", response.data.guias_entregadas); // ← AGREGAR
+      console.log("📦 Response completo:", response.data); // ← Ver estructura
 
-      setViaje(response.data);
+      // ✅ CORRECCIÓN: Acceder a response.data.data
+      const viajeData = response.data.data || response.data;
+
+      console.log("📊 Viaje data:", viajeData);
+      console.log("🚛 Total guías:", viajeData.total_guias);
+      console.log("✅ Guías entregadas:", viajeData.guias_entregadas);
+
+      setViaje(viajeData);
       setError(null);
     } catch (err) {
-      console.error("Error cargando viaje:", err);
+      console.error("❌ Error cargando viaje:", err);
       setError("No se pudo cargar el detalle del viaje");
     } finally {
       setLoading(false);

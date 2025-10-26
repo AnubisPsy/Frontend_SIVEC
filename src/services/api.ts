@@ -168,9 +168,10 @@ export const viajesApi = {
     numero_vehiculo?: string;
   }) => api.get<HistorialResponse>("/api/viajes/historial", { params }),
 };
-// ==========================================
-// FACTURAS API
-// ==========================================
+
+export const sucursalesApi = {
+  obtenerTodas: () => api.get<ApiResponse<any[]>>("/api/sucursales"),
+};
 
 export const facturasApi = {
   obtenerTodas: (params?: any) =>
