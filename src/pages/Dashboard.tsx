@@ -9,6 +9,7 @@ import { Button } from "../components/ui/Button";
 import { Icons } from "../components/icons/IconMap";
 import { theme } from "../styles/theme";
 import { useNotification } from "../hooks/useNotification";
+import TablaViajesDashboard from "../components/TablaViajesDashboard";
 
 // Tipos
 interface Vehiculo {
@@ -61,6 +62,17 @@ const Dashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const { isDark } = useTheme();
   const location = useLocation();
+  const [vistaActual, setVistaActual] = useState<"cards" | "tabla">(() => {
+    // Cargar preferencia guardada o usar 'cards' por defecto
+    const vistaGuardada = localStorage.getItem("vista_dashboard");
+    return vistaGuardada === "tabla" || vistaGuardada === "cards"
+      ? vistaGuardada
+      : "cards";
+  });
+  const cambiarVista = (nuevaVista: "cards" | "tabla") => {
+    setVistaActual(nuevaVista);
+    localStorage.setItem("vista_dashboard", nuevaVista);
+  };
   const noti = useNotification();
 
   useEffect(() => {
@@ -79,7 +91,6 @@ const Dashboard = () => {
   const handleAsignarFactura = async (nuevaFactura: any) => {
     try {
       await facturasApi.asignar(nuevaFactura);
-      //alert("✅ Factura asignada correctamente");
       noti.success({
         title: "Factura Asignada",
         message: `La factura ${nuevaFactura.numero_factura} ha sido asignada exitosamente.`,
@@ -87,7 +98,6 @@ const Dashboard = () => {
       setMostrarFormulario(false);
       cargarViajes();
     } catch (error: any) {
-      //alert("❌ Error: " + (error.response?.data?.error || error.message));
       noti.error({
         title: "Error al Asignar Factura",
         message: `No se pudo asignar la factura. ${
@@ -234,6 +244,37 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* Toggle Vista */}
+        <div className="mb-6 flex items-center gap-3">
+          <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+            Vista:
+          </span>
+          <div className="inline-flex rounded-lg bg-gray-100 dark:bg-slate-700 p-1">
+            <button
+              onClick={() => cambiarVista("cards")}
+              className={`px-4 py-2 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${
+                vistaActual === "cards"
+                  ? "bg-white dark:bg-slate-600 text-gray-900 dark:text-slate-100 shadow-sm"
+                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
+              }`}
+            >
+              <Icons.grid className="w-4 h-4" />
+              Tarjetas
+            </button>
+            <button
+              onClick={() => cambiarVista("tabla")}
+              className={`px-4 py-2 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${
+                vistaActual === "tabla"
+                  ? "bg-white dark:bg-slate-600 text-gray-900 dark:text-slate-100 shadow-sm"
+                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
+              }`}
+            >
+              <Icons.list className="w-4 h-4" />
+              Tabla
+            </button>
+          </div>
+        </div>
+
         {/* Resumen rápido - Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Viajes Activos */}
@@ -323,6 +364,12 @@ const Dashboard = () => {
               </Button>
             )}
           </div>
+        ) : vistaActual === "tabla" ? (
+          <TablaViajesDashboard
+            viajes={viajes}
+            calcularProgreso={calcularProgreso}
+            obtenerEstadoViaje={obtenerEstadoViaje}
+          />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {viajes.map((viaje) => {

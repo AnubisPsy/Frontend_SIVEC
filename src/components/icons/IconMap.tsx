@@ -53,10 +53,11 @@ import {
   BarChart, // 📊 gráfico
   FileSpreadsheet, // 📑 excel
   Zap, // ⚡
-  Shield, // 🛡 
+  Shield, // 🛡
   LogIn, // 🔐
   Grid, // 🔲
-  
+  FileTextIcon,
+  List,
 } from "lucide-react";
 
 export const Icons = {
@@ -116,4 +117,6 @@ export const Icons = {
   shield: Shield,
   logIn: LogIn,
   grid: Grid,
+  FileTextIcon: FileTextIcon,
+  list: List,
 };
