@@ -11,9 +11,15 @@ import { authApi, Usuario } from "../services/api";
 interface AuthContextType {
   isAuthenticated: boolean;
   user: Usuario | null;
-  login: (loginInput: string, password: string) => Promise<boolean>;
+  login: (loginInput: string, password: string) => Promise<LoginResult>;
   logout: () => void;
   loading: boolean;
+}
+
+export interface LoginResult {
+  success: boolean;
+  error?: "CREDENCIALES_INVALIDAS" | "PILOTO_BLOQUEADO" | "ERROR_SERVIDOR";
+  message?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,14 +51,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData = localStorage.getItem("sivec_user");
 
       if (token && userData) {
-        // Verificar que el token sea válido
         await authApi.verificarToken();
-
         setUser(JSON.parse(userData));
         setIsAuthenticated(true);
       }
     } catch (error) {
-      // Token inválido o expirado
+      console.log("⚠️ Token inválido, limpiando...");
       localStorage.removeItem("sivec_token");
       localStorage.removeItem("sivec_user");
     } finally {
@@ -63,50 +67,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (
     loginInput: string,
     password: string
-  ): Promise<boolean> => {
+  ): Promise<LoginResult> => {
     try {
       const response = await authApi.login({ loginInput, password });
 
       if (response.data.success) {
         const { token, usuario } = response.data.data;
 
-        // ✅ VALIDACIÓN: Bloquear pilotos en panel web
-        // rol_id: 1 = piloto, 2 = jefe_yarda, 3 = admin
         if (usuario.rol_id === 1) {
-          alert(
-            "⚠️ Acceso denegado\n\nLos pilotos deben usar la aplicación móvil.\nEl panel web es solo para jefes y administradores."
-          );
-          return false;
+          return {
+            success: false,
+            error: "PILOTO_BLOQUEADO",
+            message: "Los pilotos deben usar la aplicación móvil",
+          };
         }
 
-        // ✅ Todo OK, guardar sesión
         localStorage.setItem("sivec_token", token);
         localStorage.setItem("sivec_user", JSON.stringify(usuario));
-
         setUser(usuario);
         setIsAuthenticated(true);
 
-        return true;
+        return { success: true };
       }
 
-      return false;
-    } catch (error) {
-      console.error("Error en login:", error);
-      return false;
+      return {
+        success: false,
+        error: "CREDENCIALES_INVALIDAS",
+        message: "Usuario o contraseña incorrectos",
+      };
+    } catch (error: any) {
+      console.error("❌ Error en login:", error);
+
+      return {
+        success: false,
+        error: "ERROR_SERVIDOR",
+        message:
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          "No se pudo conectar con el servidor",
+      };
     }
   };
 
-  const logout = async () => {
-    try {
-      await authApi.logout();
-    } catch (error) {
-      // Ignorar errores en logout
-    } finally {
-      localStorage.removeItem("sivec_token");
-      localStorage.removeItem("sivec_user");
-      setUser(null);
-      setIsAuthenticated(false);
-    }
+  const logout = () => {
+    console.log("👋 Logout - Limpiando y redirigiendo...");
+
+    // ✅ SOLO limpiar localStorage
+    localStorage.removeItem("sivec_token");
+    localStorage.removeItem("sivec_user");
+
+    // ✅ NO cambiar estado (evita re-renders)
+    // ✅ Redirigir INMEDIATAMENTE
+    window.location.href = "/login";
+
+    // Intentar notificar al backend (asíncrono, no importa si falla)
+    authApi.logout().catch(() => {
+      console.log("⚠️ No se pudo notificar logout al servidor");
+    });
   };
 
   const value = {

@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom"; // ✨ Agregar useLocation
-import { useAuth } from "../contexts/AuthContext"; // ✨ AGREGAR ESTE
-import { facturasApi } from "../services/api"; // ✨ AGREGAR ESTE
-import FormularioAsignarFactura from "../components/FormularioAsignarFactura"; // ✨ AGREGAR ESTE
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
+import { facturasApi } from "../services/api";
+import FormularioAsignarFactura from "../components/FormularioAsignarFactura";
+import { Button } from "../components/ui/Button";
+import { Icons } from "../components/icons/IconMap";
+import { theme } from "../styles/theme";
+import { useNotification } from "../hooks/useNotification";
 
 // Tipos
 interface Vehiculo {
@@ -53,38 +58,73 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { isDark } = useTheme();
   const location = useLocation();
+  const noti = useNotification();
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      console.log("⚠️ Dashboard: No autenticado, saltando carga");
+      setLoading(false);
+      return;
+    }
+
+    console.log("✅ Dashboard: Autenticado, cargando viajes...");
     cargarViajes();
-  }, [location]);
+  }, [isAuthenticated]);
 
   const puedeAsignar = user?.rol_id === 2 || user?.rol_id === 3;
 
   const handleAsignarFactura = async (nuevaFactura: any) => {
     try {
       await facturasApi.asignar(nuevaFactura);
-      alert("✅ Factura asignada correctamente");
+      //alert("✅ Factura asignada correctamente");
+      noti.success({
+        title: "Factura Asignada",
+        message: `La factura ${nuevaFactura.numero_factura} ha sido asignada exitosamente.`,
+      });
       setMostrarFormulario(false);
-      cargarViajes(); // Recargar viajes después de asignar
+      cargarViajes();
     } catch (error: any) {
-      alert("❌ Error: " + (error.response?.data?.error || error.message));
+      //alert("❌ Error: " + (error.response?.data?.error || error.message));
+      noti.error({
+        title: "Error al Asignar Factura",
+        message: `No se pudo asignar la factura. ${
+          error.response?.data?.error || error.message
+        }`,
+      });
       throw error;
     }
   };
 
-  const obtenerEstadoViaje = (viaje: Viaje): string => {
-    // Suponiendo que agregaste estado_viaje al tipo Viaje
-    // Si no, puedes inferirlo por las guías
+  const obtenerEstadoViaje = (
+    viaje: Viaje
+  ): { texto: string; color: string; bgColor: string } => {
     if (viaje.total_guias === 0) {
-      return "⏳ Sin guías asignadas";
+      return {
+        texto: "Sin guías asignadas",
+        color: "text-gray-600",
+        bgColor: "bg-gray-100",
+      };
     } else if (viaje.guias_entregadas === viaje.total_guias) {
-      return "✅ Completado";
+      return {
+        texto: "Completado",
+        color: "text-green-700",
+        bgColor: "bg-green-100",
+      };
     } else if (viaje.guias_entregadas > 0) {
-      return "🚛 En ruta";
+      return {
+        texto: "En ruta",
+        color: "text-blue-700",
+        bgColor: "bg-blue-100",
+      };
     } else {
-      return "📋 Preparando";
+      return {
+        texto: "Preparando",
+        color: "text-orange-700",
+        bgColor: "bg-orange-100",
+      };
     }
   };
 
@@ -108,14 +148,7 @@ const Dashboard = () => {
       );
 
       console.log("✅ Viajes recibidos:", response.data.length);
-
-      console.log("📦 Datos completos del primer viaje:", response.data[0]);
-      console.log("📊 Total guías:", response.data[0]?.total_guias);
-      console.log("✅ Guías entregadas:", response.data[0]?.guias_entregadas);
-      console.log("📋 Facturas:", response.data[0]?.facturas);
-
       setViajes(response.data);
-
       setError(null);
     } catch (err: any) {
       console.error(
@@ -125,8 +158,7 @@ const Dashboard = () => {
       );
 
       if (err.response?.status === 401) {
-        setError("Sesión expirada. Redirigiendo al login...");
-        setTimeout(() => navigate("/login"), 2000);
+        setError("Sesión expirada.");
       } else {
         setError("No se pudieron cargar los viajes activos");
       }
@@ -140,304 +172,307 @@ const Dashboard = () => {
     return Math.round((viaje.guias_entregadas / viaje.total_guias) * 100);
   };
 
+  const getProgresoColor = (progreso: number): string => {
+    if (progreso === 0) return "bg-gray-400";
+    if (progreso < 50) return "bg-red-500";
+    if (progreso < 100) return "bg-yellow-500";
+    return "bg-green-500";
+  };
+
   const verDetalle = (viajeId: number) => {
     navigate(`/viaje/${viajeId}`);
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando viajes activos...</p>
+          <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-slate-300 font-medium">
+            Cargando viajes activos...
+          </p>
         </div>
       </div>
     );
   }
 
-  console.log(
-    "🎨 Viajes a renderizar:",
-    viajes.map((v) => ({
-      vehiculo: v.numero_vehiculo,
-      progreso: calcularProgreso(v),
-      entregadas: v.guias_entregadas,
-      total: v.total_guias,
-    }))
-  );
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Dashboard de Viajes
-          </h1>
-          <p className="text-gray-600">
-            Monitorea el estado de todos los viajes activos en tiempo real
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
+                Dashboard de Viajes
+              </h1>
+              <p className="text-gray-600 dark:text-slate-400">
+                Monitorea el estado de todos los viajes activos en tiempo real
+              </p>
+            </div>
 
-          {/* Botón asignar facturas (solo para jefes/admins) */}
-          {puedeAsignar && (
-            <button
-              onClick={() => setMostrarFormulario(!mostrarFormulario)}
-              className="btn-primary"
-            >
-              {mostrarFormulario ? "Cancelar" : "+ Asignar Factura"}
-            </button>
-          )}
+            {puedeAsignar && (
+              <Button
+                variant={mostrarFormulario ? "outline" : "primary"}
+                size="lg"
+                icon={mostrarFormulario ? "x" : "plus"}
+                onClick={() => setMostrarFormulario(!mostrarFormulario)}
+              >
+                {mostrarFormulario ? "Cancelar" : "Asignar Factura"}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Formulario de asignación */}
         {mostrarFormulario && puedeAsignar && (
-          <FormularioAsignarFactura
-            onAsignarFactura={handleAsignarFactura}
-            onCancelar={() => setMostrarFormulario(false)}
-          />
+          <div className="mb-8 animate-fadeIn">
+            <FormularioAsignarFactura
+              onAsignarFactura={handleAsignarFactura}
+              onCancelar={() => setMostrarFormulario(false)}
+            />
+          </div>
         )}
 
-        {/* Resumen rápido */}
+        {/* Resumen rápido - Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          {/* Viajes Activos */}
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Viajes Activos</p>
-                <p className="text-3xl font-bold text-blue-600">
+                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
+                  Viajes Activos
+                </p>
+                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
                   {viajes.length}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+              <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                <Icons.truck className="w-7 h-7 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          {/* Total Guías */}
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Guías</p>
-                <p className="text-3xl font-bold text-purple-600">
+                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
+                  Total Guías
+                </p>
+                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
                   {viajes.reduce((sum, v) => sum + v.total_guias, 0)}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+              <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                <Icons.document className="w-7 h-7 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          {/* Guías Entregadas */}
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Guías Entregadas</p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
+                  Guías Entregadas
+                </p>
+                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
                   {viajes.reduce((sum, v) => sum + v.guias_entregadas, 0)}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+              <div className="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                <Icons.checkCircle className="w-7 h-7 text-green-600 dark:text-green-400" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Error */}
+        {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-lg mb-6 flex items-start">
+            <Icons.alertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-3 mt-0.5" />
+            <div>
+              <p className="font-medium text-red-800 dark:text-red-300">
+                Error
+              </p>
+              <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+            </div>
           </div>
         )}
 
         {/* Lista de viajes */}
         {viajes.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <svg
-              className="w-16 h-16 text-gray-400 mx-auto mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-              />
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-12 text-center">
+            <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Icons.truck className="w-10 h-10 text-gray-400 dark:text-slate-500" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-2">
               No hay viajes activos
             </h3>
-            <p className="text-gray-500">
+            <p className="text-gray-600 dark:text-slate-400 mb-6">
               Cuando se asignen viajes, aparecerán aquí
             </p>
+            {puedeAsignar && (
+              <Button
+                variant="primary"
+                icon="plus"
+                onClick={() => setMostrarFormulario(true)}
+              >
+                Asignar Primera Factura
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {viajes.map((viaje) => (
-              <div
-                key={viaje.viaje_id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => verDetalle(viaje.viaje_id)}
-              >
-                {/* Header del viaje */}
-                <div className="p-6 border-b border-gray-100">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-1">
-                        {viaje.numero_vehiculo}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {viaje.vehiculo?.placa || "Sin placa"}
-                      </p>
-                    </div>
-                  </div>
+            {viajes.map((viaje) => {
+              const progreso = calcularProgreso(viaje);
+              const estado = obtenerEstadoViaje(viaje);
 
-                  <div className="flex items-center text-gray-700 mb-3">
-                    <svg
-                      className="w-5 h-5 mr-2 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                    <span className="font-medium">{viaje.piloto}</span>
-                  </div>
-
-                  <div className="mt-2">
-                    <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-                      {obtenerEstadoViaje(viaje)}
-                    </span>
-                  </div>
-
-                  {/* Barra de progreso */}
-                  <div className="mb-2">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">
-                        Progreso de entregas
-                      </span>
-                      <span className="font-semibold text-gray-700">
-                        {viaje.guias_entregadas} / {viaje.total_guias}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500 ease-out"
-                          style={{
-                            width: `${calcularProgreso(viaje)}%`,
-                            background:
-                              calcularProgreso(viaje) === 0
-                                ? "#d1d5db" // gris
-                                : calcularProgreso(viaje) < 50
-                                ? "linear-gradient(to right, #ef4444, #f97316)" // rojo a naranja
-                                : calcularProgreso(viaje) < 100
-                                ? "linear-gradient(to right, #facc15, #3b82f6)" // amarillo a azul
-                                : "linear-gradient(to right, #22c55e, #10b981)", // verde
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {calcularProgreso(viaje)}% completado
-                    </p>
-                  </div>
-                </div>
-
-                {/* Facturas */}
-                <div className="p-6">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">
-                    Facturas asignadas ({viaje.facturas?.length || 0})
-                  </h4>
-
-                  <div className="space-y-3">
-                    {viaje.facturas?.slice(0, 3).map((factura) => (
-                      <div
-                        key={factura.factura_id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                          <div>
-                            <p className="font-medium text-gray-800 text-sm">
-                              {factura.numero_factura}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {factura.guias?.length || 0} guías
-                            </p>
-                          </div>
+              return (
+                <div
+                  key={viaje.viaje_id}
+                  className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-all cursor-pointer group"
+                  onClick={() => verDetalle(viaje.viaje_id)}
+                >
+                  {/* Header del viaje */}
+                  <div className="p-6 border-b border-gray-100 dark:border-slate-700">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                          <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                          {factura.guias?.filter((g) => g.estado_id === 4)
-                            .length || 0}{" "}
-                          entregadas
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {viaje.numero_vehiculo}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-slate-400">
+                            {viaje.vehiculo?.placa || "Sin placa"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${estado.color} ${estado.bgColor} dark:bg-opacity-20`}
+                      >
+                        {estado.texto}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-slate-300 mb-4">
+                      <Icons.user className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                      <span className="text-sm font-medium">
+                        {viaje.piloto}
+                      </span>
+                    </div>
+
+                    {/* Barra de progreso */}
+                    <div>
+                      <div className="flex justify-between items-center text-sm mb-2">
+                        <span className="text-gray-600 dark:text-slate-400 font-medium">
+                          Progreso de entregas
+                        </span>
+                        <span className="font-bold text-gray-900 dark:text-slate-100">
+                          {viaje.guias_entregadas} / {viaje.total_guias}
                         </span>
                       </div>
-                    ))}
 
-                    {viaje.facturas?.length > 3 && (
-                      <p className="text-xs text-gray-500 text-center pt-2">
-                        + {viaje.facturas.length - 3} facturas más
+                      <div className="relative w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                        <div
+                          className={`h-full ${getProgresoColor(
+                            progreso
+                          )} transition-all duration-500 ease-out rounded-full`}
+                          style={{ width: `${progreso}%` }}
+                        />
+                      </div>
+
+                      <p className="text-xs text-gray-500 dark:text-slate-500 mt-1.5 font-medium">
+                        {progreso}% completado
                       </p>
-                    )}
+                    </div>
+                  </div>
+
+                  {/* Facturas */}
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+                        Facturas asignadas
+                      </h4>
+                      <span className="text-sm font-bold text-gray-600 dark:text-slate-400">
+                        {viaje.facturas?.length || 0}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {viaje.facturas?.slice(0, 3).map((factura) => {
+                        const guiasEntregadas =
+                          factura.guias?.filter((g) => g.estado_id === 4)
+                            .length || 0;
+                        const totalGuias = factura.guias?.length || 0;
+                        const porcentaje =
+                          totalGuias > 0
+                            ? Math.round((guiasEntregadas / totalGuias) * 100)
+                            : 0;
+
+                        return (
+                          <div
+                            key={factura.factura_id}
+                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full" />
+                              <div>
+                                <p className="font-semibold text-gray-900 dark:text-slate-100 text-sm">
+                                  {factura.numero_factura}
+                                </p>
+                                <p className="text-xs text-gray-600 dark:text-slate-400">
+                                  {totalGuias}{" "}
+                                  {totalGuias === 1 ? "guía" : "guías"}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
+                                  porcentaje === 100
+                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                    : porcentaje > 0
+                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                                    : "bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-slate-300"
+                                }`}
+                              >
+                                {guiasEntregadas}/{totalGuias}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {viaje.facturas?.length > 3 && (
+                        <p className="text-xs text-gray-500 dark:text-slate-500 text-center pt-2 font-medium">
+                          + {viaje.facturas.length - 3} facturas más
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700/30 border-t border-gray-100 dark:border-slate-700 rounded-b-xl">
+                    <button
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        verDetalle(viaje.viaje_id);
+                      }}
+                    >
+                      Ver detalles completos
+                      <Icons.chevronRight className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-
-                {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-lg">
-                  <button
-                    className="w-full text-center text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      verDetalle(viaje.viaje_id);
-                    }}
-                  >
-                    Ver detalles completos →
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

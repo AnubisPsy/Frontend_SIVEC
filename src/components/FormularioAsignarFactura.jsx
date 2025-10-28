@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { facturasApi } from "../services/api";
+import { Icons } from "./icons/IconMap";
 
 const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
   const [nuevaFactura, setNuevaFactura] = useState({
@@ -17,7 +18,6 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
   const [loading, setLoading] = useState(false);
   const [loadingDatos, setLoadingDatos] = useState(true);
 
-  // Cargar datos del formulario al montar el componente
   useEffect(() => {
     cargarDatosFormulario();
   }, []);
@@ -44,7 +44,6 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones
     if (
       !nuevaFactura.numero_factura ||
       !nuevaFactura.piloto ||
@@ -58,7 +57,6 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
     try {
       await onAsignarFactura(nuevaFactura);
 
-      // Limpiar formulario después del éxito
       setNuevaFactura({
         numero_factura: "",
         piloto: "",
@@ -81,32 +79,40 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
 
   if (loadingDatos) {
     return (
-      <div className="card p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-6">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-2">Cargando datos del formulario...</span>
+          <Icons.refresh className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
+          <span className="ml-3 text-gray-700 dark:text-slate-300">
+            Cargando datos del formulario...
+          </span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="card p-6 mb-8">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Asignar Nueva Factura
-      </h3>
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-6 mb-8">
+      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-slate-700">
+        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+          <Icons.plus className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+          Asignar Nueva Factura
+        </h3>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Número de Factura */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Número de Factura *
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+              <Icons.document className="w-4 h-4" />
+              Número de Factura <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               required
-              className="input-field"
+              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
               placeholder="Ej: FACT-2501"
               value={nuevaFactura.numero_factura}
               onChange={(e) => handleChange("numero_factura", e.target.value)}
@@ -115,14 +121,18 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
 
           {/* Piloto con datalist */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Piloto * ({datosFormulario.pilotos.length} disponibles)
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+              <Icons.user className="w-4 h-4" />
+              Piloto <span className="text-red-500">*</span>
+              <span className="text-xs text-gray-500 dark:text-slate-400">
+                ({datosFormulario.pilotos.length} disponibles)
+              </span>
             </label>
             <input
               list="pilotos-list"
               type="text"
               required
-              className="input-field"
+              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
               placeholder="Seleccionar o escribir nombre del piloto"
               value={nuevaFactura.piloto}
               onChange={(e) => handleChange("piloto", e.target.value)}
@@ -135,22 +145,28 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
                 </option>
               ))}
             </datalist>
-            {/* Indicador visual */}
-            <p className="text-xs text-gray-500 mt-1">
-              🔵 Pilotos regulares | 🟡 Pilotos temporales
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+              Pilotos regulares
+              <span className="w-2 h-2 bg-yellow-500 rounded-full ml-2"></span>
+              Pilotos temporales
             </p>
           </div>
 
           {/* Vehículo con datalist */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Vehículo * ({datosFormulario.vehiculos.length} de tu sucursal)
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+              <Icons.truck className="w-4 h-4" />
+              Vehículo <span className="text-red-500">*</span>
+              <span className="text-xs text-gray-500 dark:text-slate-400">
+                ({datosFormulario.vehiculos.length} de tu sucursal)
+              </span>
             </label>
             <input
               list="vehiculos-list"
               type="text"
               required
-              className="input-field"
+              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
               placeholder="Seleccionar número de vehículo"
               value={nuevaFactura.numero_vehiculo}
               onChange={(e) => handleChange("numero_vehiculo", e.target.value)}
@@ -170,12 +186,13 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
 
           {/* Notas */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+              <Icons.edit className="w-4 h-4" />
               Notas del Jefe
             </label>
             <input
               type="text"
-              className="input-field"
+              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
               placeholder="Observaciones adicionales"
               value={nuevaFactura.notas_jefe}
               onChange={(e) => handleChange("notas_jefe", e.target.value)}
@@ -184,22 +201,40 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
         </div>
 
         {/* Información adicional */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <div className="text-sm text-blue-800">
-            <p>
-              <strong>Información:</strong>
-            </p>
-            <ul className="list-disc list-inside mt-1 space-y-1">
-              <li>Pilotos obtenidos del sistema externo (SQL Server)</li>
-              <li>
-                Vehículos filtrados por tu sucursal (ID:{" "}
-                {datosFormulario.sucursal_usuario})
-              </li>
-              <li>
-                Puedes escribir el nombre del piloto manualmente si no aparece
-                en la lista
-              </li>
-            </ul>
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <Icons.info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-blue-800 dark:text-blue-300">
+              <p className="font-semibold mb-2">Información:</p>
+              <ul className="space-y-1 text-xs">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                    •
+                  </span>
+                  <span>
+                    Pilotos obtenidos del sistema externo (SQL Server)
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                    •
+                  </span>
+                  <span>
+                    Vehículos filtrados por tu sucursal (ID:{" "}
+                    {datosFormulario.sucursal_usuario})
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                    •
+                  </span>
+                  <span>
+                    Puedes escribir el nombre del piloto manualmente si no
+                    aparece en la lista
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -208,17 +243,20 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
           <button
             type="submit"
             disabled={loading}
-            className={`btn-primary ${
+            className={`px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
               loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {loading ? (
-              <span className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <>
+                <Icons.refresh className="w-4 h-4 animate-spin" />
                 Asignando...
-              </span>
+              </>
             ) : (
-              "Asignar Factura"
+              <>
+                <Icons.send className="w-4 h-4" />
+                Asignar Factura
+              </>
             )}
           </button>
 
@@ -226,8 +264,9 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
             type="button"
             onClick={onCancelar}
             disabled={loading}
-            className="btn-secondary"
+            className="px-6 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-semibold hover:bg-gray-200 dark:hover:bg-slate-600 transition-all flex items-center gap-2"
           >
+            <Icons.x className="w-4 h-4" />
             Cancelar
           </button>
         </div>

@@ -20,15 +20,27 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Interceptor para manejar errores de autenticación
+// ✅ Interceptor INTELIGENTE - Maneja login, logout y tokens expirados
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado o inválido
-      localStorage.removeItem("sivec_token");
-      localStorage.removeItem("sivec_user");
-      window.location.href = "/login";
+      const url = error.config?.url || "";
+
+      // ✅ CASO 1: Login fallido - NO redirigir (deja que Login.tsx lo maneje)
+      const isLoginRequest = url.includes("/auth/login");
+
+      // ✅ CASO 2: Logout o verificar token - NO redirigir
+      const isLogoutRequest = url.includes("/auth/logout");
+      const isVerifyRequest = url.includes("/auth/verificar");
+
+      // ✅ CASO 3: Token expirado en ruta protegida - SÍ redirigir
+      if (!isLoginRequest && !isLogoutRequest && !isVerifyRequest) {
+        console.log("🔒 Token expirado o inválido, redirigiendo a login...");
+        localStorage.removeItem("sivec_token");
+        localStorage.removeItem("sivec_user");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }
@@ -73,7 +85,7 @@ export interface FacturaAsignada {
 }
 
 export interface LoginCredentials {
-  loginInput: string; // Cambiar de 'correo' a 'loginInput'
+  loginInput: string;
   password: string;
 }
 
@@ -93,11 +105,6 @@ export interface ApiResponse<T> {
   total?: number;
   filtros?: any;
   error?: string;
-}
-
-export interface LoginCredentials {
-  loginInput: string; // Cambiar de 'correo' a 'loginInput'
-  password: string;
 }
 
 // ==========================================
@@ -138,6 +145,7 @@ export const usuariosApi = {
   obtenerJefesYarda: () =>
     api.get<ApiResponse<Usuario[]>>("/api/usuarios/roles/jefes-yarda"),
 };
+
 interface HistorialResponse {
   success: boolean;
   data: any[];
@@ -157,10 +165,8 @@ export const viajesApi = {
 
   obtenerPorId: (id: number) => api.get<ApiResponse<any>>(`/api/viajes/${id}`),
 
-  // ✨ NUEVO: Viajes recientes (últimas 24h por sucursal)
   obtenerRecientes: () => api.get<HistorialResponse>("/api/viajes/recientes"),
 
-  // Para reportes (solo admin)
   obtenerHistorial: (params?: {
     fecha_desde?: string;
     fecha_hasta?: string;

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { usuariosApi, Usuario } from "../services/api";
+import { Icons } from "../components/icons/IconMap";
 
 interface FormularioUsuario {
   nombre_usuario: string;
@@ -57,15 +58,18 @@ const AdminUsuarios: React.FC = () => {
     piloto_temporal_id: null,
   });
 
-const [mostrarInactivos, setMostrarInactivos] = useState(false);
+  const [mostrarInactivos, setMostrarInactivos] = useState(false);
 
-const [sucursales, setSucursales] = useState<Array<{ sucursal_id: number; nombre_sucursal: string }>>([]);
+  const [sucursales, setSucursales] = useState<
+    Array<{ sucursal_id: number; nombre_sucursal: string }>
+  >([]);
 
-const [pilotos, setPilotos] = useState<Piloto[]>([]);
-const [loadingPilotos, setLoadingPilotos] = useState(false);
-const [tipoVinculacion, setTipoVinculacion] = useState<"ninguno" | "sql" | "temporal">("ninguno");
+  const [pilotos, setPilotos] = useState<Piloto[]>([]);
+  const [loadingPilotos, setLoadingPilotos] = useState(false);
+  const [tipoVinculacion, setTipoVinculacion] = useState<
+    "ninguno" | "sql" | "temporal"
+  >("ninguno");
 
-  // Verificar que el usuario sea admin
   useEffect(() => {
     if (user?.rol_id !== 3) {
       window.location.href = "/dashboard";
@@ -176,7 +180,6 @@ const [tipoVinculacion, setTipoVinculacion] = useState<"ninguno" | "sql" | "temp
   const handleEditar = (usuario: UsuarioConPiloto) => {
     setUsuarioEditando(usuario);
 
-    // Determinar tipo de vinculación
     let tipo: "ninguno" | "sql" | "temporal" = "ninguno";
     if (usuario.piloto_sql_id) tipo = "sql";
     else if (usuario.piloto_temporal_id) tipo = "temporal";
@@ -216,37 +219,37 @@ const [tipoVinculacion, setTipoVinculacion] = useState<"ninguno" | "sql" | "temp
     }
   };
 
-const handleReactivar = async (usuario: UsuarioConPiloto) => {
-  if (
-    !window.confirm(
-      `¿Estás seguro de reactivar al usuario ${usuario.nombre_usuario}?`
-    )
-  ) {
-    return;
-  }
+  const handleReactivar = async (usuario: UsuarioConPiloto) => {
+    if (
+      !window.confirm(
+        `¿Estás seguro de reactivar al usuario ${usuario.nombre_usuario}?`
+      )
+    ) {
+      return;
+    }
 
-  try {
-    const datosActualizados: any = {
-      nombre_usuario: usuario.nombre_usuario,
-      correo: usuario.correo,
-      rol_id: usuario.rol_id,
-      sucursal_id: usuario.sucursal_id,
-      piloto_sql_id: usuario.piloto_sql_id,
-      piloto_temporal_id: usuario.piloto_temporal_id,
-      activo: true,
-    };
+    try {
+      const datosActualizados: any = {
+        nombre_usuario: usuario.nombre_usuario,
+        correo: usuario.correo,
+        rol_id: usuario.rol_id,
+        sucursal_id: usuario.sucursal_id,
+        piloto_sql_id: usuario.piloto_sql_id,
+        piloto_temporal_id: usuario.piloto_temporal_id,
+        activo: true,
+      };
 
-    await usuariosApi.actualizar(usuario.usuario_id, datosActualizados);
+      await usuariosApi.actualizar(usuario.usuario_id, datosActualizados);
 
-    alert("Usuario reactivado exitosamente");
-    cargarUsuarios();
-  } catch (error: any) {
-    alert(
-      "Error al reactivar usuario: " +
-        (error.response?.data?.error || error.message)
-    );
-  }
-};
+      alert("Usuario reactivado exitosamente");
+      cargarUsuarios();
+    } catch (error: any) {
+      alert(
+        "Error al reactivar usuario: " +
+          (error.response?.data?.error || error.message)
+      );
+    }
+  };
 
   const handleTipoVinculacionChange = (
     tipo: "ninguno" | "sql" | "temporal"
@@ -282,15 +285,16 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
 
   const getRolBadge = (rol_id: number) => {
     const colors = {
-      1: "bg-blue-100 text-blue-800",
-      2: "bg-yellow-100 text-yellow-800",
-      3: "bg-purple-100 text-purple-800",
+      1: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      2: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      3: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
     };
 
     return (
       <span
         className={`px-2 py-1 rounded-full text-xs font-medium ${
-          colors[rol_id as keyof typeof colors] || "bg-gray-100 text-gray-800"
+          colors[rol_id as keyof typeof colors] ||
+          "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
         }`}
       >
         {getRolNombre(rol_id)}
@@ -300,14 +304,18 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
 
   const getPilotoBadge = (usuario: UsuarioConPiloto) => {
     if (!usuario.piloto_vinculado) {
-      return <span className="text-xs text-gray-400">Sin vincular</span>;
+      return (
+        <span className="text-xs text-gray-400 dark:text-slate-500">
+          Sin vincular
+        </span>
+      );
     }
 
     const { tipo, nombre } = usuario.piloto_vinculado;
     const color =
       tipo === "sql"
-        ? "bg-blue-100 text-blue-800"
-        : "bg-yellow-100 text-yellow-800";
+        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
     const icono = tipo === "sql" ? "🔵" : "🟡";
 
     return (
@@ -319,10 +327,12 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando usuarios...</p>
+          <Icons.refresh className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
+          <p className="mt-4 text-gray-600 dark:text-slate-400">
+            Cargando usuarios...
+          </p>
         </div>
       </div>
     );
@@ -331,7 +341,6 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
   const pilotosSQL = pilotos.filter((p) => !p.es_temporal);
   const pilotosTemporales = pilotos.filter((p) => p.es_temporal);
 
-  // Filtrar usuarios según el toggle
   const usuariosFiltrados = mostrarInactivos
     ? usuarios
     : usuarios.filter((u) => u.activo !== false);
@@ -339,23 +348,26 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
   const usuariosInactivos = usuarios.filter((u) => u.activo === false).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => window.history.back()}
-                className="mr-4 text-gray-600 hover:text-gray-900"
+                className="text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors flex items-center gap-2"
               >
-                ← Volver
+                <Icons.chevronLeft className="w-5 h-5" />
+                Volver
               </button>
-              <h1 className="text-xl font-semibold text-gray-900">
+              <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
+              <Icons.users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Administración de Usuarios
               </h1>
             </div>
-            <div className="text-sm text-gray-600">
-              {usuarios.length} usuarios registrados
+            <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-lg font-semibold text-sm">
+              {usuarios.length} usuarios
             </div>
           </div>
         </div>
@@ -368,29 +380,36 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
               limpiarFormulario();
               setMostrarFormulario(true);
             }}
-            className="btn-primary"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
           >
-            + Crear Usuario
+            <Icons.plus className="w-5 h-5" />
+            Crear Usuario
           </button>
         </div>
 
         {/* Formulario */}
         {mostrarFormulario && (
-          <div className="card p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {usuarioEditando ? "Editar Usuario" : "Crear Nuevo Usuario"}
-            </h3>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-6 mb-8">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-slate-700">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <Icons.user className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+                {usuarioEditando ? "Editar Usuario" : "Crear Nuevo Usuario"}
+              </h3>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nombre de Usuario *
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                    <Icons.user className="w-4 h-4" />
+                    Nombre de Usuario <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
-                    className="input-field"
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                     value={formulario.nombre_usuario}
                     onChange={(e) =>
                       setFormulario({
@@ -402,12 +421,16 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Correo {formulario.rol_id !== 1 && "*"}
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                    <Icons.mail className="w-4 h-4" />
+                    Correo{" "}
+                    {formulario.rol_id !== 1 && (
+                      <span className="text-red-500">*</span>
+                    )}
                   </label>
                   <input
                     type="email"
-                    className="input-field"
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                     placeholder={
                       formulario.rol_id === 1
                         ? "Opcional para pilotos"
@@ -421,13 +444,14 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Contraseña *
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                    <Icons.lock className="w-4 h-4" />
+                    Contraseña <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="password"
                     required
-                    className="input-field"
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                     placeholder={
                       usuarioEditando
                         ? "Dejar vacío para mantener actual"
@@ -441,12 +465,13 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Rol *
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                    <Icons.settings className="w-4 h-4" />
+                    Rol <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
-                    className="input-field"
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                     value={formulario.rol_id}
                     onChange={(e) =>
                       setFormulario({
@@ -464,12 +489,13 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Sucursal *
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                    <Icons.building className="w-4 h-4" />
+                    Sucursal <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
-                    className="input-field"
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                     value={formulario.sucursal_id}
                     onChange={(e) =>
                       setFormulario({
@@ -501,15 +527,16 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
 
               {/* Vinculación de Piloto (solo si rol es Piloto) */}
               {formulario.rol_id === 1 && (
-                <div className="border-t pt-4 mt-4">
-                  <h4 className="font-medium text-gray-900 mb-3">
-                    🔗 Vincular con Piloto (Opcional)
+                <div className="border-t border-gray-200 dark:border-slate-700 pt-4 mt-4">
+                  <h4 className="font-medium text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
+                    <Icons.navigation className="w-5 h-5" />
+                    Vincular con Piloto (Opcional)
                   </h4>
 
                   <div className="space-y-3">
                     {/* Tipo de vinculación */}
                     <div className="flex gap-4">
-                      <label className="flex items-center">
+                      <label className="flex items-center cursor-pointer">
                         <input
                           type="radio"
                           name="tipoVinculacion"
@@ -519,10 +546,12 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                           }
                           className="mr-2"
                         />
-                        <span className="text-sm">⚪ No vincular</span>
+                        <span className="text-sm text-gray-700 dark:text-slate-300">
+                          ⚪ No vincular
+                        </span>
                       </label>
 
-                      <label className="flex items-center">
+                      <label className="flex items-center cursor-pointer">
                         <input
                           type="radio"
                           name="tipoVinculacion"
@@ -530,10 +559,12 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                           onChange={() => handleTipoVinculacionChange("sql")}
                           className="mr-2"
                         />
-                        <span className="text-sm">🔵 Piloto SQL Server</span>
+                        <span className="text-sm text-gray-700 dark:text-slate-300">
+                          🔵 Piloto SQL Server
+                        </span>
                       </label>
 
-                      <label className="flex items-center">
+                      <label className="flex items-center cursor-pointer">
                         <input
                           type="radio"
                           name="tipoVinculacion"
@@ -543,19 +574,21 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                           }
                           className="mr-2"
                         />
-                        <span className="text-sm">🟡 Piloto Temporal</span>
+                        <span className="text-sm text-gray-700 dark:text-slate-300">
+                          🟡 Piloto Temporal
+                        </span>
                       </label>
                     </div>
 
                     {/* Select de piloto según tipo */}
                     {tipoVinculacion === "sql" && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Seleccionar Piloto SQL ({pilotosSQL.length}{" "}
                           disponibles)
                         </label>
                         <select
-                          className="input-field"
+                          className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                           value={formulario.piloto_sql_id || ""}
                           onChange={(e) => handlePilotoChange(e.target.value)}
                         >
@@ -573,7 +606,7 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                             ))
                           )}
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                           Pilotos de SQL Server
                         </p>
                       </div>
@@ -581,12 +614,12 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
 
                     {tipoVinculacion === "temporal" && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Seleccionar Piloto Temporal (
                           {pilotosTemporales.length} disponibles)
                         </label>
                         <select
-                          className="input-field"
+                          className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                           value={formulario.piloto_temporal_id || ""}
                           onChange={(e) => handlePilotoChange(e.target.value)}
                         >
@@ -608,25 +641,33 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                     )}
                   </div>
 
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
-                    <p className="text-sm text-blue-800">
-                      <strong>💡 Nota:</strong> La vinculación permite
-                      identificar qué usuario corresponde a cada piloto. Un
-                      piloto solo puede tener un usuario asignado.
-                    </p>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-3">
+                    <div className="flex items-start gap-3">
+                      <Icons.info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-blue-800 dark:text-blue-300">
+                        <strong>Nota:</strong> La vinculación permite
+                        identificar qué usuario corresponde a cada piloto. Un
+                        piloto solo puede tener un usuario asignado.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
 
               <div className="flex gap-3 pt-4">
-                <button type="submit" className="btn-primary">
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+                >
+                  <Icons.save className="w-4 h-4" />
                   {usuarioEditando ? "Actualizar" : "Crear"} Usuario
                 </button>
                 <button
                   type="button"
                   onClick={limpiarFormulario}
-                  className="btn-secondary"
+                  className="px-6 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-slate-600 transition-all flex items-center gap-2"
                 >
+                  <Icons.x className="w-4 h-4" />
                   Cancelar
                 </button>
               </div>
@@ -635,10 +676,11 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
         )}
 
         {/* Tabla de usuarios */}
-        <div className="card">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden">
+          <div className="p-6 border-b border-gray-200 dark:border-slate-700">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 flex items-center gap-2">
+                <Icons.users className="w-5 h-5" />
                 Usuarios del Sistema
               </h3>
 
@@ -651,12 +693,12 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                     onChange={(e) => setMostrarInactivos(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 dark:bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-900/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 </div>
-                <span className="ml-3 text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                <span className="ml-3 text-sm font-medium text-gray-700 dark:text-slate-300 group-hover:text-gray-900 dark:group-hover:text-slate-100">
                   Mostrar inactivos
                   {usuariosInactivos > 0 && (
-                    <span className="ml-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
+                    <span className="ml-1 px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 rounded-full text-xs">
                       {usuariosInactivos}
                     </span>
                   )}
@@ -666,35 +708,35 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+              <thead className="bg-gray-50 dark:bg-slate-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Usuario
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Correo
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Rol
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Piloto Vinculado
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Estado
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                 {usuariosFiltrados.length === 0 ? (
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-6 py-8 text-center text-gray-500"
+                      className="px-6 py-8 text-center text-gray-500 dark:text-slate-400"
                     >
                       {mostrarInactivos
                         ? "No hay usuarios inactivos"
@@ -705,24 +747,31 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                   usuariosFiltrados.map((usuario) => (
                     <tr
                       key={usuario.usuario_id}
-                      className={`hover:bg-gray-50 ${
-                        usuario.activo === false ? "bg-gray-50 opacity-60" : ""
+                      className={`hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${
+                        usuario.activo === false
+                          ? "bg-gray-50 dark:bg-slate-700/30 opacity-60"
+                          : ""
                       }`}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">
-                          {usuario.nombre_usuario}
-                          {usuario.activo === false && (
-                            <span className="ml-2 text-xs text-gray-500">
-                              (Inactivo)
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          ID: {usuario.usuario_id}
+                        <div className="flex items-center gap-2">
+                          <Icons.user className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                          <div>
+                            <div className="font-medium text-gray-900 dark:text-slate-100">
+                              {usuario.nombre_usuario}
+                              {usuario.activo === false && (
+                                <span className="ml-2 text-xs text-gray-500 dark:text-slate-400">
+                                  (Inactivo)
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-slate-400">
+                              ID: {usuario.usuario_id}
+                            </div>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-300">
                         {usuario.correo}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -733,12 +782,14 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {usuario.activo === false ? (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            ❌ Inactivo
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                            <Icons.xCircle className="w-3 h-3" />
+                            Inactivo
                           </span>
                         ) : (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            ✅ Activo
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                            <Icons.checkCircle className="w-3 h-3" />
+                            Activo
                           </span>
                         )}
                       </td>
@@ -747,15 +798,17 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                           <>
                             <button
                               onClick={() => handleEditar(usuario)}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors inline-flex items-center gap-1"
                             >
+                              <Icons.edit className="w-4 h-4" />
                               Editar
                             </button>
                             {usuario.usuario_id !== user?.usuario_id && (
                               <button
                                 onClick={() => handleEliminar(usuario)}
-                                className="text-red-600 hover:text-red-900"
+                                className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
                               >
+                                <Icons.trash className="w-4 h-4" />
                                 Eliminar
                               </button>
                             )}
@@ -763,8 +816,9 @@ const handleReactivar = async (usuario: UsuarioConPiloto) => {
                         ) : (
                           <button
                             onClick={() => handleReactivar(usuario)}
-                            className="text-green-600 hover:text-green-900"
+                            className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 transition-colors inline-flex items-center gap-1"
                           >
+                            <Icons.checkCircle className="w-4 h-4" />
                             Reactivar
                           </button>
                         )}

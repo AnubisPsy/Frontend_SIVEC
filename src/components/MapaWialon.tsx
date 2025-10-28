@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Icons } from "./icons/IconMap";
 
 interface MapaWialonProps {
   numeroVehiculo: string;
@@ -127,69 +128,41 @@ const MapaWialon: React.FC<MapaWialonProps> = ({ numeroVehiculo }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-        <div className="flex items-center">
-          <svg
-            className="w-6 h-6 text-blue-600 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-            />
-          </svg>
+      <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+            <Icons.mapPin className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          </div>
           <div>
-            <h3 className="font-bold text-gray-800">
+            <h3 className="font-bold text-gray-800 dark:text-slate-100">
               Ubicación en Tiempo Real
             </h3>
-            <p className="text-sm text-gray-500">Vehículo {numeroVehiculo}</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">
+              Vehículo {numeroVehiculo}
+            </p>
           </div>
         </div>
         <button
           onClick={cargarUbicacion}
           disabled={loading}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-50 flex items-center"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-50 flex items-center gap-2"
         >
-          <svg
-            className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
+          <Icons.refresh
+            className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+          />
           {loading ? "Actualizando..." : "Actualizar"}
         </button>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="p-4 bg-red-50 border-b border-red-200">
-          <p className="text-sm text-red-700 flex items-center">
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-            {error}
-          </p>
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
+          <div className="flex items-center gap-2 text-sm text-red-700 dark:text-red-400">
+            <Icons.alertCircle className="w-5 h-5 flex-shrink-0" />
+            <p>{error}</p>
+          </div>
         </div>
       )}
 
@@ -198,45 +171,56 @@ const MapaWialon: React.FC<MapaWialonProps> = ({ numeroVehiculo }) => {
 
       {/* Info del vehículo */}
       {vehiculo && (
-        <div className="p-4 bg-gray-50 border-t border-gray-200">
+        <div className="p-4 bg-gray-50 dark:bg-slate-700 border-t border-gray-200 dark:border-slate-600">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs text-gray-500 mb-1">Estado</p>
-              <div className="flex items-center">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mb-1 font-medium">
+                Estado
+              </p>
+              <div className="flex items-center gap-2">
                 <div
-                  className={`w-2 h-2 rounded-full mr-2 ${
+                  className={`w-2 h-2 rounded-full ${
                     vehiculo.enMovimiento ? "bg-green-500" : "bg-red-500"
                   }`}
                 ></div>
-                <p className="text-sm font-semibold text-gray-800">
+                <p className="text-sm font-semibold text-gray-800 dark:text-slate-100">
                   {vehiculo.enMovimiento ? "En movimiento" : "Detenido"}
                 </p>
               </div>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Velocidad</p>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mb-1 font-medium">
+                Velocidad
+              </p>
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-100">
                 {vehiculo.velocidad} km/h
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Latitud</p>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mb-1 font-medium">
+                Latitud
+              </p>
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-100">
                 {vehiculo.latitud.toFixed(6)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Longitud</p>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mb-1 font-medium">
+                Longitud
+              </p>
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-100">
                 {vehiculo.longitud.toFixed(6)}
               </p>
             </div>
           </div>
-          <div className="mt-3 pt-3 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
-              Última actualización:{" "}
-              {new Date(vehiculo.timestamp * 1000).toLocaleString("es-HN")}
-            </p>
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-600">
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
+              <Icons.clock className="w-3 h-3" />
+              <span>
+                Última actualización:{" "}
+                {new Date(vehiculo.timestamp * 1000).toLocaleString("es-HN")}
+              </span>
+            </div>
           </div>
         </div>
       )}

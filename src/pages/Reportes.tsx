@@ -7,6 +7,7 @@ import CardsViajes from "../components/CardsViajes";
 import ConfiguradorColumnas from "../components/ConfiguradorColumnas";
 import PreviewExportacion from "../components/PreviewExportacion";
 import DetalleViajeModal from "../components/DetalleViajeModal";
+import { Icons } from "../components/icons/IconMap";
 import * as XLSX from "xlsx";
 
 interface Viaje {
@@ -177,97 +178,104 @@ const Reportes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
-            📊 Reportes de Viajes
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Visualiza y exporta el historial completo de viajes completados
-          </p>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+              <Icons.barChart className="w-7 h-7 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-slate-100">
+                Reportes de Viajes
+              </h1>
+              <p className="text-gray-600 dark:text-slate-400 text-lg">
+                Visualiza y exporta el historial completo de viajes completados
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Estadísticas */}
         {estadisticas && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-l-4 border-blue-500 dark:border-blue-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium mb-1">
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-medium mb-1">
                     Total Viajes
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">
                     {estadisticas.total_viajes}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">🚛</span>
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-l-4 border-purple-500 dark:border-purple-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium mb-1">
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-medium mb-1">
                     Facturas
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">
                     {estadisticas.total_facturas}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">📄</span>
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                  <Icons.document className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-l-4 border-indigo-500 dark:border-indigo-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium mb-1">
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-medium mb-1">
                     Guías
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">
                     {estadisticas.total_guias}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">📋</span>
+                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                  <Icons.package className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-l-4 border-green-500 dark:border-green-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium mb-1">
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-medium mb-1">
                     Entregadas
                   </p>
-                  <p className="text-3xl font-bold text-green-700">
+                  <p className="text-3xl font-bold text-green-700 dark:text-green-400">
                     {estadisticas.total_entregadas}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">✅</span>
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <Icons.checkCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-orange-500">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-l-4 border-orange-500 dark:border-orange-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium mb-1">
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-medium mb-1">
                     Pilotos
                   </p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">
                     {estadisticas.pilotos_activos}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">👨‍✈️</span>
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                  <Icons.user className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                 </div>
               </div>
             </div>
@@ -278,48 +286,53 @@ const Reportes = () => {
         <FiltrosHistorial filtros={filtros} onAplicarFiltros={aplicarFiltros} />
 
         {/* Toolbar */}
-        <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex gap-2">
             <button
               onClick={() => setVistaActual("tabla")}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
                 vistaActual === "tabla"
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600"
               }`}
             >
-              📊 Tabla
+              <Icons.table className="w-4 h-4" />
+              Tabla
             </button>
             <button
               onClick={() => setVistaActual("cards")}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
                 vistaActual === "cards"
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600"
               }`}
             >
-              🗂️ Cards
+              <Icons.grid className="w-4 h-4" />
+              Cards
             </button>
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={() => setShowConfigColumnas(true)}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-slate-600 transition-all flex items-center gap-2"
             >
-              ⚙️ Configurar Columnas
+              <Icons.settings className="w-4 h-4" />
+              Configurar Columnas
             </button>
             <button
               onClick={() => setShowPreview(true)}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-slate-600 transition-all flex items-center gap-2"
             >
-              👁️ Preview Exportación
+              <Icons.eye className="w-4 h-4" />
+              Preview Exportación
             </button>
             <button
               onClick={exportarAExcel}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
             >
-              📥 Exportar Excel
+              <Icons.download className="w-4 h-4" />
+              Exportar Excel
             </button>
           </div>
         </div>
@@ -328,19 +341,21 @@ const Reportes = () => {
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Cargando historial...</p>
+              <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-400 animate-spin mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-slate-400">
+                Cargando historial...
+              </p>
             </div>
           </div>
         ) : viajes.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-md p-12 text-center">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-4xl">📭</span>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 p-12 text-center">
+            <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Icons.package className="w-10 h-10 text-gray-400 dark:text-slate-500" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">
               No hay viajes en el historial
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-slate-400">
               Ajusta los filtros para ver más resultados
             </p>
           </div>
