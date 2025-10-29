@@ -58,6 +58,8 @@ import {
   Grid, // 🔲
   FileTextIcon,
   List,
+  RefreshCcw, // 🔃
+  Percent, // %
 } from "lucide-react";
 
 export const Icons = {
@@ -119,4 +121,6 @@ export const Icons = {
   grid: Grid,
   FileTextIcon: FileTextIcon,
   list: List,
+  refreshCcw: RefreshCcw,
+  percent: Percent,
 };
