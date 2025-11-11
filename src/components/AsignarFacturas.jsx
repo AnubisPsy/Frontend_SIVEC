@@ -1,12 +1,18 @@
 // src/components/AsignarFacturas.tsx
 import React, { useState } from "react";
 import { Icons } from "./icons/IconMap";
+import { useNotification } from "../hooks/useNotification";
+import { useConfirm } from "../hooks/useConfirm";
+import { ConfirmDialog } from "../hooks/ConfirmDialog";
 
 const AsignarFacturas = () => {
   const [vehiculo, setVehiculo] = useState("C-25");
   const [piloto, setPiloto] = useState("Denuar Hernández");
   const [facturas, setFacturas] = useState([{ numero_factura: "", notas: "" }]);
   const [loading, setLoading] = useState(false);
+  const noti = useNotification();
+  const { confirm, isOpen, options, handleConfirm, handleCancel } =
+    useConfirm();
 
   const agregarFactura = () => {
     setFacturas([...facturas, { numero_factura: "", notas: "" }]);
@@ -23,6 +29,29 @@ const AsignarFacturas = () => {
   };
 
   const asignarFacturas = async () => {
+    // Validaciones básicas antes de enviar
+    if (!vehiculo.trim()) {
+      //alert("❌ Por favor ingresa un número de vehículo");
+      noti.warning("❌ Por favor ingresa un número de vehículo");
+      return;
+    }
+
+    if (!piloto.trim()) {
+      //alert("❌ Por favor ingresa el nombre del piloto");
+      noti.warning("❌ Por favor ingresa el nombre del piloto");
+      return;
+    }
+
+    const facturasValidas = facturas.filter(
+      (f) => f.numero_factura.trim() !== ""
+    );
+
+    if (facturasValidas.length === 0) {
+      //alert("❌ Debes agregar al menos una factura con número válido");
+      noti.warning("❌ Debes agregar al menos una factura con número válido");
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch(
@@ -33,24 +62,75 @@ const AsignarFacturas = () => {
           body: JSON.stringify({
             numero_vehiculo: vehiculo,
             piloto,
-            facturas: facturas.filter((f) => f.numero_factura.trim() !== ""),
+            facturas: facturasValidas,
           }),
         }
       );
 
       const data = await response.json();
 
-      if (data.success) {
-        alert(
+      if (response.ok && data.success) {
+        /* alert(
           `✅ Viaje creado exitosamente (ID: ${data.viaje_id})\n${data.facturas.length} facturas asignadas`
-        );
+        ); */
+        await confirm({
+          title: "Viaje Creado",
+          message: `✅ Viaje creado exitosamente (ID: ${data.viaje_id})
+          \n${data.facturas.length} facturas asignadas
+          \n👤 Piloto: ${data.piloto}
+          \n🚛 Vehículo: ${data.vehiculo}`,
+          confirmText: "Entendido",
+          hideCancel: true,
+          variant: "success",
+        });
         // Limpiar formulario
+        setVehiculo("C-25");
+        setPiloto("Denuar Hernández");
         setFacturas([{ numero_factura: "", notas: "" }]);
       } else {
-        alert("❌ Error: " + data.error);
+        // ✅ Mostrar mensaje de error específico del backend
+        const errorMsg = data.message || data.error || "Error desconocido";
+
+        if (data.viaje_activo) {
+          await confirm({
+            title: "No puedes iniciar viaje",
+            message:
+              `❌ ${errorMsg}\n\n` +
+              `📍 Viaje activo: #${data.viaje_activo.viaje_id}\n` +
+              `${
+                data.viaje_activo.piloto
+                  ? `👤 Piloto: ${data.viaje_activo.piloto}\n`
+                  : ""
+              }` +
+              `${
+                data.viaje_activo.vehiculo
+                  ? `🚛 Vehículo: ${data.viaje_activo.vehiculo}`
+                  : ""
+              }`,
+            confirmText: "Entendido",
+            hideCancel: true,
+            variant: "warning",
+          });
+        } else {
+          await confirm({
+            title: "Error",
+            message: `❌ ${errorMsg}`,
+            confirmText: "Entendido",
+            hideCancel: true,
+            variant: "danger",
+          });
+        }
       }
     } catch (error) {
-      alert("❌ Error de conexión: " + error.message);
+      console.error("Error asignando facturas:", error);
+      //alert("❌ Error de conexión: " + error.message);
+      await confirm({
+        title: "Error de conexión",
+        message: `❌ Error de conexión: ${error.message}`,
+        confirmText: "Entendido",
+        hideCancel: true,
+        variant: "danger",
+      });
     } finally {
       setLoading(false);
     }
@@ -232,6 +312,17 @@ const AsignarFacturas = () => {
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={isOpen}
+        title={options.title}
+        message={options.message}
+        confirmText={options.confirmText}
+        cancelText={options.cancelText}
+        variant={options.variant}
+        hideCancel={options.hideCancel}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

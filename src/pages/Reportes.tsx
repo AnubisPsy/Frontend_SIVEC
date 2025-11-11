@@ -9,6 +9,7 @@ import PreviewExportacion from "../components/PreviewExportacion";
 import DetalleViajeModal from "../components/DetalleViajeModal";
 import { Icons } from "../components/icons/IconMap";
 import * as XLSX from "xlsx";
+import { useNotification } from "../hooks/useNotification";
 
 interface Viaje {
   viaje_id: number;
@@ -36,6 +37,7 @@ interface Filtros {
 }
 
 const Reportes = () => {
+  const noti = useNotification();
   const [viajes, setViajes] = useState<Viaje[]>([]);
   const [estadisticas, setEstadisticas] = useState<any>(null);
   const [filtros, setFiltros] = useState<Filtros>({
@@ -87,7 +89,8 @@ const Reportes = () => {
       }
     } catch (error: any) {
       console.error("❌ Error cargando historial:", error);
-      alert("Error al cargar el historial");
+      //alert("Error al cargar el historial");
+      noti.error({ message: "Error al cargar el historial de viajes." });
     } finally {
       setLoading(false);
     }

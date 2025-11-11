@@ -1,4 +1,4 @@
-// src/App.tsx
+// src/App.tsx - CON DETECCIÓN DE ACTIVIDAD DEL USUARIO
 import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -19,10 +19,46 @@ import DetalleViaje from "./pages/DetalleViaje";
 import AdminUsuarios from "./pages/AdminUsuarios";
 import AdminPilotosTemporales from "./pages/AdminPilotosTemporales";
 import Layout from "./components/Layout";
+import { SucursalProvider } from "./contexts/SucursalContext";
 
 // ✅ Componente que maneja las rutas según autenticación
 function AppRoutes() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, actualizarActividad } = useAuth();
+
+  // ✅ DETECTAR ACTIVIDAD DEL USUARIO
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Eventos que indican actividad del usuario
+    const eventos = ["mousedown", "keydown", "scroll", "touchstart", "click"];
+
+    // Throttle para no actualizar demasiado seguido (máximo cada 30 segundos)
+    let ultimaActualizacion = Date.now();
+    const INTERVALO_MINIMO = 30 * 1000; // 30 segundos
+
+    const manejarActividad = () => {
+      const ahora = Date.now();
+      if (ahora - ultimaActualizacion > INTERVALO_MINIMO) {
+        actualizarActividad();
+        ultimaActualizacion = ahora;
+      }
+    };
+
+    // Agregar listeners
+    eventos.forEach((evento) => {
+      window.addEventListener(evento, manejarActividad);
+    });
+
+    console.log("✅ Listeners de actividad activados");
+
+    // Cleanup
+    return () => {
+      eventos.forEach((evento) => {
+        window.removeEventListener(evento, manejarActividad);
+      });
+      console.log("🧹 Listeners de actividad removidos");
+    };
+  }, [isAuthenticated, actualizarActividad]);
 
   if (loading) {
     return (
@@ -186,25 +222,27 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <AppRoutes />
+        <SucursalProvider>
+          <Router>
+            <AppRoutes />
 
-          {/* Toast Container - Notificaciones elegantes */}
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={true}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="colored"
-            aria-label="Notificaciones"
-            style={{ zIndex: 99999 }}
-          />
-        </Router>
+            {/* Toast Container - Notificaciones elegantes */}
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={true}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+              aria-label="Notificaciones"
+              style={{ zIndex: 99999 }}
+            />
+          </Router>
+        </SucursalProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { useAuth } from "../contexts/AuthContext"; // ← AGREGAR ESTO
+import { useAuth } from "../contexts/AuthContext";
 import { Icons } from "../components/icons/IconMap";
 import { useConfirm } from "../hooks/useConfirm";
 import { ConfirmDialog } from "../hooks/ConfirmDialog";
+import SelectorSucursal from "./SelectorSucursal";
 
 interface Usuario {
   usuario_id: number;
@@ -90,6 +91,9 @@ const Layout = () => {
 
             {/* Right side: Theme toggle + User menu */}
             <div className="flex items-center gap-3">
+              {/* ✅ Selector de Sucursal (solo admins) */}
+              <SelectorSucursal />
+
               {/* Theme Toggle Button */}
               <button
                 onClick={toggleTheme}

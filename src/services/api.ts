@@ -1,4 +1,6 @@
-// src/services/api.ts
+// src/services/api.ts - VERSIÓN CORREGIDA
+// Reemplaza todo el archivo o solo la interfaz Usuario
+
 import axios from "axios";
 
 const API_URL = "http://localhost:3000";
@@ -46,16 +48,23 @@ api.interceptors.response.use(
   }
 );
 
+// ✅ INTERFAZ USUARIO CORREGIDA - CON CAMPO SUCURSAL
 export interface Usuario {
   usuario_id: number;
   nombre_usuario: string;
   correo: string;
   rol_id: number;
+  sucursal_id: number;
   created_at: string;
   rol: {
     rol_id: number;
     nombre_rol: string;
     descripcion: string;
+  };
+  // ✅ CAMPO AGREGADO:
+  sucursal?: {
+    sucursal_id: number;
+    nombre_sucursal: string;
   };
 }
 
@@ -144,6 +153,11 @@ export const usuariosApi = {
 
   obtenerJefesYarda: () =>
     api.get<ApiResponse<Usuario[]>>("/api/usuarios/roles/jefes-yarda"),
+
+  actualizarSucursal: (usuarioId: number, sucursalId: number) =>
+    api.put<ApiResponse<Usuario>>(`/api/usuarios/${usuarioId}/sucursal`, {
+      sucursal_id: sucursalId,
+    }),
 };
 
 interface HistorialResponse {

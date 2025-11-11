@@ -78,10 +78,10 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
               <div className="px-5 py-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-750 border-b border-gray-200 dark:border-slate-600">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                       Viaje #{viaje.viaje_id}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-400 font-medium">
+                    <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300 font-medium">
                       <Icons.calendar className="w-4 h-4" />
                       <span>
                         {new Date(viaje.fecha_viaje).toLocaleDateString(
@@ -117,7 +117,7 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                       <p className="text-[10px] text-gray-500 dark:text-slate-400 font-semibold uppercase tracking-wider mb-1">
                         Piloto
                       </p>
-                      <p className="text-sm text-gray-900 dark:text-slate-100 font-semibold truncate">
+                      <p className="text-sm text-gray-900 dark:text-white font-semibold truncate">
                         {viaje.piloto}
                       </p>
                     </div>
@@ -131,7 +131,7 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                       <p className="text-[10px] text-gray-500 dark:text-slate-400 font-semibold uppercase tracking-wider mb-1">
                         Vehículo
                       </p>
-                      <p className="text-sm text-gray-900 dark:text-slate-100 font-semibold truncate">
+                      <p className="text-sm text-gray-900 dark:text-white font-semibold truncate">
                         {viaje.numero_vehiculo}
                       </p>
                     </div>
@@ -144,10 +144,10 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                     <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
                       <Icons.document className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-1">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                       {viaje.estadisticas.total_facturas}
                     </p>
-                    <p className="text-[9px] text-gray-600 dark:text-slate-400 uppercase font-semibold">
+                    <p className="text-[9px] text-gray-600 dark:text-slate-300 uppercase font-semibold">
                       Facturas
                     </p>
                   </div>
@@ -156,10 +156,10 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                     <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
                       <Icons.package className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                     </div>
-                    <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-1">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                       {viaje.estadisticas.total_guias}
                     </p>
-                    <p className="text-[9px] text-gray-600 dark:text-slate-400 uppercase font-semibold">
+                    <p className="text-[9px] text-gray-600 dark:text-slate-300 uppercase font-semibold">
                       Guías
                     </p>
                   </div>
@@ -168,10 +168,10 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                     <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
                       <Icons.checkCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                     </div>
-                    <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-1">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                       {viaje.estadisticas.guias_entregadas}
                     </p>
-                    <p className="text-[9px] text-gray-600 dark:text-slate-400 uppercase font-semibold">
+                    <p className="text-[9px] text-gray-600 dark:text-slate-300 uppercase font-semibold">
                       Entregadas
                     </p>
                   </div>
@@ -180,10 +180,10 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                     <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
                       <Icons.xCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                     </div>
-                    <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-1">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                       {viaje.estadisticas.guias_no_entregadas}
                     </p>
-                    <p className="text-[9px] text-gray-600 dark:text-slate-400 uppercase font-semibold">
+                    <p className="text-[9px] text-gray-600 dark:text-slate-300 uppercase font-semibold">
                       No entregadas
                     </p>
                   </div>
@@ -192,10 +192,10 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                 {/* Barra de Progreso */}
                 <div className="mb-5">
                   <div className="flex justify-between mb-2">
-                    <span className="text-xs text-gray-600 dark:text-slate-400 font-semibold">
+                    <span className="text-xs text-gray-600 dark:text-slate-300 font-semibold">
                       Progreso de entregas
                     </span>
-                    <span className="text-xs text-gray-900 dark:text-slate-100 font-bold">
+                    <span className="text-xs text-gray-900 dark:text-white font-bold">
                       {viaje.estadisticas.porcentaje_exito}%
                     </span>
                   </div>
@@ -219,7 +219,7 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                       <p className="text-[9px] text-gray-500 dark:text-slate-400 uppercase font-semibold mb-0.5">
                         Inicio
                       </p>
-                      <p className="text-xs text-gray-900 dark:text-slate-100 font-semibold">
+                      <p className="text-xs text-gray-900 dark:text-white font-semibold">
                         {new Date(viaje.created_at).toLocaleTimeString(
                           "es-HN",
                           {
@@ -241,7 +241,7 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                       <p className="text-[9px] text-gray-500 dark:text-slate-400 uppercase font-semibold mb-0.5">
                         Duración
                       </p>
-                      <p className="text-xs text-gray-900 dark:text-slate-100 font-semibold">
+                      <p className="text-xs text-gray-900 dark:text-white font-semibold">
                         {calcularDuracion(viaje.created_at, viaje.updated_at)}
                       </p>
                     </div>
@@ -257,7 +257,7 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                       <p className="text-[9px] text-gray-500 dark:text-slate-400 uppercase font-semibold mb-0.5">
                         Fin
                       </p>
-                      <p className="text-xs text-gray-900 dark:text-slate-100 font-semibold">
+                      <p className="text-xs text-gray-900 dark:text-white font-semibold">
                         {new Date(viaje.updated_at).toLocaleTimeString(
                           "es-HN",
                           {

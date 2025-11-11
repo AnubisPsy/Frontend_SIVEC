@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { facturasApi } from "../services/api";
 import { Icons } from "./icons/IconMap";
+import { useConfirm } from "../hooks/useConfirm";
+import { ConfirmDialog } from "../hooks/ConfirmDialog";
+import { useNotification } from "../hooks/useNotification";
 
 const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
+  const noti = useNotification();
+  const { confirm, isOpen, options, handleConfirm, handleCancel } = useConfirm();
   const [nuevaFactura, setNuevaFactura] = useState({
     numero_factura: "",
     piloto: "",
@@ -35,7 +40,14 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
       }
     } catch (error) {
       console.error("Error al cargar datos del formulario:", error);
-      alert("Error al cargar datos del formulario");
+      //alert("Error al cargar datos del formulario");
+      await confirm({
+        title: "Error",
+        message: `❌ Al cargar datos del formulario`,
+        confirmText: "Ok",
+        hideCancel: true,
+        variant: "danger",
+      });
     } finally {
       setLoadingDatos(false);
     }
@@ -49,7 +61,8 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
       !nuevaFactura.piloto ||
       !nuevaFactura.numero_vehiculo
     ) {
-      alert("Todos los campos marcados con * son obligatorios");
+      //alert("Todos los campos marcados con * son obligatorios");
+      noti.warning("Todos los campos marcados con * son obligatorios");
       return;
     }
 
@@ -271,6 +284,16 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        isOpen={isOpen}
+        title={options.title}
+        message={options.message}
+        confirmText={options.confirmText}
+        cancelText={options.cancelText}
+        variant={options.variant}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

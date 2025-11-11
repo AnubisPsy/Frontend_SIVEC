@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { viajesApi } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { Icons } from "../components/icons/IconMap";
+import { useNotification } from "../hooks/useNotification";
 
 interface Viaje {
   viaje_id: number;
@@ -27,6 +28,7 @@ const HistorialViajes = () => {
   const [estadisticas, setEstadisticas] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const noti = useNotification();
 
   useEffect(() => {
     cargarHistorial();
@@ -48,7 +50,8 @@ const HistorialViajes = () => {
       }
     } catch (error: any) {
       console.error("❌ Error cargando historial:", error);
-      alert("Error al cargar el historial");
+      //alert("Error al cargar el historial");
+      noti.error({ message: "Error al cargar el historial de viajes."});
     } finally {
       setLoading(false);
     }

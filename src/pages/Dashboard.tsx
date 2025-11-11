@@ -114,26 +114,26 @@ const Dashboard = () => {
     if (viaje.total_guias === 0) {
       return {
         texto: "Sin guías asignadas",
-        color: "text-gray-600",
-        bgColor: "bg-gray-100",
+        color: "text-gray-700 dark:text-gray-300",
+        bgColor: "bg-gray-100 dark:bg-gray-900/30",
       };
     } else if (viaje.guias_entregadas === viaje.total_guias) {
       return {
         texto: "Completado",
-        color: "text-green-700",
-        bgColor: "bg-green-100",
+        color: "text-green-700 dark:text-green-400",
+        bgColor: "bg-green-100 dark:bg-green-900/30",
       };
     } else if (viaje.guias_entregadas > 0) {
       return {
         texto: "En ruta",
-        color: "text-blue-700",
-        bgColor: "bg-blue-100",
+        color: "text-blue-700 dark:text-blue-300",
+        bgColor: "bg-blue-100 dark:bg-blue-900/30",
       };
     } else {
       return {
         texto: "Preparando",
-        color: "text-orange-700",
-        bgColor: "bg-orange-100",
+        color: "text-orange-700 dark:text-orange-300",
+        bgColor: "bg-orange-100 dark:bg-orange-900/30",
       };
     }
   };
@@ -400,7 +400,7 @@ const Dashboard = () => {
                       </div>
 
                       <span
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${estado.color} ${estado.bgColor} dark:bg-opacity-20`}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${estado.color} ${estado.bgColor}`}
                       >
                         {estado.texto}
                       </span>
