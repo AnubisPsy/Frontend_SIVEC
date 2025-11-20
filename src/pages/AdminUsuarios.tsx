@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { usuariosApi, Usuario } from "../services/api";
 import { Icons } from "../components/icons/IconMap";
+import { useConfirm } from "../hooks/useConfirm";
+import { ConfirmDialog } from "../hooks/ConfirmDialog";
+import { useNotification } from "../hooks/useNotification";
 
 interface FormularioUsuario {
   nombre_usuario: string;
@@ -57,6 +60,11 @@ const AdminUsuarios: React.FC = () => {
     piloto_sql_id: null,
     piloto_temporal_id: null,
   });
+
+  const { confirm, isOpen, options, handleConfirm, handleCancel } =
+    useConfirm();
+
+  const noti = useNotification();
 
   const [mostrarInactivos, setMostrarInactivos] = useState(false);
 
@@ -199,34 +207,46 @@ const AdminUsuarios: React.FC = () => {
   };
 
   const handleEliminar = async (usuario: UsuarioConPiloto) => {
-    if (
-      !window.confirm(
-        `¿Estás seguro de eliminar al usuario ${usuario.nombre_usuario}?`
-      )
-    ) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: "¿Eliminar usuario?",
+      message: `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre_usuario}"? Esta acción no se puede deshacer.`,
+      confirmText: "Sí, eliminar",
+      cancelText: "Cancelar",
+      variant: "danger",
+    });
+
+    if (!confirmed) return;
 
     try {
       await usuariosApi.eliminar(usuario.usuario_id);
-      alert("Usuario eliminado exitosamente");
+
+      noti.success({
+        title: "Usuario eliminado",
+        message: "El usuario ha sido eliminado exitosamente",
+      });
+
       cargarUsuarios();
     } catch (error: any) {
-      alert(
-        "Error al eliminar usuario: " +
-          (error.response?.data?.error || error.message)
-      );
+      noti.error({
+        title: "Error al eliminar",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "No se pudo eliminar el usuario",
+      });
     }
   };
 
   const handleReactivar = async (usuario: UsuarioConPiloto) => {
-    if (
-      !window.confirm(
-        `¿Estás seguro de reactivar al usuario ${usuario.nombre_usuario}?`
-      )
-    ) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: "¿Reactivar usuario?",
+      message: `¿Estás seguro de que deseas reactivar al usuario "${usuario.nombre_usuario}"?`,
+      confirmText: "Sí, reactivar",
+      cancelText: "Cancelar",
+      variant: "warning",
+    });
+
+    if (!confirmed) return;
 
     try {
       const datosActualizados: any = {
@@ -241,13 +261,20 @@ const AdminUsuarios: React.FC = () => {
 
       await usuariosApi.actualizar(usuario.usuario_id, datosActualizados);
 
-      alert("Usuario reactivado exitosamente");
+      noti.success({
+        title: "Usuario reactivado",
+        message: "El usuario ha sido reactivado exitosamente",
+      });
+
       cargarUsuarios();
     } catch (error: any) {
-      alert(
-        "Error al reactivar usuario: " +
-          (error.response?.data?.error || error.message)
-      );
+      noti.error({
+        title: "Error al reactivar",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "No se pudo reactivar el usuario",
+      });
     }
   };
 
@@ -831,6 +858,16 @@ const AdminUsuarios: React.FC = () => {
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={isOpen}
+        title={options.title}
+        message={options.message}
+        confirmText={options.confirmText}
+        cancelText={options.cancelText}
+        variant={options.variant}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

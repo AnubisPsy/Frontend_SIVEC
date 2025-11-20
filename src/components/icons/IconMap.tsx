@@ -1,4 +1,5 @@
 // src/components/icons/IconMap.tsx
+import { circle } from "leaflet";
 import {
   Truck, // 🚛
   User, // 👤
@@ -123,4 +124,5 @@ export const Icons = {
   list: List,
   refreshCcw: RefreshCcw,
   percent: Percent,
+  circle: circle,
 };

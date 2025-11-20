@@ -20,6 +20,7 @@ import AdminUsuarios from "./pages/AdminUsuarios";
 import AdminPilotosTemporales from "./pages/AdminPilotosTemporales";
 import Layout from "./components/Layout";
 import { SucursalProvider } from "./contexts/SucursalContext";
+import Perfil from "./pages/Perfil";
 
 // ✅ Componente que maneja las rutas según autenticación
 function AppRoutes() {
@@ -93,6 +94,7 @@ function AppRoutes() {
             path="/admin/pilotos-temporales"
             element={<AdminPilotosTemporales />}
           />
+          <Route path="/perfil" element={<Perfil />} />
         </Route>
       ) : null}
 

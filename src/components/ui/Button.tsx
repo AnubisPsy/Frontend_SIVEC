@@ -28,7 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
   onClick,
   type = "button",
 }) => {
-  const Icon = icon ? Icons[icon] : null;
+  const Icon = icon ? (Icons[icon] as LucideIcon) : null;
 
   const baseClasses =
     "inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";

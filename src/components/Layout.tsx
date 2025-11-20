@@ -234,6 +234,7 @@ const Layout = () => {
                       <button
                         onClick={() => {
                           setMenuAbierto(false);
+                          navigate("/perfil");
                           // Aquí irían más opciones
                         }}
                         className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"

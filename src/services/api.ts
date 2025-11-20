@@ -1,6 +1,4 @@
-// src/services/api.ts - VERSIÓN CORREGIDA
-// Reemplaza todo el archivo o solo la interfaz Usuario
-
+// src/services/api.ts - CON SOPORTE reCAPTCHA
 import axios from "axios";
 
 const API_URL = "http://localhost:3000";
@@ -61,7 +59,6 @@ export interface Usuario {
     nombre_rol: string;
     descripcion: string;
   };
-  // ✅ CAMPO AGREGADO:
   sucursal?: {
     sucursal_id: number;
     nombre_sucursal: string;
@@ -93,18 +90,23 @@ export interface FacturaAsignada {
   };
 }
 
+// ✅ ACTUALIZADO: Ahora incluye recaptchaToken opcional
 export interface LoginCredentials {
   loginInput: string;
   password: string;
+  recaptchaToken?: string | null; // ✅ NUEVO
 }
 
+// ✅ ACTUALIZADO: Respuesta puede incluir requiereCaptcha
 export interface LoginResponse {
   success: boolean;
-  data: {
+  data?: {
     token: string;
     usuario: Usuario;
   };
-  message: string;
+  message?: string;
+  error?: string;
+  requiereCaptcha?: boolean; // ✅ NUEVO
 }
 
 export interface ApiResponse<T> {
@@ -121,12 +123,23 @@ export interface ApiResponse<T> {
 // ==========================================
 
 export const authApi = {
+  // ✅ ACTUALIZADO: Ahora acepta recaptchaToken
   login: (credentials: LoginCredentials) =>
     api.post<LoginResponse>("/auth/login", credentials),
 
   verificarToken: () => api.post("/auth/verificar"),
 
   logout: () => api.post("/auth/logout"),
+
+  // ✅ NUEVO: Endpoint para verificar si requiere captcha
+  verificarRequiereCaptcha: (loginInput: string) =>
+    api.post<{
+      success: boolean;
+      data: {
+        requiereCaptcha: boolean;
+        intentos: number;
+      };
+    }>("/auth/verificar-captcha-requerido", { loginInput }),
 };
 
 // ==========================================
@@ -157,6 +170,13 @@ export const usuariosApi = {
   actualizarSucursal: (usuarioId: number, sucursalId: number) =>
     api.put<ApiResponse<Usuario>>(`/api/usuarios/${usuarioId}/sucursal`, {
       sucursal_id: sucursalId,
+    }),
+
+  // ✅ AGREGAR ESTA FUNCIÓN:
+  cambiarContrasena: (passwordActual: string, passwordNuevo: string) =>
+    api.put<ApiResponse<any>>("/api/usuarios/cambiar-contrasena", {
+      passwordActual,
+      passwordNuevo,
     }),
 };
 

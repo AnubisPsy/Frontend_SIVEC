@@ -1,5 +1,5 @@
-// AuthContext.tsx - CON SISTEMA DE TIMESTAMP Y AUTO-LOGOUT
-// Maneja token de 12 horas + logout automático después de X horas de inactividad
+// AuthContext.tsx - CON SISTEMA DE TIMESTAMP Y AUTO-LOGOUT + reCAPTCHA
+// Maneja token de 12 horas + logout automático después de X horas de inactividad + reCAPTCHA
 
 import React, {
   createContext,
@@ -13,16 +13,28 @@ import { authApi, Usuario } from "../services/api";
 interface AuthContextType {
   isAuthenticated: boolean;
   user: Usuario | null;
-  login: (loginInput: string, password: string) => Promise<LoginResult>;
+  login: (
+    loginInput: string,
+    password: string,
+    recaptchaToken?: string | null
+  ) => Promise<LoginResult>;
   logout: () => void;
   loading: boolean;
-  actualizarActividad: () => void; // ✅ NUEVO
+  actualizarActividad: () => void;
 }
 
+// ✅ ACTUALIZADO: Incluye más tipos de error y requiereCaptcha
 export interface LoginResult {
   success: boolean;
-  error?: "CREDENCIALES_INVALIDAS" | "PILOTO_BLOQUEADO" | "ERROR_SERVIDOR";
+  error?:
+    | "CREDENCIALES_INVALIDAS"
+    | "PILOTO_BLOQUEADO"
+    | "ERROR_SERVIDOR"
+    | "CAPTCHA_REQUERIDO"
+    | "CAPTCHA_INVALIDO"
+    | "USUARIO_INACTIVO";
   message?: string;
+  requiereCaptcha?: boolean; // ✅ NUEVO
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,7 +52,7 @@ interface AuthProviderProps {
 }
 
 // ⏰ CONSTANTES DE TIEMPO
-const HORAS_INACTIVIDAD = 1; // Tiempo máximo de inactividad permitido
+const HORAS_INACTIVIDAD = 8; // Tiempo máximo de inactividad permitido
 const MILISEGUNDOS_POR_HORA = 60 * 60 * 1000;
 const TIEMPO_MAXIMO_INACTIVIDAD = HORAS_INACTIVIDAD * MILISEGUNDOS_POR_HORA;
 
@@ -159,15 +171,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // ✅ ACTUALIZADO: Ahora acepta recaptchaToken opcional
   const login = async (
     loginInput: string,
-    password: string
+    password: string,
+    recaptchaToken?: string | null
   ): Promise<LoginResult> => {
     try {
-      const response = await authApi.login({ loginInput, password });
+      // ✅ NUEVO: Incluir recaptchaToken en la petición
+      const response = await authApi.login({
+        loginInput,
+        password,
+        recaptchaToken,
+      });
+
+      console.log("📡 Respuesta del servidor:", response.data);
 
       if (response.data.success) {
-        const { token, usuario } = response.data.data;
+        const { token, usuario } = response.data.data!;
 
         if (usuario.rol_id === 1) {
           return {
@@ -182,7 +203,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // Si es admin, inicializar preferencia con su sucursal actual
         if (usuario.rol_id === 3) {
-          // ✅ Usar el ID del objeto sucursal si existe
           const sucursalId =
             usuario.sucursal?.sucursal_id || usuario.sucursal_id;
           localStorage.setItem("sucursal_admin", sucursalId.toString());
@@ -192,6 +212,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // ✅ INICIALIZAR TIMESTAMP DE ACTIVIDAD
         actualizarActividad();
         console.log("✅ Timestamp de actividad inicializado");
+        console.log("Token:", token);
+        console.log("Usuario:", usuario);
 
         setUser(usuario);
         setIsAuthenticated(true);
@@ -199,21 +221,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { success: true };
       }
 
+      // ✅ Manejar respuesta de error del servidor
+      const errorData = response.data;
+
       return {
         success: false,
-        error: "CREDENCIALES_INVALIDAS",
-        message: "Usuario o contraseña incorrectos",
+        error: (errorData.error as any) || "CREDENCIALES_INVALIDAS",
+        message: errorData.message || "Error en el login",
+        requiereCaptcha: errorData.requiereCaptcha || false, // ✅ NUEVO
       };
     } catch (error: any) {
       console.error("❌ Error en login:", error);
 
+      // ✅ NUEVO: Extraer requiereCaptcha de la respuesta de error
+      const errorResponse = error.response?.data;
+
       return {
         success: false,
-        error: "ERROR_SERVIDOR",
+        error: (errorResponse?.error as any) || "ERROR_SERVIDOR",
         message:
-          error.response?.data?.error ||
-          error.response?.data?.message ||
+          errorResponse?.message ||
+          error.message ||
           "No se pudo conectar con el servidor",
+        requiereCaptcha: errorResponse?.requiereCaptcha || false, // ✅ NUEVO
       };
     }
   };
@@ -224,7 +254,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("sivec_token");
     localStorage.removeItem("sivec_user");
     localStorage.removeItem("sucursal_admin");
-    localStorage.removeItem("sivec_last_activity"); // ✅ LIMPIAR TIMESTAMP
+    localStorage.removeItem("sivec_last_activity");
 
     window.location.href = "/login";
 
@@ -239,7 +269,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     loading,
-    actualizarActividad, // ✅ EXPORTAR FUNCIÓN
+    actualizarActividad,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

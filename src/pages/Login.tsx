@@ -1,28 +1,135 @@
-import React, { useState } from "react";
+// src/pages/Login.tsx - Método EXPLÍCITO con grecaptcha.render()
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Icons } from "../components/icons/IconMap";
 import { useNotification } from "../hooks/useNotification";
+
+const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+    onRecaptchaLoad?: () => void;
+  }
+}
 
 const Login = () => {
   const [loginInput, setLoginInput] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [requiereCaptcha, setRequiereCaptcha] = useState(false);
+
+  // ✅ Referencia al contenedor del captcha
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  // ✅ ID del widget renderizado
+  const widgetIdRef = useRef<number | null>(null);
+
   const navigate = useNavigate();
   const { login } = useAuth();
   const noti = useNotification();
 
+  // ✅ Cargar script de reCAPTCHA
+  useEffect(() => {
+    if (document.getElementById("recaptcha-script")) {
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "recaptcha-script";
+    script.src =
+      "https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit";
+    script.async = true;
+    script.defer = true;
+
+    // ✅ Callback global que Google llamará cuando el script esté listo
+    window.onRecaptchaLoad = () => {};
+
+    document.head.appendChild(script);
+
+    return () => {
+      const existingScript = document.getElementById("recaptcha-script");
+      if (existingScript) {
+        existingScript.remove();
+      }
+      delete window.onRecaptchaLoad;
+    };
+  }, []);
+
+  // ✅ Renderizar el captcha cuando sea necesario
+  useEffect(() => {
+    if (!requiereCaptcha) return;
+    if (!recaptchaContainerRef.current) return;
+
+    // Esperar a que grecaptcha esté disponible
+    const renderCaptcha = () => {
+      if (!window.grecaptcha || !window.grecaptcha.render) {
+        setTimeout(renderCaptcha, 100);
+        return;
+      }
+
+      // Si ya existe un widget, resetearlo en lugar de crear uno nuevo
+      if (widgetIdRef.current !== null) {
+        try {
+          window.grecaptcha.reset(widgetIdRef.current);
+          return;
+        } catch (err) {
+          console.warn("No se pudo resetear, renderizando de nuevo:", err);
+          widgetIdRef.current = null;
+        }
+      }
+
+      try {
+        widgetIdRef.current = window.grecaptcha.render(
+          recaptchaContainerRef.current,
+          {
+            sitekey: RECAPTCHA_SITE_KEY,
+            theme: "light",
+            size: "normal",
+          }
+        );
+      } catch (err) {
+        console.error("❌ Error al renderizar captcha:", err);
+        setError("Error al cargar el captcha. Recarga la página.");
+      }
+    };
+
+    renderCaptcha();
+  }, [requiereCaptcha]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    let recaptchaToken: string | null = null;
+
+    if (requiereCaptcha) {
+      if (!window.grecaptcha || widgetIdRef.current === null) {
+        setError("El captcha aún no está listo. Intenta de nuevo.");
+        return;
+      }
+
+      try {
+        recaptchaToken = window.grecaptcha.getResponse(widgetIdRef.current);
+
+        if (!recaptchaToken) {
+          setError("Por favor completa el captcha para continuar");
+          return;
+        }
+      } catch (err) {
+        console.error("Error al obtener token:", err);
+        setError("Error al validar captcha. Recarga la página.");
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
-      const result = await login(loginInput, password);
+      const result = await login(loginInput, password, recaptchaToken);
 
       if (result.success) {
-        // ✅ Login exitoso - navegar sin toast
         noti.success({
           title: "Bienvenido de nuevo",
           message: "Tu acceso ha sido verificado correctamente.",
@@ -32,24 +139,55 @@ const Login = () => {
           navigate("/dashboard");
         }, 200);
       } else {
-        // ❌ Manejar errores solo con banner inline
-        switch (result.error) {
-          case "PILOTO_BLOQUEADO":
-            setError("Acceso denegado para pilotos");
-            break;
+        // Si el servidor dice que requiere captcha
+        if (result.requiereCaptcha && !requiereCaptcha) {
+          setRequiereCaptcha(true);
+          setError(
+            "Demasiados intentos fallidos. Por favor completa el captcha."
+          );
+        } else {
+          // Resetear captcha si existe
+          if (
+            requiereCaptcha &&
+            window.grecaptcha &&
+            widgetIdRef.current !== null
+          ) {
+            try {
+              window.grecaptcha.reset(widgetIdRef.current);
+            } catch (err) {
+              console.warn("No se pudo resetear el captcha:", err);
+            }
+          }
 
-          case "CREDENCIALES_INVALIDAS":
-            setError("Credenciales inválidas");
-            break;
-
-          case "ERROR_SERVIDOR":
-            setError(
-              result.message || "Error del servidor. Intenta nuevamente."
-            );
-            break;
-
-          default:
-            setError(result.message || "Ocurrió un error inesperado");
+          // Mostrar error específico
+          switch (result.error) {
+            case "PILOTO_BLOQUEADO":
+              setError("Acceso denegado para pilotos");
+              break;
+            case "CREDENCIALES_INVALIDAS":
+              setError("Credenciales inválidas");
+              break;
+            case "CAPTCHA_REQUERIDO":
+              setRequiereCaptcha(true);
+              setError("Debes completar el captcha para continuar");
+              break;
+            case "CAPTCHA_INVALIDO":
+              setError("Captcha inválido o expirado. Intenta de nuevo.");
+              break;
+            case "USUARIO_INACTIVO":
+              setError(
+                result.message ||
+                  "Tu cuenta está desactivada. Contacta al administrador."
+              );
+              break;
+            case "ERROR_SERVIDOR":
+              setError(
+                result.message || "Error del servidor. Intenta nuevamente."
+              );
+              break;
+            default:
+              setError(result.message || "Ocurrió un error inesperado");
+          }
         }
       }
     } catch (err: any) {
@@ -85,7 +223,7 @@ const Login = () => {
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Error Banner - Solo esto, sin toasts */}
+          {/* Error Banner */}
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2 animate-fadeIn">
               <Icons.alertCircle className="w-5 h-5 flex-shrink-0" />
@@ -110,6 +248,7 @@ const Login = () => {
               className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
               placeholder="usuario123 o correo@ejemplo.com"
               required
+              disabled={loading}
             />
           </div>
 
@@ -130,8 +269,16 @@ const Login = () => {
               className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
               placeholder="••••••••"
               required
+              disabled={loading}
             />
           </div>
+
+          {/* reCAPTCHA Container - Método explícito */}
+          {requiereCaptcha && (
+            <div className="flex justify-center animate-fadeIn">
+              <div ref={recaptchaContainerRef}></div>
+            </div>
+          )}
 
           {/* Botón */}
           <button
@@ -151,6 +298,13 @@ const Login = () => {
               </>
             )}
           </button>
+
+          {/* Mensaje informativo si requiere captcha */}
+          {requiereCaptcha && (
+            <p className="text-center text-sm text-orange-600 dark:text-orange-400 animate-fadeIn">
+              🔒 Por seguridad, debes completar la verificación
+            </p>
+          )}
         </form>
 
         {/* Footer */}
