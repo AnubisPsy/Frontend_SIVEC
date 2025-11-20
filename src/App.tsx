@@ -21,10 +21,13 @@ import AdminPilotosTemporales from "./pages/AdminPilotosTemporales";
 import Layout from "./components/Layout";
 import { SucursalProvider } from "./contexts/SucursalContext";
 import Perfil from "./pages/Perfil";
+import { useAutoPageTitle } from "./hooks/usePageTitle";
 
 // ✅ Componente que maneja las rutas según autenticación
 function AppRoutes() {
   const { isAuthenticated, loading, actualizarActividad } = useAuth();
+
+  useAutoPageTitle();
 
   // ✅ DETECTAR ACTIVIDAD DEL USUARIO
   useEffect(() => {

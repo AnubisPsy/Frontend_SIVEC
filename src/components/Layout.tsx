@@ -6,6 +6,8 @@ import { Icons } from "../components/icons/IconMap";
 import { useConfirm } from "../hooks/useConfirm";
 import { ConfirmDialog } from "../hooks/ConfirmDialog";
 import SelectorSucursal from "./SelectorSucursal";
+import sivecLogoSvg from "../assets/logos/sivec-logo.svg";
+import sivecIconOnly from "../assets/logos/sivec-icon-only.png";
 
 interface Usuario {
   usuario_id: number;
@@ -74,12 +76,22 @@ const Layout = () => {
       <nav className="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo y título */}
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-                <Icons.truck className="w-6 h-6 text-white" />
+            {/* Logo y título - Click para ir al Dashboard */}
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="flex items-center hover:opacity-80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1"
+            >
+              {/* Contenedor con fondo para el ícono */}
+              <div className="w-10 h-10 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center mr-3 shadow-sm border border-gray-100 dark:border-slate-600 transition-colors">
+                <img
+                  src={sivecIconOnly}
+                  alt="SIVEC"
+                  className="w-7 h-7 object-contain"
+                />
               </div>
-              <div>
+
+              {/* Texto HTML */}
+              <div className="text-left">
                 <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">
                   SIVEC
                 </h1>
@@ -87,7 +99,7 @@ const Layout = () => {
                   Sistema de Control de Vehículos
                 </p>
               </div>
-            </div>
+            </button>
 
             {/* Right side: Theme toggle + User menu */}
             <div className="flex items-center gap-3">

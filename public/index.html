@@ -1,43 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="%PUBLIC_URL%/sivec-icon-only.ico" />
+
+    <!-- Viewport para responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+
+    <!-- Theme color para navegadores móviles (azul de SIVEC) -->
+    <meta name="theme-color" content="#2563eb" />
+
+    <!-- Descripción para SEO -->
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="SIVEC - Sistema de Verificación de Entregas de Camiones. Plataforma para gestión y control de entregas, correlación de datos GPS y guías de remisión en tiempo real."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    <!-- Keywords para SEO -->
+    <meta
+      name="keywords"
+      content="SIVEC, verificación de entregas, control de flotas, logística, entregas, camiones, GPS, tracking vehicular, guías de remisión"
+    />
+
+    <!-- Autor -->
+    <meta name="author" content="Maderas y Suministros S.A (MADEYSO)" />
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/sivec-icon-only.png" />
+
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Título por defecto (será reemplazado dinámicamente) -->
+    <title>SIVEC - Sistema de Verificación de Entregas de Camiones</title>
+
+    <!-- Open Graph para redes sociales -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="SIVEC - Sistema de Verificación de Entregas de Camiones"
+    />
+    <meta
+      property="og:description"
+      content="Plataforma para gestión y control de entregas con correlación de datos GPS y guías de remisión."
+    />
+    <meta property="og:image" content="%PUBLIC_URL%/sivec-logo.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="SIVEC - Sistema de Verificación de Entregas de Camiones"
+    />
+    <meta
+      name="twitter:description"
+      content="Plataforma para gestión y control de entregas con correlación de datos GPS y guías de remisión."
+    />
+    <meta name="twitter:image" content="%PUBLIC_URL%/sivec-logo.png" />
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          font-family: system-ui, -apple-system, sans-serif;
+          text-align: center;
+          padding: 20px;
+          background: #f9fafb;
+          color: #374151;
+        "
+      >
+        <div>
+          <h1 style="font-size: 24px; margin-bottom: 12px">
+            ⚠️ JavaScript Requerido
+          </h1>
+          <p style="font-size: 16px; color: #6b7280">
+            SIVEC requiere JavaScript para funcionar correctamente.<br />
+            Por favor, habilita JavaScript en tu navegador para continuar.
+          </p>
+        </div>
+      </div>
+    </noscript>
+
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

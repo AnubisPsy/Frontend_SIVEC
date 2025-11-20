@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Icons } from "../components/icons/IconMap";
 import { useNotification } from "../hooks/useNotification";
+import sivecLogoPng from "../assets/logos/sivec-logo.png";
 
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
 
@@ -210,14 +211,18 @@ const Login = () => {
       <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-3xl shadow-2xl w-full max-w-md p-8 relative z-10 border border-white/20 dark:border-slate-700">
         {/* Logo y título */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icons.shield className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+          {/* Logo completo (reemplaza el ícono y texto) */}
+          <div className="flex justify-center mb-4">
+            <img
+              src={sivecLogoPng}
+              alt="SIVEC - Sistema de Control de Vehículos"
+              className="h-16 w-auto object-contain"
+            />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100 mb-2">
-            SIVEC
-          </h1>
+
+          {/* Solo mantener el subtítulo */}
           <p className="text-gray-600 dark:text-slate-400">
-            Sistema de Control de Vehículos
+            Sistema de Verificación de Entregas de Camiones
           </p>
         </div>
 
