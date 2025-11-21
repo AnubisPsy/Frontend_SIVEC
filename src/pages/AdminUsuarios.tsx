@@ -80,7 +80,7 @@ const AdminUsuarios: React.FC = () => {
 
   useEffect(() => {
     if (user?.rol_id !== 3) {
-      window.location.href = "/dashboard";
+      window.location.href = "/home";
       return;
     }
     cargarUsuarios();

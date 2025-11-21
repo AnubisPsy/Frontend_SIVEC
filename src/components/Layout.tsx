@@ -76,9 +76,9 @@ const Layout = () => {
       <nav className="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo y título - Click para ir al Dashboard */}
+            {/* Logo y título - Click para ir al Inicio */}
             <button
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/home")}
               className="flex items-center hover:opacity-80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1"
             >
               {/* Contenedor con fondo para el ícono */}
@@ -175,12 +175,12 @@ const Layout = () => {
                       <button
                         onClick={() => {
                           setMenuAbierto(false);
-                          navigate("/dashboard");
+                          navigate("/home");
                         }}
                         className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
                       >
                         <Icons.home className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                        <span className="font-medium">Dashboard</span>
+                        <span className="font-medium">Inicio</span>
                       </button>
 
                       {/* Historial (para Jefes y Admins) */}
@@ -194,6 +194,22 @@ const Layout = () => {
                         >
                           <Icons.clock className="w-5 h-5 text-gray-400 dark:text-slate-500" />
                           <span className="font-medium">Historial (24h)</span>
+                        </button>
+                      )}
+
+                      {/* Dashboard Analytics (para Jefes y Admins) */}
+                      {(usuario?.rol_id === 2 || usuario?.rol_id === 3) && (
+                        <button
+                          onClick={() => {
+                            setMenuAbierto(false);
+                            navigate("/dashboard");
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
+                        >
+                          <Icons.barChart className="w-5 h-5 text-gray-400 dark:text-slate-500" />
+                          <span className="font-medium">
+                            Dashboard Analytics
+                          </span>
                         </button>
                       )}
 

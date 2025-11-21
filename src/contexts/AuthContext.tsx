@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const ultimaActividad = localStorage.getItem("sivec_last_activity");
 
     if (!ultimaActividad) {
-      console.log("⚠️ No hay registro de última actividad");
+    //  console.log("⚠️ No hay registro de última actividad");
       return false;
     }
 
@@ -78,12 +78,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const tiempoInactivo = ahora - parseInt(ultimaActividad);
     const horasInactivo = tiempoInactivo / MILISEGUNDOS_POR_HORA;
 
-    console.log(`⏰ Tiempo inactivo: ${horasInactivo.toFixed(2)} horas`);
+  //  console.log(`⏰ Tiempo inactivo: ${horasInactivo.toFixed(2)} horas`);
 
     if (tiempoInactivo > TIEMPO_MAXIMO_INACTIVIDAD) {
-      console.log(
-        `❌ Inactividad excedida (>${HORAS_INACTIVIDAD}h) - Forzando logout`
-      );
+    //  console.log(
+    //    `❌ Inactividad excedida (>${HORAS_INACTIVIDAD}h) - Forzando logout`
+    //  );
       return true;
     }
 
@@ -97,9 +97,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const verificarAutenticacion = async () => {
-    console.log("═══════════════════════════════════════════════════");
+   /* console.log("═══════════════════════════════════════════════════");
     console.log("🔍 VERIFICAR AUTENTICACIÓN");
-    console.log("═══════════════════════════════════════════════════");
+    console.log("═══════════════════════════════════════════════════");*/
 
     try {
       const token = localStorage.getItem("sivec_token");
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const hayInactividad = verificarInactividad();
 
         if (hayInactividad) {
-          console.log("⏰ Sesión expirada por inactividad - Limpiando...");
+        //  console.log("⏰ Sesión expirada por inactividad - Limpiando...");
           localStorage.removeItem("sivec_token");
           localStorage.removeItem("sivec_user");
           localStorage.removeItem("sucursal_admin");
@@ -123,16 +123,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await authApi.verificarToken();
 
         const user = JSON.parse(userData);
-        console.log("📄 Usuario de localStorage:", user);
+      /*  console.log("📄 Usuario de localStorage:", user);
         console.log("  - sucursal_id (directo):", user.sucursal_id);
         console.log("  - sucursal (objeto):", user.sucursal);
         console.log("  - rol_id:", user.rol_id);
+        */
 
         // Si es admin, verificar preferencia guardada
         if (user.rol_id === 3) {
-          console.log("👤 Usuario es ADMIN");
+       //   console.log("👤 Usuario es ADMIN");
           const sucursalGuardada = localStorage.getItem("sucursal_admin");
-          console.log("🏢 Preferencia guardada:", sucursalGuardada);
+        //  console.log("🏢 Preferencia guardada:", sucursalGuardada);
 
           if (sucursalGuardada) {
             const nuevaSucursalId = parseInt(sucursalGuardada);
@@ -143,12 +144,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Si tiene objeto sucursal, actualizar su ID también
             if (user.sucursal) {
               user.sucursal.sucursal_id = nuevaSucursalId;
-              console.log(
+           /*  console.log(
                 `✅ Objeto sucursal actualizado a ID: ${nuevaSucursalId}`
               );
+              */
             }
 
-            console.log("📄 Usuario FINAL:", user);
+          //  console.log("📄 Usuario FINAL:", user);
           }
         }
 
@@ -157,17 +159,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // ✅ ACTUALIZAR ACTIVIDAD AL VERIFICAR
         actualizarActividad();
-        console.log("✅ Usuario cargado en estado + actividad actualizada");
+      //  console.log("✅ Usuario cargado en estado + actividad actualizada");
       }
     } catch (error) {
-      console.log("❌ Token inválido, limpiando...");
+    //  console.log("❌ Token inválido, limpiando...");
       localStorage.removeItem("sivec_token");
       localStorage.removeItem("sivec_user");
       localStorage.removeItem("sucursal_admin");
       localStorage.removeItem("sivec_last_activity");
     } finally {
       setLoading(false);
-      console.log("═══════════════════════════════════════════════════");
+    //  console.log("═══════════════════════════════════════════════════");
     }
   };
 
@@ -185,7 +187,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         recaptchaToken,
       });
 
-      console.log("📡 Respuesta del servidor:", response.data);
+    //  console.log("📡 Respuesta del servidor:", response.data);
 
       if (response.data.success) {
         const { token, usuario } = response.data.data!;
@@ -206,14 +208,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const sucursalId =
             usuario.sucursal?.sucursal_id || usuario.sucursal_id;
           localStorage.setItem("sucursal_admin", sucursalId.toString());
-          console.log(`✅ Preferencia inicializada: ${sucursalId}`);
+      //    console.log(`✅ Preferencia inicializada: ${sucursalId}`);
         }
 
         // ✅ INICIALIZAR TIMESTAMP DE ACTIVIDAD
         actualizarActividad();
-        console.log("✅ Timestamp de actividad inicializado");
+    /*    console.log("✅ Timestamp de actividad inicializado");
         console.log("Token:", token);
         console.log("Usuario:", usuario);
+        */
 
         setUser(usuario);
         setIsAuthenticated(true);
@@ -249,7 +252,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    console.log("👋 Logout - Limpiando...");
+ //   console.log("👋 Logout - Limpiando...");
 
     localStorage.removeItem("sivec_token");
     localStorage.removeItem("sivec_user");
@@ -259,7 +262,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.location.href = "/login";
 
     authApi.logout().catch(() => {
-      console.log("⚠️ No se pudo notificar logout al servidor");
+      //console.log("⚠️ No se pudo notificar logout al servidor");
     });
   };
 

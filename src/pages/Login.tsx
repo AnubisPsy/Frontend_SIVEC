@@ -137,7 +137,7 @@ const Login = () => {
         });
 
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate("/home");
         }, 200);
       } else {
         // Si el servidor dice que requiere captcha

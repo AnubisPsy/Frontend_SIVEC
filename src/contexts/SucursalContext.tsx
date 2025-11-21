@@ -43,7 +43,7 @@ export const SucursalProvider: React.FC<{ children: ReactNode }> = ({
       if (response.data.success) {
         const sucursalesData = response.data.data;
         setSucursales(sucursalesData);
-        console.log(`✅ ${sucursalesData.length} sucursales cargadas`);
+      //  console.log(`✅ ${sucursalesData.length} sucursales cargadas`);
       }
     } catch (error: any) {
       console.error("❌ Error cargando sucursales:", error);
@@ -63,16 +63,17 @@ export const SucursalProvider: React.FC<{ children: ReactNode }> = ({
     // ✅ OBTENER SUCURSAL ACTUAL DEL OBJETO
     const sucursalActualId = user?.sucursal?.sucursal_id || user?.sucursal_id;
 
-    console.log("═══════════════════════════════════════════════════");
+  /*  console.log("═══════════════════════════════════════════════════");
     console.log("🔄 CAMBIAR SUCURSAL");
     console.log("═══════════════════════════════════════════════════");
     console.log("Usuario ID:", user.usuario_id);
     console.log("Sucursal actual ID:", sucursalActualId);
     console.log("Nueva sucursal ID:", sucursalId);
+    */
 
     // Verificar que sea un cambio real
     if (sucursalActualId === sucursalId) {
-      console.log("ℹ️ Ya estás en esa sucursal");
+   //   console.log("ℹ️ Ya estás en esa sucursal");
       toast.info("Ya estás en esa sucursal");
       return;
     }
@@ -88,13 +89,14 @@ export const SucursalProvider: React.FC<{ children: ReactNode }> = ({
       return;
     }
 
-    console.log(
+  /*  console.log(
       `✅ Sucursal encontrada: "${sucursalSeleccionada.nombre_sucursal}"`
     );
+*/
 
     try {
       // 🔥 PASO 1: ACTUALIZAR EN LA BASE DE DATOS
-      console.log("📡 Actualizando sucursal en la base de datos...");
+    //  console.log("📡 Actualizando sucursal en la base de datos...");
       toast.info("Cambiando sucursal...", { autoClose: 2000 });
 
       const response = await usuariosApi.actualizarSucursal(
@@ -102,10 +104,10 @@ export const SucursalProvider: React.FC<{ children: ReactNode }> = ({
         sucursalId
       );
 
-      console.log("📥 Respuesta del servidor:", response.data);
+    //  console.log("📥 Respuesta del servidor:", response.data);
 
       if (response.data.success) {
-        console.log("✅ Sucursal actualizada en BD exitosamente");
+        //     console.log("✅ Sucursal actualizada en BD exitosamente");
 
         // 🔥 PASO 2: ACTUALIZAR LOCALSTORAGE
         const usuarioActualizado = {
@@ -120,7 +122,7 @@ export const SucursalProvider: React.FC<{ children: ReactNode }> = ({
         localStorage.setItem("sivec_user", JSON.stringify(usuarioActualizado));
         localStorage.setItem("sucursal_admin", sucursalId.toString());
 
-        console.log("✅ Usuario actualizado en localStorage");
+        //      console.log("✅ Usuario actualizado en localStorage");
 
         // 🔥 PASO 3: NOTIFICAR Y RECARGAR
         toast.success(
@@ -130,8 +132,8 @@ export const SucursalProvider: React.FC<{ children: ReactNode }> = ({
           }
         );
 
-        console.log("🔄 Recargando página en 1 segundo...");
-        console.log("═══════════════════════════════════════════════════");
+        //     console.log("🔄 Recargando página en 1 segundo...");
+        //    console.log("═══════════════════════════════════════════════════");
 
         setTimeout(() => {
           window.location.reload();

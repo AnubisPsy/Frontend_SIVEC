@@ -60,7 +60,8 @@ import {
   FileTextIcon,
   List,
   RefreshCcw, // 🔃
-  Percent, // %
+  Percent,
+  TargetIcon, // %
 } from "lucide-react";
 
 export const Icons = {
@@ -125,4 +126,5 @@ export const Icons = {
   refreshCcw: RefreshCcw,
   percent: Percent,
   circle: circle,
+  target: TargetIcon,
 };

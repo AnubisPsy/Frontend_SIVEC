@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import MapaWialon from "../components/MapaWialon";
 import { Icons } from "../components/icons/IconMap";
+import { useSocket } from "../contexts/SocketContext";
 
 interface Vehiculo {
   placa: string;
@@ -48,6 +49,7 @@ interface Viaje {
 const DetalleViaje = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { socket, isConnected } = useSocket();
   const [viaje, setViaje] = useState<Viaje | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,90 @@ const DetalleViaje = () => {
   useEffect(() => {
     cargarViaje();
   }, [id]);
+
+  useEffect(() => {
+    if (!socket || !id) return;
+
+    console.log(`🔌 Uniéndose al room del viaje ${id}`);
+    socket.emit("join:viaje", parseInt(id));
+
+    return () => {
+      console.log(`🔌 Saliendo del room del viaje ${id}`);
+      socket.emit("leave:viaje", parseInt(id));
+    };
+  }, [socket, id]);
+
+  // ✅ EFECTO 3: Escuchar eventos en tiempo real
+  useEffect(() => {
+    if (!socket || !id) return;
+
+    console.log("👂 Escuchando eventos del viaje", id);
+
+    // Evento: Guía asignada
+    socket.on("factura:guia_asignada", (data) => {
+      console.log("📨 Guía asignada:", data);
+
+      if (data.viaje_id === parseInt(id)) {
+        recargarSilencioso(); // ← USAR recarga silenciosa
+      }
+    });
+
+    // Evento: Estado de viaje actualizado
+    socket.on("viaje:estado_actualizado", (data) => {
+      console.log("📨 Estado del viaje actualizado:", data);
+
+      if (data.viaje_id === parseInt(id)) {
+        recargarSilencioso(); // ← USAR recarga silenciosa
+      }
+    });
+
+    // Evento: Estado de guía actualizado
+    socket.on("guia:estado_actualizado", (data) => {
+      console.log("📨 Estado de guía actualizado:", data);
+
+      if (data.viaje_id === parseInt(id)) {
+        recargarSilencioso(); // ← USAR recarga silenciosa
+      }
+    });
+
+    // Evento: Progreso del viaje actualizado
+    socket.on("viaje:progreso_actualizado", (data) => {
+      console.log("📨 Progreso actualizado:", data);
+
+      if (data.viaje_id === parseInt(id)) {
+        // Actualización optimista inmediata (sin fetch)
+        setViaje((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            total_guias: data.total_guias,
+            guias_entregadas: data.guias_entregadas,
+          };
+        });
+
+        // Después hacer fetch silencioso para sincronizar todo
+        setTimeout(() => recargarSilencioso(), 500);
+      }
+    });
+
+    // Evento: Viaje completado
+    socket.on("viaje:completado", (data) => {
+      console.log("📨 ✅ Viaje completado:", data);
+
+      if (data.viaje_id === parseInt(id)) {
+        recargarSilencioso(); // ← USAR recarga silenciosa
+      }
+    });
+
+    return () => {
+      socket.off("factura:guia_asignada");
+      socket.off("viaje:estado_actualizado");
+      socket.off("guia:estado_actualizado");
+      socket.off("viaje:progreso_actualizado");
+      socket.off("viaje:completado");
+      console.log("🧹 Listeners removidos");
+    };
+  }, [socket, id]);
 
   const cargarViaje = async () => {
     try {
@@ -84,6 +170,28 @@ const DetalleViaje = () => {
       setError("No se pudo cargar el detalle del viaje");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const recargarSilencioso = async () => {
+    try {
+      const token = localStorage.getItem("sivec_token");
+
+      const response = await axios.get(
+        `http://localhost:3000/api/viajes/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const viajeData = response.data.data || response.data;
+
+      // Actualizar datos sin mostrar spinner
+      setViaje(viajeData);
+      console.log("🔄 Datos actualizados silenciosamente");
+    } catch (err) {
+      console.error("❌ Error en recarga silenciosa:", err);
+      // No mostrar error al usuario, es una actualización en background
     }
   };
 
@@ -124,11 +232,11 @@ const DetalleViaje = () => {
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
         <div className="max-w-7xl mx-auto">
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/home")}
             className="mb-4 flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors gap-2"
           >
             <Icons.chevronLeft className="w-5 h-5" />
-            Volver al Dashboard
+            Volver al Inicio
           </button>
           <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg flex items-center gap-3">
             <Icons.alertCircle className="w-5 h-5 flex-shrink-0" />
@@ -149,11 +257,11 @@ const DetalleViaje = () => {
       <div className="max-w-7xl mx-auto">
         {/* Botón volver */}
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/home")}
           className="mb-6 flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors gap-2"
         >
           <Icons.chevronLeft className="w-5 h-5" />
-          Volver al Dashboard
+          Volver al Inicio
         </button>
 
         {/* Header del viaje */}

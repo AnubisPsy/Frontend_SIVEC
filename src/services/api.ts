@@ -255,4 +255,100 @@ export const facturasApi = {
   obtenerDatosFormulario: () => api.get("/api/facturas/form-data"),
 };
 
+export const estadisticasApi = {
+  obtenerDashboard: (fecha?: string) =>
+    api.get<
+      ApiResponse<{
+        viajesActivos: number;
+        viajesCompletados: number;
+        entregasCompletadas: number;
+        entregasPendientes: number;
+        tasaExito: number;
+        totalGuias: number;
+      }>
+    >("/api/estadisticas/dashboard", {
+      params: fecha ? { fecha } : {},
+    }),
+
+  obtenerEntregasPorHora: (fecha?: string) =>
+    api.get<
+      ApiResponse<
+        Array<{
+          hora: string;
+          entregas: number;
+        }>
+      >
+    >("/api/estadisticas/entregas-por-hora", {
+      params: fecha ? { fecha } : {},
+    }),
+
+  obtenerViajesPorSucursal: (params?: {
+    fecha_desde?: string;
+    fecha_hasta?: string;
+    sucursal_id?: number;
+  }) =>
+    api.get<
+      ApiResponse<
+        Array<{
+          nombre: string;
+          viajes: number;
+        }>
+      >
+    >("/api/estadisticas/viajes-por-sucursal", { params }),
+
+  obtenerTopPilotos: (params?: {
+    fecha_desde?: string;
+    fecha_hasta?: string;
+  }) =>
+    api.get<
+      ApiResponse<
+        Array<{
+          piloto: string;
+          viajes: number;
+          entregas: number;
+          total: number;
+          tasaExito: number;
+        }>
+      >
+    >("/api/estadisticas/top-pilotos", { params }),
+
+  obtenerActividadReciente: (limit?: number) =>
+    api.get<
+      ApiResponse<
+        Array<{
+          tipo: string;
+          descripcion: string;
+          timestamp: string;
+          estado: number;
+        }>
+      >
+    >("/api/estadisticas/actividad-reciente", {
+      params: limit ? { limit } : {},
+    }),
+
+  obtenerTendenciaSemanal: () =>
+    api.get<
+      ApiResponse<
+        Array<{
+          fecha: string;
+          dia: string;
+          entregas: number;
+        }>
+      >
+    >("/api/estadisticas/tendencia-semanal"),
+
+  obtenerComparacionEstados: (fecha?: string) =>
+    api.get<
+      ApiResponse<
+        Array<{
+          estado: string;
+          cantidad: number;
+          color: string;
+        }>
+      >
+    >("/api/estadisticas/comparacion-estados", {
+      params: fecha ? { fecha } : {},
+    }),
+};
+
 export default api;

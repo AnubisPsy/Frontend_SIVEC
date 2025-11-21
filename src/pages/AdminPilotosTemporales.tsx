@@ -26,7 +26,7 @@ const AdminPilotosTemporales: React.FC = () => {
 
   useEffect(() => {
     if (user?.rol_id !== 3) {
-      window.location.href = "/dashboard";
+      window.location.href = "/home";
       return;
     }
     cargarPilotos();

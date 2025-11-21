@@ -12,7 +12,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
 import HistorialViajes from "./pages/HistorialViajes";
 import Reportes from "./pages/Reportes";
 import DetalleViaje from "./pages/DetalleViaje";
@@ -22,6 +22,8 @@ import Layout from "./components/Layout";
 import { SucursalProvider } from "./contexts/SucursalContext";
 import Perfil from "./pages/Perfil";
 import { useAutoPageTitle } from "./hooks/usePageTitle";
+import { SocketProvider } from "./contexts/SocketContext";
+import Dashboard from "./pages/Dashboard";
 
 // ✅ Componente que maneja las rutas según autenticación
 function AppRoutes() {
@@ -80,14 +82,13 @@ function AppRoutes() {
       {/* Ruta pública - Login */}
       <Route
         path="/login"
-        element={
-          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
-        }
+        element={isAuthenticated ? <Navigate to="/home" replace /> : <Login />}
       />
 
       {/* Rutas protegidas */}
       {isAuthenticated ? (
         <Route element={<Layout />}>
+          <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/historial" element={<HistorialViajes />} />
           <Route path="/reportes" element={<Reportes />} />
@@ -104,16 +105,12 @@ function AppRoutes() {
       {/* Redirección por defecto */}
       <Route
         path="/"
-        element={
-          <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
-        }
+        element={<Navigate to={isAuthenticated ? "/home" : "/login"} replace />}
       />
 
       <Route
         path="*"
-        element={
-          <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
-        }
+        element={<Navigate to={isAuthenticated ? "/home" : "/login"} replace />}
       />
     </Routes>
   );
@@ -228,25 +225,27 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <SucursalProvider>
-          <Router>
-            <AppRoutes />
+          <SocketProvider>
+            <Router>
+              <AppRoutes />
 
-            {/* Toast Container - Notificaciones elegantes */}
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={true}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="colored"
-              aria-label="Notificaciones"
-              style={{ zIndex: 99999 }}
-            />
-          </Router>
+              {/* Toast Container - Notificaciones elegantes */}
+              <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={true}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+                aria-label="Notificaciones"
+                style={{ zIndex: 99999 }}
+              />
+            </Router>
+          </SocketProvider>
         </SucursalProvider>
       </AuthProvider>
     </ThemeProvider>

@@ -12,15 +12,15 @@ const SelectorSucursal: React.FC = () => {
     useSucursal();
   const [renderKey, setRenderKey] = useState(0);
 
-  console.log("🎨 SELECTOR RENDER:");
-  console.log("  user.sucursal_id (directo):", user?.sucursal_id);
-  console.log("  user.sucursal:", user?.sucursal);
-  console.log("  user.sucursal.sucursal_id:", user?.sucursal?.sucursal_id);
+  //console.log("🎨 SELECTOR RENDER:");
+  ///console.log("  user.sucursal_id (directo):", user?.sucursal_id);
+  //console.log("  user.sucursal:", user?.sucursal);
+  //console.log("  user.sucursal.sucursal_id:", user?.sucursal?.sucursal_id);
 
   // Cargar sucursales al montar
   useEffect(() => {
     if (user?.rol_id === 3) {
-      console.log("✅ Admin detectado, cargando sucursales");
+     // console.log("✅ Admin detectado, cargando sucursales");
       cargarSucursales();
     }
   }, [user?.rol_id]);
@@ -37,7 +37,7 @@ const SelectorSucursal: React.FC = () => {
 
   // ✅ USAR EL CAMPO CORRECTO
   const sucursalActual = user?.sucursal?.sucursal_id || user?.sucursal_id || 1;
-  console.log("🏢 Sucursal actual a mostrar:", sucursalActual);
+  //console.log("🏢 Sucursal actual a mostrar:", sucursalActual);
 
   return (
     <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-slate-700 rounded-lg">
@@ -61,7 +61,7 @@ const SelectorSucursal: React.FC = () => {
             value={sucursalActual} // ✅ CORREGIDO: Usar sucursal del objeto
             onChange={(e) => {
               const nuevaSucursalId = parseInt(e.target.value);
-              console.log("🎯 Cambio seleccionado:", nuevaSucursalId);
+              //console.log("🎯 Cambio seleccionado:", nuevaSucursalId);
               cambiarSucursal(nuevaSucursalId);
             }}
             className="bg-transparent border-none text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1 cursor-pointer min-w-[8rem]"

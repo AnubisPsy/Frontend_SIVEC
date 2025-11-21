@@ -1,205 +1,200 @@
+// src/pages/Dashboard.tsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { useTheme } from "../contexts/ThemeContext";
-import { facturasApi } from "../services/api";
-import FormularioAsignarFactura from "../components/FormularioAsignarFactura";
-import { Button } from "../components/ui/Button";
+import { useSocket } from "../contexts/SocketContext";
+import { estadisticasApi, sucursalesApi } from "../services/api";
 import { Icons } from "../components/icons/IconMap";
-import { theme } from "../styles/theme";
-import { useNotification } from "../hooks/useNotification";
-import TablaViajesDashboard from "../components/TablaViajesDashboard";
+import { useAuth } from "../contexts/AuthContext";
 
-// Tipos
-interface Vehiculo {
-  placa: string;
-  agrupacion: string;
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
+interface Metricas {
+  viajesActivos: number;
+  viajesCompletados: number;
+  entregasCompletadas: number;
+  entregasPendientes: number;
+  tasaExito: number;
+  totalGuias: number;
 }
 
-interface Estados {
-  codigo: string;
+interface ComparacionEstado {
+  estado: string;
+  cantidad: number;
+  color: string;
+}
+
+interface TendenciaDia {
+  fecha: string;
+  dia: string;
+  entregas: number;
+}
+
+interface ViajePorSucursal {
   nombre: string;
+  viajes: number;
 }
 
-interface Guia {
-  guia_id: number;
-  numero_guia: string;
-  detalle_producto: string;
-  cliente: string;
-  direccion: string;
-  estado_id: number;
-  fecha_entrega: string | null;
-  estados: Estados;
-}
-
-interface Factura {
-  factura_id: number;
-  numero_factura: string;
-  estado_id: number;
-  notas_jefe: string | null;
-  guias: Guia[];
-}
-
-interface Viaje {
-  viaje_id: number;
-  numero_vehiculo: string;
+interface TopPiloto {
   piloto: string;
-  created_at: string;
-  vehiculo: Vehiculo;
-  facturas: Factura[];
-  total_guias: number;
-  guias_entregadas: number;
-  estado_viaje?: number;
+  viajes: number;
+  entregas: number;
+  total: number;
+  tasaExito: number;
+}
+
+interface Actividad {
+  tipo: string;
+  descripcion: string;
+  timestamp: string;
+  estado: number;
 }
 
 const Dashboard = () => {
-  const [viajes, setViajes] = useState<Viaje[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const { user, isAuthenticated } = useAuth();
-  const { isDark } = useTheme();
-  const location = useLocation();
-  const [vistaActual, setVistaActual] = useState<"cards" | "tabla">(() => {
-    // Cargar preferencia guardada o usar 'cards' por defecto
-    const vistaGuardada = localStorage.getItem("vista_dashboard");
-    return vistaGuardada === "tabla" || vistaGuardada === "cards"
-      ? vistaGuardada
-      : "cards";
+  const { socket, isConnected } = useSocket();
+
+  const [metricas, setMetricas] = useState<Metricas>({
+    viajesActivos: 0,
+    viajesCompletados: 0,
+    entregasCompletadas: 0,
+    entregasPendientes: 0,
+    tasaExito: 0,
+    totalGuias: 0,
   });
-  const cambiarVista = (nuevaVista: "cards" | "tabla") => {
-    setVistaActual(nuevaVista);
-    localStorage.setItem("vista_dashboard", nuevaVista);
-  };
-  const noti = useNotification();
+
+  const [comparacionEstados, setComparacionEstados] = useState<
+    ComparacionEstado[]
+  >([]);
+  const [tendenciaSemanal, setTendenciaSemanal] = useState<TendenciaDia[]>([]);
+  const [viajesPorSucursal, setViajesPorSucursal] = useState<
+    ViajePorSucursal[]
+  >([]);
+  const [topPilotos, setTopPilotos] = useState<TopPiloto[]>([]);
+  const [actividades, setActividades] = useState<Actividad[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sucursalSeleccionada, setSucursalSeleccionada] = useState<
+    number | "todas"
+  >("todas");
+  const [sucursalesDisponibles, setSucursalesDisponibles] = useState<any[]>([]);
+  const { user } = useAuth();
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    cargarTodasEstadisticas();
+  }, []);
+
+  // Escuchar eventos WebSocket
+  useEffect(() => {
+    if (!socket) return;
+
+    console.log("👂 Dashboard escuchando eventos WebSocket");
+
+    const recargarEstadisticas = () => {
+      console.log("🔄 Evento recibido, recargando estadísticas...");
+      cargarTodasEstadisticas();
+    };
+
+    socket.on("factura:guia_asignada", recargarEstadisticas);
+    socket.on("viaje:estado_actualizado", recargarEstadisticas);
+    socket.on("guia:estado_actualizado", recargarEstadisticas);
+    socket.on("viaje:progreso_actualizado", recargarEstadisticas);
+    socket.on("viaje:completado", recargarEstadisticas);
+
+    return () => {
+      socket.off("factura:guia_asignada", recargarEstadisticas);
+      socket.off("viaje:estado_actualizado", recargarEstadisticas);
+      socket.off("guia:estado_actualizado", recargarEstadisticas);
+      socket.off("viaje:progreso_actualizado", recargarEstadisticas);
+      socket.off("viaje:completado", recargarEstadisticas);
+    };
+  }, [socket]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      console.log("⚠️ Dashboard: No autenticado, saltando carga");
-      setLoading(false);
-      return;
-    }
+    const cargarSucursales = async () => {
+      if (user?.rol_id === 3) {
+        // Solo admin
+        try {
+          const response = await sucursalesApi.obtenerTodas();
+          if (response.data.success) {
+            setSucursalesDisponibles(response.data.data);
+          }
+        } catch (error) {
+          console.error("Error cargando sucursales:", error);
+        }
+      }
+    };
+    cargarSucursales();
+  }, [user]);
 
-    console.log("✅ Dashboard: Autenticado, cargando viajes...");
-    cargarViajes();
-  }, [isAuthenticated]);
-
-  const puedeAsignar = user?.rol_id === 2 || user?.rol_id === 3;
-
-  const handleAsignarFactura = async (nuevaFactura: any) => {
-    try {
-      await facturasApi.asignar(nuevaFactura);
-      noti.success({
-        title: "Factura Asignada",
-        message: `La factura ${nuevaFactura.numero_factura} ha sido asignada exitosamente.`,
-      });
-      setMostrarFormulario(false);
-      cargarViajes();
-    } catch (error: any) {
-      noti.error({
-        title: "Error al Asignar Factura",
-        message: `No se pudo asignar la factura. ${
-          error.response?.data?.error || error.message
-        }`,
-      });
-      throw error;
-    }
-  };
-
-  const obtenerEstadoViaje = (
-    viaje: Viaje
-  ): { texto: string; color: string; bgColor: string } => {
-    if (viaje.total_guias === 0) {
-      return {
-        texto: "Sin guías asignadas",
-        color: "text-gray-700 dark:text-gray-300",
-        bgColor: "bg-gray-100 dark:bg-gray-900/30",
-      };
-    } else if (viaje.guias_entregadas === viaje.total_guias) {
-      return {
-        texto: "Completado",
-        color: "text-green-700 dark:text-green-400",
-        bgColor: "bg-green-100 dark:bg-green-900/30",
-      };
-    } else if (viaje.guias_entregadas > 0) {
-      return {
-        texto: "En ruta",
-        color: "text-blue-700 dark:text-blue-300",
-        bgColor: "bg-blue-100 dark:bg-blue-900/30",
-      };
-    } else {
-      return {
-        texto: "Preparando",
-        color: "text-orange-700 dark:text-orange-300",
-        bgColor: "bg-orange-100 dark:bg-orange-900/30",
-      };
-    }
-  };
-
-  const cargarViajes = async () => {
-    console.log("🚀 INICIANDO cargarViajes...");
+  const cargarTodasEstadisticas = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("sivec_token");
 
-      if (!token) {
-        setError("No hay token de autenticación");
-        navigate("/login");
-        return;
-      }
+      const hoy = new Date().toISOString().split("T")[0];
 
-      const response = await axios.get<Viaje[]>(
-        "http://localhost:3000/api/viajes?estado=activo",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      // Cargar todas las estadísticas en paralelo
+      const [
+        resDashboard,
+        resComparacion,
+        resTendencia,
+        resSucursales,
+        resPilotos,
+        resActividad,
+      ] = await Promise.all([
+        estadisticasApi.obtenerDashboard(hoy),
+        estadisticasApi.obtenerComparacionEstados(hoy),
+        estadisticasApi.obtenerTendenciaSemanal(),
+        // ✅ CAMBIO: Pasar sucursal seleccionada
+        estadisticasApi.obtenerViajesPorSucursal({
+          fecha_desde: hoy,
+          fecha_hasta: hoy,
+          sucursal_id:
+            sucursalSeleccionada === "todas" ? undefined : sucursalSeleccionada,
+        }),
+        estadisticasApi.obtenerTopPilotos({
+          fecha_desde: hoy,
+          fecha_hasta: hoy,
+        }),
+        estadisticasApi.obtenerActividadReciente(10),
+      ]);
 
-      console.log("✅ Viajes recibidos:", response.data.length);
-      setViajes(response.data);
-      setError(null);
-    } catch (err: any) {
-      console.error(
-        "❌ Error cargando viajes:",
-        err.response?.status,
-        err.message
-      );
+      setMetricas(resDashboard.data.data);
+      setComparacionEstados(resComparacion.data.data);
+      setTendenciaSemanal(resTendencia.data.data);
+      setViajesPorSucursal(resSucursales.data.data);
+      setTopPilotos(resPilotos.data.data);
+      setActividades(resActividad.data.data);
 
-      if (err.response?.status === 401) {
-        setError("Sesión expirada.");
-      } else {
-        setError("No se pudieron cargar los viajes activos");
-      }
+      console.log("✅ Estadísticas cargadas");
+    } catch (error) {
+      console.error("❌ Error cargando estadísticas:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const calcularProgreso = (viaje: Viaje): number => {
-    if (viaje.total_guias === 0) return 0;
-    return Math.round((viaje.guias_entregadas / viaje.total_guias) * 100);
-  };
-
-  const getProgresoColor = (progreso: number): string => {
-    if (progreso === 0) return "bg-gray-400";
-    if (progreso < 50) return "bg-red-500";
-    if (progreso < 100) return "bg-yellow-500";
-    return "bg-green-500";
-  };
-
-  const verDetalle = (viajeId: number) => {
-    navigate(`/viaje/${viajeId}`);
-  };
+  // Colores para gráficos
+  const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
         <div className="text-center">
-          <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-slate-300 font-medium">
-            Cargando viajes activos...
+          <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-400 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-slate-400">
+            Cargando estadísticas...
           </p>
         </div>
       </div>
@@ -211,317 +206,327 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                Dashboard de Viajes
-              </h1>
-              <p className="text-gray-600 dark:text-slate-400">
-                Monitorea el estado de todos los viajes activos en tiempo real
-              </p>
-            </div>
-
-            {puedeAsignar && (
-              <Button
-                variant={mostrarFormulario ? "outline" : "primary"}
-                size="lg"
-                icon={mostrarFormulario ? "x" : "plus"}
-                onClick={() => setMostrarFormulario(!mostrarFormulario)}
-              >
-                {mostrarFormulario ? "Cancelar" : "Asignar Factura"}
-              </Button>
-            )}
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-3">
+            <Icons.barChart className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            Dashboard Analytics
+          </h1>
+          <p className="text-gray-600 dark:text-slate-400 mt-2">
+            Métricas y estadísticas en tiempo real
+          </p>
         </div>
 
-        {/* Formulario de asignación */}
-        {mostrarFormulario && puedeAsignar && (
-          <div className="mb-8 animate-fadeIn">
-            <FormularioAsignarFactura
-              onAsignarFactura={handleAsignarFactura}
-              onCancelar={() => setMostrarFormulario(false)}
-            />
-          </div>
-        )}
-
-        {/* Toggle Vista */}
-        <div className="mb-6 flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-            Vista:
-          </span>
-          <div className="inline-flex rounded-lg bg-gray-100 dark:bg-slate-700 p-1">
-            <button
-              onClick={() => cambiarVista("cards")}
-              className={`px-4 py-2 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${
-                vistaActual === "cards"
-                  ? "bg-white dark:bg-slate-600 text-gray-900 dark:text-slate-100 shadow-sm"
-                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
+        {/* Indicador WebSocket */}
+        <div className="mb-6">
+          <div
+            className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${
+              isConnected
+                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+            }`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full ${
+                isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"
               }`}
-            >
-              <Icons.grid className="w-4 h-4" />
-              Tarjetas
-            </button>
-            <button
-              onClick={() => cambiarVista("tabla")}
-              className={`px-4 py-2 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${
-                vistaActual === "tabla"
-                  ? "bg-white dark:bg-slate-600 text-gray-900 dark:text-slate-100 shadow-sm"
-                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <Icons.list className="w-4 h-4" />
-              Tabla
-            </button>
+            ></div>
+            <span className="text-sm font-medium">
+              {isConnected
+                ? "Actualización en tiempo real activa"
+                : "Sin conexión en tiempo real"}
+            </span>
           </div>
         </div>
 
-        {/* Resumen rápido - Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Viajes Activos */}
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
-                  Viajes Activos
-                </p>
-                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
-                  {viajes.length}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <Icons.truck className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Total Guías */}
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
-                  Total Guías
-                </p>
-                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
-                  {viajes.reduce((sum, v) => sum + v.total_guias, 0)}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                <Icons.document className="w-7 h-7 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Guías Entregadas */}
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
-                  Guías Entregadas
-                </p>
-                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
-                  {viajes.reduce((sum, v) => sum + v.guias_entregadas, 0)}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                <Icons.checkCircle className="w-7 h-7 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Error Alert */}
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-lg mb-6 flex items-start">
-            <Icons.alertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-3 mt-0.5" />
-            <div>
-              <p className="font-medium text-red-800 dark:text-red-300">
-                Error
-              </p>
-              <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Lista de viajes */}
-        {viajes.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-12 text-center">
-            <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Icons.truck className="w-10 h-10 text-gray-400 dark:text-slate-500" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-2">
-              No hay viajes activos
-            </h3>
-            <p className="text-gray-600 dark:text-slate-400 mb-6">
-              Cuando se asignen viajes, aparecerán aquí
+        {/* GRID PRINCIPAL - 3 gráficos grandes */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* 1. Comparación de Estados (Barras) */}
+          <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+              <Icons.barChart className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              Estados de Entregas
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+              Hoy
             </p>
-            {puedeAsignar && (
-              <Button
-                variant="primary"
-                icon="plus"
-                onClick={() => setMostrarFormulario(true)}
-              >
-                Asignar Primera Factura
-              </Button>
+            {comparacionEstados.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={comparacionEstados}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis dataKey="estado" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      border: "1px solid #334155",
+                      borderRadius: "8px",
+                      color: "#e2e8f0",
+                    }}
+                  />
+                  <Bar dataKey="cantidad" radius={[8, 8, 0, 0]}>
+                    {comparacionEstados.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-gray-500 dark:text-slate-400 text-center py-8">
+                Sin datos de entregas
+              </p>
             )}
           </div>
-        ) : vistaActual === "tabla" ? (
-          <TablaViajesDashboard
-            viajes={viajes}
-            calcularProgreso={calcularProgreso}
-            obtenerEstadoViaje={obtenerEstadoViaje}
-          />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {viajes.map((viaje) => {
-              const progreso = calcularProgreso(viaje);
-              const estado = obtenerEstadoViaje(viaje);
 
-              return (
-                <div
-                  key={viaje.viaje_id}
-                  className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-all cursor-pointer group"
-                  onClick={() => verDetalle(viaje.viaje_id)}
+          {/* 2. Tendencia Últimos 7 Días (Línea) */}
+          <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+              <Icons.activity className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              Tendencia Semanal
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+              Entregas de últimos 7 días
+            </p>
+            {tendenciaSemanal.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={tendenciaSemanal}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis dataKey="dia" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      border: "1px solid #334155",
+                      borderRadius: "8px",
+                      color: "#e2e8f0",
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="entregas"
+                    stroke="#8b5cf6"
+                    strokeWidth={3}
+                    dot={{ fill: "#8b5cf6", r: 5 }}
+                    activeDot={{ r: 7 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-gray-500 dark:text-slate-400 text-center py-8">
+                Sin datos de tendencia
+              </p>
+            )}
+          </div>
+
+          {/* 3. Tasa de Éxito (Circular) */}
+          <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+              <Icons.target className="w-5 h-5 text-green-600 dark:text-green-400" />
+              Tasa de Éxito
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+              Hoy
+            </p>
+            <div className="flex flex-col items-center justify-center py-4">
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: "Exitosas", value: metricas.tasaExito },
+                      { name: "Fallidas", value: 100 - metricas.tasaExito },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    startAngle={90}
+                    endAngle={-270}
+                    dataKey="value"
+                  >
+                    <Cell fill="#10b981" />
+                    <Cell fill="#e5e7eb" />
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="text-center mt-4">
+                <p className="text-5xl font-bold text-green-600 dark:text-green-400">
+                  {metricas.tasaExito}%
+                </p>
+                <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">
+                  {metricas.entregasCompletadas} de {metricas.totalGuias}{" "}
+                  entregas
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* GRID SECUNDARIO - Viajes por sucursal */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Viajes por Sucursal */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 flex items-center gap-2">
+                <Icons.mapPin className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                Viajes por Sucursal
+              </h2>
+
+              {/* ✅ SELECTOR DE SUCURSAL (solo admins) */}
+              {user?.rol_id === 3 && sucursalesDisponibles.length > 0 && (
+                <select
+                  value={sucursalSeleccionada}
+                  onChange={(e) =>
+                    setSucursalSeleccionada(
+                      e.target.value === "todas"
+                        ? "todas"
+                        : parseInt(e.target.value)
+                    )
+                  }
+                  className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-slate-100 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {/* Header del viaje */}
-                  <div className="p-6 border-b border-gray-100 dark:border-slate-700">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                          <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            {viaje.numero_vehiculo}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-slate-400">
-                            {viaje.vehiculo?.placa || "Sin placa"}
-                          </p>
-                        </div>
-                      </div>
+                  <option value="todas">Todas las sucursales</option>
+                  {sucursalesDisponibles.map((sucursal) => (
+                    <option
+                      key={sucursal.sucursal_id}
+                      value={sucursal.sucursal_id}
+                    >
+                      {sucursal.nombre_sucursal}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
 
-                      <span
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${estado.color} ${estado.bgColor}`}
-                      >
-                        {estado.texto}
-                      </span>
+            {viajesPorSucursal.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={viajesPorSucursal}
+                    dataKey="viajes"
+                    nameKey="nombre"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                  >
+                    {viajesPorSucursal.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      border: "1px solid #334155",
+                      borderRadius: "8px",
+                      color: "#e2e8f0",
+                    }}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-gray-500 dark:text-slate-400 text-center py-8">
+                {user?.rol_id === 3
+                  ? "Sin datos para la sucursal seleccionada"
+                  : "Solo administradores pueden ver esta métrica"}
+              </p>
+            )}
+          </div>
+
+          {/* Top 5 Pilotos */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+              <Icons.user className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              Top 5 Pilotos
+            </h2>
+            {topPilotos.length > 0 ? (
+              <div className="space-y-3">
+                {topPilotos.map((piloto, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-slate-700"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900 dark:text-slate-100">
+                          {piloto.piloto}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">
+                          {piloto.viajes} viajes • {piloto.entregas}/
+                          {piloto.total} entregas
+                        </p>
+                      </div>
                     </div>
-
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-slate-300 mb-4">
-                      <Icons.user className="w-4 h-4 text-gray-400 dark:text-slate-500" />
-                      <span className="text-sm font-medium">
-                        {viaje.piloto}
-                      </span>
-                    </div>
-
-                    {/* Barra de progreso */}
-                    <div>
-                      <div className="flex justify-between items-center text-sm mb-2">
-                        <span className="text-gray-600 dark:text-slate-400 font-medium">
-                          Progreso de entregas
-                        </span>
-                        <span className="font-bold text-gray-900 dark:text-slate-100">
-                          {viaje.guias_entregadas} / {viaje.total_guias}
-                        </span>
-                      </div>
-
-                      <div className="relative w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-                        <div
-                          className={`h-full ${getProgresoColor(
-                            progreso
-                          )} transition-all duration-500 ease-out rounded-full`}
-                          style={{ width: `${progreso}%` }}
-                        />
-                      </div>
-
-                      <p className="text-xs text-gray-500 dark:text-slate-500 mt-1.5 font-medium">
-                        {progreso}% completado
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                        {piloto.tasaExito}%
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">
+                        éxito
                       </p>
                     </div>
                   </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 dark:text-slate-400 text-center py-8">
+                Sin datos de pilotos
+              </p>
+            )}
+          </div>
+        </div>
 
-                  {/* Facturas */}
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">
-                        Facturas asignadas
-                      </h4>
-                      <span className="text-sm font-bold text-gray-600 dark:text-slate-400">
-                        {viaje.facturas?.length || 0}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2.5">
-                      {viaje.facturas?.slice(0, 3).map((factura) => {
-                        const guiasEntregadas =
-                          factura.guias?.filter((g) => g.estado_id === 4)
-                            .length || 0;
-                        const totalGuias = factura.guias?.length || 0;
-                        const porcentaje =
-                          totalGuias > 0
-                            ? Math.round((guiasEntregadas / totalGuias) * 100)
-                            : 0;
-
-                        return (
-                          <div
-                            key={factura.factura_id}
-                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full" />
-                              <div>
-                                <p className="font-semibold text-gray-900 dark:text-slate-100 text-sm">
-                                  {factura.numero_factura}
-                                </p>
-                                <p className="text-xs text-gray-600 dark:text-slate-400">
-                                  {totalGuias}{" "}
-                                  {totalGuias === 1 ? "guía" : "guías"}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
-                                  porcentaje === 100
-                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                    : porcentaje > 0
-                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                    : "bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-slate-300"
-                                }`}
-                              >
-                                {guiasEntregadas}/{totalGuias}
-                              </span>
-                            </div>
-                          </div>
-                        );
+        {/* Actividad Reciente - MÁS COMPACTA */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+            <Icons.clock className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            Actividad Reciente
+          </h2>
+          {actividades.length > 0 ? (
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {" "}
+              {/* ← CAMBIO: space-y-2 y max-h-64 */}
+              {actividades.map((actividad, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 p-2 bg-gray-50 dark:bg-slate-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                      actividad.estado === 4
+                        ? "bg-green-500"
+                        : actividad.estado === 5
+                        ? "bg-red-500"
+                        : "bg-blue-500"
+                    }`}
+                  ></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900 dark:text-slate-100 truncate">
+                      {actividad.descripcion}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">
+                      {new Date(actividad.timestamp).toLocaleString("es-HN", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
-
-                      {viaje.facturas?.length > 3 && (
-                        <p className="text-xs text-gray-500 dark:text-slate-500 text-center pt-2 font-medium">
-                          + {viaje.facturas.length - 3} facturas más
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700/30 border-t border-gray-100 dark:border-slate-700 rounded-b-xl">
-                    <button
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        verDetalle(viaje.viaje_id);
-                      }}
-                    >
-                      Ver detalles completos
-                      <Icons.chevronRight className="w-4 h-4" />
-                    </button>
+                    </p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 dark:text-slate-400 text-center py-8">
+              Sin actividad reciente
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

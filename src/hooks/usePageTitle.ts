@@ -8,7 +8,8 @@ import { useLocation } from "react-router-dom";
  */
 const routeTitles: Record<string, string> = {
   "/login": "Iniciar Sesión",
-  "/dashboard": "Dashboard",
+  "/home": "Inicio",
+  "/dashboard": "Dashboard Analytics",
   "/historial": "Historial de Viajes",
   "/reportes": "Reportes",
   "/admin/usuarios": "Administrar Usuarios",
