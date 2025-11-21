@@ -425,4 +425,44 @@ export const vehiculosApi = {
     api.get<ApiResponse<Array<any>>>(`/api/vehiculos/sucursal/${sucursal_id}`),
 };
 
+// ==========================================
+// UBICACIONES API
+// ==========================================
+
+export const ubicacionesApi = {
+  obtenerTodas: (params?: { sucursal_id?: number }) =>
+    api.get<
+      ApiResponse<{
+        total: number;
+        con_gps: number;
+        sin_gps: number;
+        en_viaje: number;
+        ubicaciones: Array<{
+          vehiculo_id: number;
+          numero_vehiculo: string;
+          placa: string;
+          sucursal_id: number;
+          sucursal: string;
+          wialon_id: number | null;
+          wialon_uid: string | null;
+          tiene_gps: boolean;
+          latitud: number | null;
+          longitud: number | null;
+          velocidad: number;
+          direccion: number;
+          ultima_actualizacion: string | null;
+          wialon_nombre: string | null; 
+          tiene_viaje: boolean;
+          viaje_id: number | null;
+          piloto: string | null;
+          estado_viaje: string;
+          estado_viaje_id: number | null;
+        }>;
+      }>
+    >("/api/ubicaciones", { params }),
+
+  obtenerPorVehiculo: (numero_vehiculo: string) =>
+    api.get<ApiResponse<any>>(`/api/ubicaciones/${numero_vehiculo}`),
+};
+
 export default api;

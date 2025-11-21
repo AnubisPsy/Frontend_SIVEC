@@ -213,6 +213,19 @@ const Layout = () => {
                         </button>
                       )}
 
+                      {(usuario?.rol_id === 2 || usuario?.rol_id === 3) && (
+                        <button
+                          onClick={() => {
+                            setMenuAbierto(false);
+                            navigate("/mapa-vivo");
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
+                        >
+                          <Icons.map className="w-5 h-5 text-gray-400 dark:text-slate-500" />
+                          <span className="font-medium">Mapa en Vivo</span>
+                        </button>
+                      )}
+
                       {/* Opciones solo para admins */}
                       {usuario?.rol_id === 3 && (
                         <>

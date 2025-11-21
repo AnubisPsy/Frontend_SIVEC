@@ -25,6 +25,7 @@ import { useAutoPageTitle } from "./hooks/usePageTitle";
 import { SocketProvider } from "./contexts/SocketContext";
 import Dashboard from "./pages/Dashboard";
 import AdminVehiculos from "./pages/AdminVehiculos";
+import MapaVivo from "./pages/MapaVivo";
 
 // ✅ Componente que maneja las rutas según autenticación
 function AppRoutes() {
@@ -100,6 +101,7 @@ function AppRoutes() {
             element={<AdminPilotosTemporales />}
           />
           <Route path="/admin/vehiculos" element={<AdminVehiculos />} />
+          <Route path="/mapa-vivo" element={<MapaVivo />} />
           <Route path="/perfil" element={<Perfil />} />
         </Route>
       ) : null}

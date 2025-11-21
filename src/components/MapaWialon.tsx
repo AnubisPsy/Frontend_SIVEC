@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Icons } from "./icons/IconMap";
+import "../styles/leaflet-fix.css";
 
 interface MapaWialonProps {
   numeroVehiculo: string;
@@ -167,7 +168,15 @@ const MapaWialon: React.FC<MapaWialonProps> = ({ numeroVehiculo }) => {
       )}
 
       {/* Mapa */}
-      <div ref={mapContainer} style={{ height: "400px", width: "100%" }} />
+      <div
+        ref={mapContainer}
+        style={{
+          height: "400px",
+          width: "100%",
+          position: "relative",
+          zIndex: 0,
+        }}
+      />
 
       {/* Info del vehículo */}
       {vehiculo && (

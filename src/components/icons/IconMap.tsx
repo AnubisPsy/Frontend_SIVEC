@@ -61,7 +61,8 @@ import {
   List,
   RefreshCcw, // 🔃
   Percent,
-  TargetIcon, // %
+  TargetIcon,
+  Map, // %
 } from "lucide-react";
 
 export const Icons = {
@@ -127,4 +128,5 @@ export const Icons = {
   percent: Percent,
   circle: circle,
   target: TargetIcon,
+  map: Map,
 };
