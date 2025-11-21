@@ -24,6 +24,7 @@ import Perfil from "./pages/Perfil";
 import { useAutoPageTitle } from "./hooks/usePageTitle";
 import { SocketProvider } from "./contexts/SocketContext";
 import Dashboard from "./pages/Dashboard";
+import AdminVehiculos from "./pages/AdminVehiculos";
 
 // ✅ Componente que maneja las rutas según autenticación
 function AppRoutes() {
@@ -98,6 +99,7 @@ function AppRoutes() {
             path="/admin/pilotos-temporales"
             element={<AdminPilotosTemporales />}
           />
+          <Route path="/admin/vehiculos" element={<AdminVehiculos />} />
           <Route path="/perfil" element={<Perfil />} />
         </Route>
       ) : null}

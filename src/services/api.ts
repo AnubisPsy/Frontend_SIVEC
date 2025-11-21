@@ -351,4 +351,78 @@ export const estadisticasApi = {
     }),
 };
 
+// ==========================================
+// VEHÍCULOS API
+// ==========================================
+
+export const vehiculosApi = {
+  obtenerTodos: (params?: {
+    sucursal_id?: number;
+    agrupacion?: string;
+    activo?: boolean;
+    busqueda?: string;
+  }) =>
+    api.get<
+      ApiResponse<
+        Array<{
+          vehiculo_id: number;
+          agrupacion: string | null;
+          numero_vehiculo: string;
+          placa: string;
+          sucursal_id: number;
+          activo: boolean;
+          created_at: string;
+          updated_at: string;
+          sucursales?: {
+            sucursal_id: number;
+            nombre_sucursal: string;
+          };
+        }>
+      >
+    >("/api/vehiculos", { params }),
+
+  obtenerPorId: (id: number) =>
+    api.get<
+      ApiResponse<{
+        vehiculo_id: number;
+        agrupacion: string | null;
+        numero_vehiculo: string;
+        placa: string;
+        sucursal_id: number;
+        activo: boolean;
+        created_at: string;
+        updated_at: string;
+      }>
+    >(`/api/vehiculos/${id}`),
+
+  crear: (datos: {
+    numero_vehiculo: string;
+    placa: string;
+    agrupacion?: string;
+    sucursal_id: number;
+  }) => api.post<ApiResponse<any>>("/api/vehiculos", datos),
+
+  actualizar: (
+    id: number,
+    datos: {
+      numero_vehiculo?: string;
+      placa?: string;
+      agrupacion?: string;
+      sucursal_id?: number;
+    }
+  ) => api.put<ApiResponse<any>>(`/api/vehiculos/${id}`, datos),
+
+  eliminar: (id: number) =>
+    api.delete<ApiResponse<void>>(`/api/vehiculos/${id}`),
+
+  desactivar: (id: number) =>
+    api.patch<ApiResponse<any>>(`/api/vehiculos/${id}/desactivar`),
+
+  activar: (id: number) =>
+    api.patch<ApiResponse<any>>(`/api/vehiculos/${id}/activar`),
+
+  obtenerPorSucursal: (sucursal_id: number) =>
+    api.get<ApiResponse<Array<any>>>(`/api/vehiculos/sucursal/${sucursal_id}`),
+};
+
 export default api;

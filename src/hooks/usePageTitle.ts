@@ -14,6 +14,7 @@ const routeTitles: Record<string, string> = {
   "/reportes": "Reportes",
   "/admin/usuarios": "Administrar Usuarios",
   "/admin/pilotos-temporales": "Pilotos Temporales",
+  "/admin/vehiculos": "Administrar Vehículos",
   "/perfil": "Mi Perfil",
 };
 
