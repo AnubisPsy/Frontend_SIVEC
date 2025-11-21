@@ -7,7 +7,8 @@ import { useNotification } from "../hooks/useNotification";
 
 const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
   const noti = useNotification();
-  const { confirm, isOpen, options, handleConfirm, handleCancel } = useConfirm();
+  const { confirm, isOpen, options, handleConfirm, handleCancel } =
+    useConfirm();
   const [nuevaFactura, setNuevaFactura] = useState({
     numero_factura: "",
     piloto: "",
@@ -56,16 +57,49 @@ const FormularioAsignarFactura = ({ onAsignarFactura, onCancelar }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validación 1: Campos obligatorios
     if (
       !nuevaFactura.numero_factura ||
       !nuevaFactura.piloto ||
       !nuevaFactura.numero_vehiculo
     ) {
-      //alert("Todos los campos marcados con * son obligatorios");
-      noti.warning("Todos los campos marcados con * son obligatorios");
+      noti.warning({
+        message: "Todos los campos marcados con * son obligatorios",
+      });
       return;
     }
 
+    // ✅ Validación 2: Piloto debe estar en la lista
+    const pilotoValido = datosFormulario.pilotos.some(
+      (p) =>
+        p.nombre_piloto.trim().toLowerCase() ===
+        nuevaFactura.piloto.trim().toLowerCase()
+    );
+
+    if (!pilotoValido) {
+      noti.error({
+        title: "Piloto no válido",
+        message: `El piloto "${nuevaFactura.piloto}" no existe en la lista. Selecciona uno disponible.`,
+      });
+      return;
+    }
+
+    // ✅ Validación 3: Vehículo debe estar en la lista
+    const vehiculoValido = datosFormulario.vehiculos.some(
+      (v) =>
+        v.numero_vehiculo.trim().toLowerCase() ===
+        nuevaFactura.numero_vehiculo.trim().toLowerCase()
+    );
+
+    if (!vehiculoValido) {
+      noti.error({
+        title: "Vehículo no válido",
+        message: `El vehículo "${nuevaFactura.numero_vehiculo}" no existe en tu sucursal. Selecciona uno de la lista.`,
+      });
+      return;
+    }
+
+    // Si llegamos aquí, todo está válido
     setLoading(true);
     try {
       await onAsignarFactura(nuevaFactura);
