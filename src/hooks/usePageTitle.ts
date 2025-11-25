@@ -17,6 +17,8 @@ const routeTitles: Record<string, string> = {
   "/admin/pilotos-temporales": "Pilotos Temporales",
   "/admin/vehiculos": "Administrar Vehículos",
   "/perfil": "Mi Perfil",
+  "/configuracion": "Configuración",
+  "/ayuda": "Centro de Ayuda",
 };
 
 /**

@@ -62,7 +62,9 @@ import {
   RefreshCcw, // 🔃
   Percent,
   TargetIcon,
-  Map, // %
+  Map,
+  Power,
+  HelpCircle, // %
 } from "lucide-react";
 
 export const Icons = {
@@ -129,4 +131,6 @@ export const Icons = {
   circle: circle,
   target: TargetIcon,
   map: Map,
+  power: Power,
+  helpCircle: HelpCircle,
 };

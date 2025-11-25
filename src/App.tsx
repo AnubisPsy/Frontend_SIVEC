@@ -26,6 +26,7 @@ import { SocketProvider } from "./contexts/SocketContext";
 import Dashboard from "./pages/Dashboard";
 import AdminVehiculos from "./pages/AdminVehiculos";
 import MapaVivo from "./pages/MapaVivo";
+import Ayuda from "./components/Ayuda";
 
 // ✅ Componente que maneja las rutas según autenticación
 function AppRoutes() {
@@ -102,6 +103,7 @@ function AppRoutes() {
           />
           <Route path="/admin/vehiculos" element={<AdminVehiculos />} />
           <Route path="/mapa-vivo" element={<MapaVivo />} />
+          <Route path="/ayuda" element={<Ayuda />} />
           <Route path="/perfil" element={<Perfil />} />
         </Route>
       ) : null}

@@ -95,9 +95,13 @@ const AdminUsuarios: React.FC = () => {
       if (response.data.success) {
         setUsuarios(response.data.data as UsuarioConPiloto[]);
       }
+      // ✅ DESPUÉS:
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
-      alert("Error al cargar usuarios");
+      noti.error({
+        title: "Error",
+        message: "No se pudieron cargar los usuarios",
+      });
     } finally {
       setLoading(false);
     }
@@ -155,12 +159,18 @@ const AdminUsuarios: React.FC = () => {
     e.preventDefault();
 
     if (!formulario.nombre_usuario || !formulario.password) {
-      alert("Nombre de usuario y contraseña son requeridos");
+      noti.warning({
+        title: "Campos requeridos",
+        message: "Nombre de usuario y contraseña son obligatorios",
+      });
       return;
     }
 
     if (formulario.rol_id !== 1 && !formulario.correo) {
-      alert("El correo es requerido para jefes y administradores");
+      noti.warning({
+        title: "Campo requerido",
+        message: "El correo es obligatorio para jefes y administradores",
+      });
       return;
     }
 
@@ -172,16 +182,28 @@ const AdminUsuarios: React.FC = () => {
     try {
       if (usuarioEditando) {
         await usuariosApi.actualizar(usuarioEditando.usuario_id, datosUsuario);
-        alert("Usuario actualizado exitosamente");
+        noti.success({
+          title: "Usuario actualizado",
+          message: "El usuario ha sido actualizado exitosamente",
+        });
       } else {
         await usuariosApi.crear(datosUsuario);
-        alert("Usuario creado exitosamente");
+        noti.success({
+          title: "Usuario creado",
+          message: "El usuario ha sido creado exitosamente",
+        });
       }
 
       limpiarFormulario();
       cargarUsuarios();
     } catch (error: any) {
-      alert("Error: " + (error.response?.data?.error || error.message));
+      noti.error({
+        title: "Error al guardar",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "No se pudo guardar el usuario",
+      });
     }
   };
 
@@ -204,13 +226,14 @@ const AdminUsuarios: React.FC = () => {
       piloto_temporal_id: usuario.piloto_temporal_id || null,
     });
     setMostrarFormulario(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleEliminar = async (usuario: UsuarioConPiloto) => {
     const confirmed = await confirm({
-      title: "¿Eliminar usuario?",
-      message: `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre_usuario}"? Esta acción no se puede deshacer.`,
-      confirmText: "Sí, eliminar",
+      title: "¿Deshabilitar usuario?",
+      message: `¿Estás seguro de que deseas deshabilitar al usuario "${usuario.nombre_usuario}"? El usuario no podrá iniciar sesión pero sus datos se conservarán.`,
+      confirmText: "Sí, deshabilitar",
       cancelText: "Cancelar",
       variant: "danger",
     });
@@ -218,21 +241,24 @@ const AdminUsuarios: React.FC = () => {
     if (!confirmed) return;
 
     try {
-      await usuariosApi.eliminar(usuario.usuario_id);
+      // Deshabilitar en lugar de eliminar
+      await usuariosApi.actualizar(usuario.usuario_id, {
+        activo: false,
+      } as Partial<Usuario>);
 
       noti.success({
-        title: "Usuario eliminado",
-        message: "El usuario ha sido eliminado exitosamente",
+        title: "Usuario deshabilitado",
+        message: "El usuario ha sido deshabilitado exitosamente",
       });
 
       cargarUsuarios();
     } catch (error: any) {
       noti.error({
-        title: "Error al eliminar",
+        title: "Error al deshabilitar",
         message:
           error.response?.data?.error ||
           error.message ||
-          "No se pudo eliminar el usuario",
+          "No se pudo deshabilitar el usuario",
       });
     }
   };
@@ -835,8 +861,8 @@ const AdminUsuarios: React.FC = () => {
                                 onClick={() => handleEliminar(usuario)}
                                 className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
                               >
-                                <Icons.trash className="w-4 h-4" />
-                                Eliminar
+                                <Icons.power className="w-4 h-4" />
+                                Deshabilitar
                               </button>
                             )}
                           </>

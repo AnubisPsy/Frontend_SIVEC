@@ -25,14 +25,29 @@ interface Viaje {
 
 const HistorialViajes = () => {
   const [viajes, setViajes] = useState<Viaje[]>([]);
+  const [viajesFiltrados, setViajesFiltrados] = useState<Viaje[]>([]);
   const [estadisticas, setEstadisticas] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Estados de búsqueda y filtros
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState<
+    "todos" | "exitosos" | "parciales" | "fallidos"
+  >("todos");
+  const [ordenamiento, setOrdenamiento] = useState<
+    "reciente" | "antiguo" | "exito_desc" | "exito_asc"
+  >("reciente");
+
   const navigate = useNavigate();
   const noti = useNotification();
 
   useEffect(() => {
     cargarHistorial();
   }, []);
+
+  useEffect(() => {
+    aplicarFiltros();
+  }, [viajes, busqueda, filtroEstado, ordenamiento]);
 
   const cargarHistorial = async () => {
     setLoading(true);
@@ -50,11 +65,70 @@ const HistorialViajes = () => {
       }
     } catch (error: any) {
       console.error("❌ Error cargando historial:", error);
-      //alert("Error al cargar el historial");
-      noti.error({ message: "Error al cargar el historial de viajes."});
+      noti.error({ message: "Error al cargar el historial de viajes." });
     } finally {
       setLoading(false);
     }
+  };
+
+  const aplicarFiltros = () => {
+    let resultado = [...viajes];
+
+    // Filtro de búsqueda
+    if (busqueda) {
+      resultado = resultado.filter(
+        (viaje) =>
+          viaje.piloto.toLowerCase().includes(busqueda.toLowerCase()) ||
+          viaje.numero_vehiculo
+            .toLowerCase()
+            .includes(busqueda.toLowerCase()) ||
+          viaje.viaje_id.toString().includes(busqueda)
+      );
+    }
+
+    // Filtro por estado de éxito
+    if (filtroEstado !== "todos") {
+      resultado = resultado.filter((viaje) => {
+        const porcentaje = viaje.estadisticas.porcentaje_exito;
+        if (filtroEstado === "exitosos") return porcentaje === 100;
+        if (filtroEstado === "parciales")
+          return porcentaje >= 80 && porcentaje < 100;
+        if (filtroEstado === "fallidos") return porcentaje < 80;
+        return true;
+      });
+    }
+
+    // Ordenamiento
+    resultado.sort((a, b) => {
+      switch (ordenamiento) {
+        case "reciente":
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+        case "antiguo":
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        case "exito_desc":
+          return (
+            b.estadisticas.porcentaje_exito - a.estadisticas.porcentaje_exito
+          );
+        case "exito_asc":
+          return (
+            a.estadisticas.porcentaje_exito - b.estadisticas.porcentaje_exito
+          );
+        default:
+          return 0;
+      }
+    });
+
+    setViajesFiltrados(resultado);
+  };
+
+  const limpiarFiltros = () => {
+    setBusqueda("");
+    setFiltroEstado("todos");
+    setOrdenamiento("reciente");
   };
 
   const calcularDuracion = (inicio: string, fin: string) => {
@@ -123,7 +197,7 @@ const HistorialViajes = () => {
 
           {/* Estadísticas rápidas */}
           {estadisticas && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-md border-2 border-blue-200 dark:border-blue-800">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
@@ -189,24 +263,101 @@ const HistorialViajes = () => {
               </div>
             </div>
           )}
+
+          {/* Barra de búsqueda y filtros */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <Icons.search className="w-5 h-5 text-gray-400 dark:text-slate-500" />
+              <h3 className="font-semibold text-gray-700 dark:text-slate-300">
+                Búsqueda y Filtros
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Búsqueda */}
+              <div className="md:col-span-2 relative">
+                <Icons.search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Buscar por piloto, vehículo o ID de viaje..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                />
+              </div>
+
+              {/* Filtro por Estado */}
+              <div>
+                <select
+                  value={filtroEstado}
+                  onChange={(e) => setFiltroEstado(e.target.value as any)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                >
+                  <option value="todos">Todos los estados</option>
+                  <option value="exitosos">Exitosos (100%)</option>
+                  <option value="parciales">Parciales (80-99%)</option>
+                  <option value="fallidos">Fallidos (&lt;80%)</option>
+                </select>
+              </div>
+
+              {/* Ordenamiento */}
+              <div>
+                <select
+                  value={ordenamiento}
+                  onChange={(e) => setOrdenamiento(e.target.value as any)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                >
+                  <option value="reciente">Más recientes</option>
+                  <option value="antiguo">Más antiguos</option>
+                  <option value="exito_desc">Mayor éxito</option>
+                  <option value="exito_asc">Menor éxito</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Indicador de filtros activos */}
+            {(busqueda ||
+              filtroEstado !== "todos" ||
+              ordenamiento !== "reciente") && (
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+                  <span className="font-medium">
+                    {viajesFiltrados.length} resultado
+                    {viajesFiltrados.length !== 1 ? "s" : ""} encontrado
+                    {viajesFiltrados.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <button
+                  onClick={limpiarFiltros}
+                  className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                >
+                  Limpiar filtros
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Lista de viajes */}
-        {viajes.length === 0 ? (
+        {viajesFiltrados.length === 0 ? (
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 p-12 text-center">
             <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <Icons.package className="w-10 h-10 text-gray-400 dark:text-slate-500" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-              No hay viajes completados
+              {viajes.length === 0
+                ? "No hay viajes completados"
+                : "No se encontraron resultados"}
             </h3>
             <p className="text-gray-600 dark:text-slate-400">
-              Los viajes completados en las últimas 24 horas aparecerán aquí
+              {viajes.length === 0
+                ? "Los viajes completados en las últimas 24 horas aparecerán aquí"
+                : "Intenta ajustar los filtros de búsqueda"}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {viajes.map((viaje) => {
+            {viajesFiltrados.map((viaje) => {
               const estadoClasses = getEstadoClasses(
                 viaje.estadisticas.porcentaje_exito
               );
