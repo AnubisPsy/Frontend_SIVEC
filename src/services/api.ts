@@ -1,7 +1,7 @@
 // src/services/api.ts - CON SOPORTE reCAPTCHA
 import axios from "axios";
 
-const API_URL = "http://localhost:3000";
+const API_URL = "http://localhost:3000"; // Cambia esto según tu configuración
 
 // Configurar interceptor para incluir token automáticamente
 const api = axios.create({

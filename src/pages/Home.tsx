@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { useSocket } from "../contexts/SocketContext";
 import { facturasApi } from "../services/api";
 import FormularioAsignarFactura from "../components/FormularioAsignarFactura";
 import { Button } from "../components/ui/Button";
@@ -50,6 +51,8 @@ interface Viaje {
   facturas: Factura[];
   total_guias: number;
   guias_entregadas: number;
+  guias_no_entregadas: number; // ✅ NUEVO
+  total_facturas: number;
   estado_viaje?: number;
 }
 
@@ -61,6 +64,7 @@ const Home = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const { isDark } = useTheme();
+  const { socket, isConnected } = useSocket();
   const location = useLocation();
   const [vistaActual, setVistaActual] = useState<"cards" | "tabla">(() => {
     // Cargar preferencia guardada o usar 'cards' por defecto
@@ -77,14 +81,190 @@ const Home = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-     // console.log("⚠️ Inicio: No autenticado, saltando carga");
       setLoading(false);
       return;
     }
 
-   // console.log("✅ Inicio: Autenticado, cargando viajes...");
     cargarViajes();
   }, [isAuthenticated]);
+
+  // ==========================================
+  // 🔌 WEBSOCKET - ACTUALIZACIÓN EN TIEMPO REAL
+  // ==========================================
+  useEffect(() => {
+    if (!socket || !isConnected) {
+      console.log("⚠️ Socket no conectado aún");
+      return;
+    }
+
+    console.log("📡 Configurando listeners de WebSocket en Home...");
+
+    // Evento: Guía actualizada (entregada/no entregada)
+    const handleGuiaActualizada = (data: any) => {
+      console.log("📦 Guía actualizada:", data);
+
+      setViajes((prevViajes) =>
+        prevViajes.map((viaje) => {
+          // Buscar si este viaje contiene la guía actualizada
+          const facturaConGuia = viaje.facturas?.find((f) =>
+            f.guias?.some((g) => g.guia_id === data.guia_id)
+          );
+
+          if (!facturaConGuia) return viaje;
+
+          // Actualizar el estado de la guía
+          const facturasActualizadas = viaje.facturas.map((factura) => ({
+            ...factura,
+            guias: factura.guias.map((guia) =>
+              guia.guia_id === data.guia_id
+                ? {
+                    ...guia,
+                    estado_id: data.estado_id,
+                    fecha_entrega: data.fecha_entrega || guia.fecha_entrega,
+                  }
+                : guia
+            ),
+          }));
+
+          // Recalcular guías entregadas y no entregadas
+          const todasLasGuias = facturasActualizadas.flatMap((f) => f.guias);
+          const nuevasGuiasEntregadas = todasLasGuias.filter(
+            (g) => g.estado_id === 4
+          ).length;
+          const nuevasGuiasNoEntregadas = todasLasGuias.filter(
+            (g) => g.estado_id === 5
+          ).length;
+
+          return {
+            ...viaje,
+            facturas: facturasActualizadas,
+            guias_entregadas: nuevasGuiasEntregadas,
+            guias_no_entregadas: nuevasGuiasNoEntregadas,
+          };
+        })
+      );
+    };
+
+    // Evento: Progreso del viaje actualizado
+    const handleProgresoActualizado = (data: any) => {
+      console.log("📊 Progreso actualizado:", data);
+
+      setViajes((prevViajes) =>
+        prevViajes.map((viaje) =>
+          viaje.viaje_id === data.viaje_id
+            ? {
+                ...viaje,
+                guias_entregadas: data.guias_entregadas,
+                guias_no_entregadas: data.guias_no_entregadas || 0,
+                total_guias: data.total_guias,
+              }
+            : viaje
+        )
+      );
+    };
+
+    // Evento: Viaje completado
+    const handleViajeCompletado = (data: any) => {
+      console.log("✅ Viaje completado:", data);
+
+      setViajes((prevViajes) =>
+        prevViajes.map((viaje) =>
+          viaje.viaje_id === data.viaje_id
+            ? {
+                ...viaje,
+                estado_viaje: 9, // Estado completado
+                guias_entregadas: data.guias_entregadas,
+                guias_no_entregadas: data.guias_no_entregadas || 0,
+              }
+            : viaje
+        )
+      );
+    };
+
+    // Evento: Estado del viaje actualizado
+    const handleEstadoViajeActualizado = (data: any) => {
+      console.log("🚛 Estado de viaje actualizado:", data);
+
+      setViajes((prevViajes) =>
+        prevViajes.map((viaje) =>
+          viaje.viaje_id === data.viaje_id
+            ? { ...viaje, estado_viaje: data.estado_viaje }
+            : viaje
+        )
+      );
+    };
+
+    // Evento: Guía asignada a factura
+    const handleGuiaAsignada = (data: any) => {
+      console.log("🔗 Guía asignada a factura:", data);
+
+      // Actualizar silenciosamente sin recargar toda la página
+      setViajes((prevViajes) =>
+        prevViajes.map((viaje) => {
+          // Buscar si este viaje contiene la factura afectada
+          const facturaAfectada = viaje.facturas?.find(
+            (f) => f.numero_factura === data.numero_factura
+          );
+
+          if (!facturaAfectada) return viaje;
+
+          // Crear nueva guía con los datos recibidos
+          const nuevaGuia: Guia = {
+            guia_id: data.guia_id,
+            numero_guia: data.numero_guia,
+            detalle_producto: data.detalle_producto || "",
+            cliente: data.cliente || "",
+            direccion: data.direccion || "",
+            estado_id: 3, // Asignada
+            fecha_entrega: null,
+            estados: {
+              codigo: "guia_asignada",
+              nombre: "Asignada",
+            },
+          };
+
+          // Agregar la guía a la factura
+          const facturasActualizadas = viaje.facturas.map((factura) =>
+            factura.numero_factura === data.numero_factura
+              ? {
+                  ...factura,
+                  guias: [...(factura.guias || []), nuevaGuia],
+                }
+              : factura
+          );
+
+          // Recalcular totales
+          const nuevoTotalGuias = facturasActualizadas.reduce(
+            (total, f) => total + (f.guias?.length || 0),
+            0
+          );
+
+          return {
+            ...viaje,
+            facturas: facturasActualizadas,
+            total_guias: nuevoTotalGuias,
+          };
+        })
+      );
+    };
+
+    // Registrar listeners
+    socket.on("guia:estado_actualizado", handleGuiaActualizada);
+    socket.on("viaje:progreso_actualizado", handleProgresoActualizado);
+    socket.on("viaje:completado", handleViajeCompletado);
+    socket.on("viaje:estado_actualizado", handleEstadoViajeActualizado);
+    socket.on("factura:guia_asignada", handleGuiaAsignada);
+
+    // Cleanup
+    return () => {
+      console.log("🧹 Limpiando listeners de WebSocket en Home");
+      socket.off("guia:estado_actualizado", handleGuiaActualizada);
+      socket.off("viaje:progreso_actualizado", handleProgresoActualizado);
+      socket.off("viaje:completado", handleViajeCompletado);
+      socket.off("viaje:estado_actualizado", handleEstadoViajeActualizado);
+      socket.off("factura:guia_asignada", handleGuiaAsignada);
+    };
+  }, [socket, isConnected]);
 
   const puedeAsignar = user?.rol_id === 2 || user?.rol_id === 3;
 
@@ -111,35 +291,74 @@ const Home = () => {
   const obtenerEstadoViaje = (
     viaje: Viaje
   ): { texto: string; color: string; bgColor: string } => {
-    if (viaje.total_guias === 0) {
-      return {
-        texto: "Sin guías asignadas",
-        color: "text-gray-700 dark:text-gray-300",
-        bgColor: "bg-gray-100 dark:bg-gray-900/30",
-      };
-    } else if (viaje.guias_entregadas === viaje.total_guias) {
+    // Priorizar estado_viaje de la BD si existe
+    if (viaje.estado_viaje === 9) {
       return {
         texto: "Completado",
         color: "text-green-700 dark:text-green-400",
         bgColor: "bg-green-100 dark:bg-green-900/30",
       };
-    } else if (viaje.guias_entregadas > 0) {
-      return {
-        texto: "En ruta",
-        color: "text-blue-700 dark:text-blue-300",
-        bgColor: "bg-blue-100 dark:bg-blue-900/30",
-      };
-    } else {
+    }
+
+    // Si no hay guías asignadas pero hay facturas sin guías
+    if (viaje.total_guias < viaje.total_facturas) {
       return {
         texto: "Preparando",
         color: "text-orange-700 dark:text-orange-300",
         bgColor: "bg-orange-100 dark:bg-orange-900/30",
       };
     }
+
+    // Si no hay guías asignadas
+    if (viaje.total_guias === 0) {
+      return {
+        texto: "Sin guías asignadas",
+        color: "text-gray-700 dark:text-gray-300",
+        bgColor: "bg-gray-100 dark:bg-gray-900/30",
+      };
+    }
+
+    // Si hay guías en proceso
+    if (viaje.total_guias === viaje.total_facturas) {
+      return {
+        texto: "En ruta",
+        color: "text-blue-700 dark:text-blue-300",
+        bgColor: "bg-blue-100 dark:bg-blue-900/30",
+      };
+    }
+
+    // Estado inicial
+    return {
+      texto: "Preparando",
+      color: "text-orange-700 dark:text-orange-300",
+      bgColor: "bg-orange-100 dark:bg-orange-900/30",
+    };
+  };
+  
+  const calcularProgreso = (viaje: Viaje): number => {
+    if (viaje.total_guias === 0) return 0;
+    const completadas =
+      viaje.guias_entregadas + (viaje.guias_no_entregadas || 0);
+    return Math.round((completadas / viaje.total_guias) * 100);
+  };
+
+  const calcularPorcentajes = (viaje: Viaje) => {
+    if (viaje.total_guias === 0) {
+      return { entregadas: 0, noEntregadas: 0, pendientes: 0 };
+    }
+
+    const entregadas = Math.round(
+      (viaje.guias_entregadas / viaje.total_guias) * 100
+    );
+    const noEntregadas = Math.round(
+      ((viaje.guias_no_entregadas || 0) / viaje.total_guias) * 100
+    );
+    const pendientes = 100 - entregadas - noEntregadas;
+
+    return { entregadas, noEntregadas, pendientes };
   };
 
   const cargarViajes = async () => {
-  //  console.log("🚀 INICIANDO cargarViajes...");
     try {
       setLoading(true);
       const token = localStorage.getItem("sivec_token");
@@ -157,8 +376,17 @@ const Home = () => {
         }
       );
 
-    //  console.log("✅ Viajes recibidos:", response.data.length);
-      setViajes(response.data);
+      // Agregar total_facturas y guias_no_entregadas a cada viaje
+      const viajesConCalculos = response.data.map((viaje) => ({
+        ...viaje,
+        total_facturas: viaje.facturas?.length || 0,
+        guias_no_entregadas:
+          viaje.facturas
+            ?.flatMap((f) => f.guias || [])
+            .filter((g) => g.estado_id === 5).length || 0,
+      }));
+
+      setViajes(viajesConCalculos);
       setError(null);
     } catch (err: any) {
       console.error(
@@ -175,18 +403,6 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const calcularProgreso = (viaje: Viaje): number => {
-    if (viaje.total_guias === 0) return 0;
-    return Math.round((viaje.guias_entregadas / viaje.total_guias) * 100);
-  };
-
-  const getProgresoColor = (progreso: number): string => {
-    if (progreso === 0) return "bg-gray-400";
-    if (progreso < 50) return "bg-red-500";
-    if (progreso < 100) return "bg-yellow-500";
-    return "bg-green-500";
   };
 
   const verDetalle = (viajeId: number) => {
@@ -207,124 +423,81 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {/* Header mejorado */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                Vista de Viajes
+                Viajes Activos
               </h1>
-              <p className="text-gray-600 dark:text-slate-400">
-                Monitorea el estado de todos los viajes activos en tiempo real
-              </p>
+              <div className="flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
+                  <Icons.truck className="w-4 h-4" />
+                  <span className="font-medium">
+                    {viajes.length} {viajes.length === 1 ? "viaje" : "viajes"}
+                  </span>
+                </div>
+                {isConnected && (
+                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    <span className="font-medium">En tiempo real</span>
+                  </div>
+                )}
+                {!isConnected && (
+                  <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                    <span className="font-medium">Reconectando...</span>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {puedeAsignar && (
-              <Button
-                variant={mostrarFormulario ? "outline" : "primary"}
-                size="lg"
-                icon={mostrarFormulario ? "x" : "plus"}
-                onClick={() => setMostrarFormulario(!mostrarFormulario)}
+            <div className="flex items-center gap-3">
+              {/* Toggle Vista */}
+              <div className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-lg p-1 shadow-sm border border-gray-200 dark:border-slate-700">
+                <button
+                  onClick={() => cambiarVista("cards")}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    vistaActual === "cards"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100"
+                  }`}
+                >
+                  <Icons.grid className="w-4 h-4 inline mr-2" />
+                  Cards
+                </button>
+                <button
+                  onClick={() => cambiarVista("tabla")}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    vistaActual === "tabla"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100"
+                  }`}
+                >
+                  <Icons.table className="w-4 h-4 inline mr-2" />
+                  Tabla
+                </button>
+              </div>
+
+              {puedeAsignar && (
+                <Button
+                  variant="primary"
+                  icon="plus"
+                  onClick={() => setMostrarFormulario(true)}
+                >
+                  Asignar Factura
+                </Button>
+              )}
+
+              <button
+                onClick={cargarViajes}
+                className="p-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                title="Recargar"
               >
-                {mostrarFormulario ? "Cancelar" : "Asignar Factura"}
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Formulario de asignación */}
-        {mostrarFormulario && puedeAsignar && (
-          <div className="mb-8 animate-fadeIn">
-            <FormularioAsignarFactura
-              onAsignarFactura={handleAsignarFactura}
-              onCancelar={() => setMostrarFormulario(false)}
-            />
-          </div>
-        )}
-
-        {/* Toggle Vista */}
-        <div className="mb-6 flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-            Vista:
-          </span>
-          <div className="inline-flex rounded-lg bg-gray-100 dark:bg-slate-700 p-1">
-            <button
-              onClick={() => cambiarVista("cards")}
-              className={`px-4 py-2 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${
-                vistaActual === "cards"
-                  ? "bg-white dark:bg-slate-600 text-gray-900 dark:text-slate-100 shadow-sm"
-                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <Icons.grid className="w-4 h-4" />
-              Tarjetas
-            </button>
-            <button
-              onClick={() => cambiarVista("tabla")}
-              className={`px-4 py-2 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${
-                vistaActual === "tabla"
-                  ? "bg-white dark:bg-slate-600 text-gray-900 dark:text-slate-100 shadow-sm"
-                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <Icons.list className="w-4 h-4" />
-              Tabla
-            </button>
-          </div>
-        </div>
-
-        {/* Resumen rápido - Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Viajes Activos */}
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
-                  Viajes Activos
-                </p>
-                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
-                  {viajes.length}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <Icons.truck className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Total Guías */}
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
-                  Total Guías
-                </p>
-                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
-                  {viajes.reduce((sum, v) => sum + v.total_guias, 0)}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                <Icons.document className="w-7 h-7 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Guías Entregadas */}
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
-                  Guías Entregadas
-                </p>
-                <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
-                  {viajes.reduce((sum, v) => sum + v.guias_entregadas, 0)}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                <Icons.checkCircle className="w-7 h-7 text-green-600 dark:text-green-400" />
-              </div>
+                <Icons.refresh className="w-5 h-5 text-gray-600 dark:text-slate-400" />
+              </button>
             </div>
           </div>
         </div>
@@ -368,12 +541,14 @@ const Home = () => {
           <TablaViajesDashboard
             viajes={viajes}
             calcularProgreso={calcularProgreso}
+            calcularPorcentajes={calcularPorcentajes}
             obtenerEstadoViaje={obtenerEstadoViaje}
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {viajes.map((viaje) => {
               const progreso = calcularProgreso(viaje);
+              const porcentajes = calcularPorcentajes(viaje);
               const estado = obtenerEstadoViaje(viaje);
 
               return (
@@ -413,29 +588,91 @@ const Home = () => {
                       </span>
                     </div>
 
-                    {/* Barra de progreso */}
+                    {/* Barra de progreso con 3 colores */}
                     <div>
                       <div className="flex justify-between items-center text-sm mb-2">
                         <span className="text-gray-600 dark:text-slate-400 font-medium">
                           Progreso de entregas
                         </span>
-                        <span className="font-bold text-gray-900 dark:text-slate-100">
-                          {viaje.guias_entregadas} / {viaje.total_guias}
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-green-600 dark:text-green-400">
+                            {viaje.guias_entregadas}
+                          </span>
+                          {viaje.guias_no_entregadas > 0 && (
+                            <>
+                              <span className="text-gray-400">/</span>
+                              <span className="font-bold text-red-600 dark:text-red-400">
+                                {viaje.guias_no_entregadas}
+                              </span>
+                            </>
+                          )}
+                          <span className="text-gray-400">de</span>
+                          <span className="font-bold text-gray-900 dark:text-slate-100">
+                            {viaje.total_guias}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Barra de progreso tricolor */}
+                      <div className="relative w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                        <div className="absolute inset-0 flex">
+                          {/* Barra verde: Entregadas */}
+                          {porcentajes.entregadas > 0 && (
+                            <div
+                              className="h-full transition-all duration-500"
+                              style={{
+                                width: `${porcentajes.entregadas}%`,
+                                backgroundColor: "#10b981",
+                              }}
+                              title={`${viaje.guias_entregadas} entregadas (${porcentajes.entregadas}%)`}
+                            />
+                          )}
+
+                          {/* Barra roja: No entregadas */}
+                          {porcentajes.noEntregadas > 0 && (
+                            <div
+                              className="h-full transition-all duration-500"
+                              style={{
+                                width: `${porcentajes.noEntregadas}%`,
+                                backgroundColor: "#ef4444",
+                              }}
+                              title={`${viaje.guias_no_entregadas} no entregadas (${porcentajes.noEntregadas}%)`}
+                            />
+                          )}
+
+                          {/* Gris: Pendientes (fondo por defecto) */}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs mt-1.5">
+                        <div className="flex items-center gap-3">
+                          {porcentajes.entregadas > 0 && (
+                            <div className="flex items-center gap-1">
+                              <div
+                                className="w-2 h-2 rounded-full"
+                                style={{ backgroundColor: "#10b981" }}
+                              ></div>
+                              <span className="text-gray-600 dark:text-slate-400">
+                                {porcentajes.entregadas}% entregadas
+                              </span>
+                            </div>
+                          )}
+                          {porcentajes.noEntregadas > 0 && (
+                            <div className="flex items-center gap-1">
+                              <div
+                                className="w-2 h-2 rounded-full"
+                                style={{ backgroundColor: "#ef4444" }}
+                              ></div>
+                              <span className="text-gray-600 dark:text-slate-400">
+                                {porcentajes.noEntregadas}% no entregadas
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <span className="font-medium text-gray-500 dark:text-slate-500">
+                          {progreso}% procesado
                         </span>
                       </div>
-
-                      <div className="relative w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-                        <div
-                          className={`h-full ${getProgresoColor(
-                            progreso
-                          )} transition-all duration-500 ease-out rounded-full`}
-                          style={{ width: `${progreso}%` }}
-                        />
-                      </div>
-
-                      <p className="text-xs text-gray-500 dark:text-slate-500 mt-1.5 font-medium">
-                        {progreso}% completado
-                      </p>
                     </div>
                   </div>
 
@@ -523,6 +760,14 @@ const Home = () => {
           </div>
         )}
       </div>
+
+      {/* Modal Formulario */}
+      {mostrarFormulario && (
+        <FormularioAsignarFactura
+          onCancelar={() => setMostrarFormulario(false)}
+          onAsignarFactura={handleAsignarFactura}
+        />
+      )}
     </div>
   );
 };

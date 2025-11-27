@@ -16,11 +16,18 @@ interface Viaje {
   total_guias: number;
   guias_entregadas: number;
   estado_viaje?: number;
+  total_facturas: number;
+  guias_no_entregadas: number;
 }
 
 interface TablaViajesDashboardProps {
   viajes: Viaje[];
   calcularProgreso: (viaje: Viaje) => number;
+  calcularPorcentajes: (viaje: Viaje) => {
+    entregadas: number;
+    noEntregadas: number;
+    pendientes: number;
+  };
   obtenerEstadoViaje: (viaje: Viaje) => {
     texto: string;
     color: string;
@@ -31,6 +38,7 @@ interface TablaViajesDashboardProps {
 const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
   viajes,
   calcularProgreso,
+  calcularPorcentajes,
   obtenerEstadoViaje,
 }) => {
   const navigate = useNavigate();
@@ -39,19 +47,10 @@ const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
     navigate(`/viaje/${viajeId}`);
   };
 
-  const getProgresoColor = (progreso: number): string => {
-    if (progreso === 0) return "bg-gray-400";
-    if (progreso < 50) return "bg-red-500";
-    if (progreso < 100) return "bg-yellow-500";
-    return "bg-green-500";
-  };
-
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
-      {/* Tabla */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          {/* Header */}
           <thead className="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
             <tr>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
@@ -66,7 +65,7 @@ const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
                 Guías
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider min-w-[200px]">
                 Progreso
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
@@ -78,10 +77,10 @@ const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
             </tr>
           </thead>
 
-          {/* Body */}
           <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
             {viajes.map((viaje) => {
               const progreso = calcularProgreso(viaje);
+              const porcentajes = calcularPorcentajes(viaje);
               const estado = obtenerEstadoViaje(viaje);
 
               return (
@@ -90,7 +89,6 @@ const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
                   className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer"
                   onClick={() => verDetalle(viaje.viaje_id)}
                 >
-                  {/* Vehículo */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -107,7 +105,6 @@ const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
                     </div>
                   </td>
 
-                  {/* Piloto */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <Icons.user className="w-4 h-4 text-gray-400 dark:text-slate-500" />
@@ -117,7 +114,6 @@ const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
                     </div>
                   </td>
 
-                  {/* Facturas */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <Icons.FileTextIcon className="w-4 h-4 text-gray-400 dark:text-slate-500" />
@@ -127,37 +123,86 @@ const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
                     </div>
                   </td>
 
-                  {/* Guías */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-700 dark:text-slate-300">
+                    <div className="flex items-center gap-2">
                       <span className="font-semibold text-green-600 dark:text-green-400">
                         {viaje.guias_entregadas}
                       </span>
-                      {" / "}
-                      <span className="font-semibold">{viaje.total_guias}</span>
-                    </span>
-                  </td>
-
-                  {/* Progreso */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 min-w-[100px]">
-                        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all ${getProgresoColor(
-                              progreso
-                            )}`}
-                            style={{ width: `${progreso}%` }}
-                          />
-                        </div>
-                      </div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 min-w-[45px] text-right">
-                        {progreso}%
+                      {viaje.guias_no_entregadas > 0 && (
+                        <>
+                          <span className="text-gray-400">/</span>
+                          <span className="font-semibold text-red-600 dark:text-red-400">
+                            {viaje.guias_no_entregadas}
+                          </span>
+                        </>
+                      )}
+                      <span className="text-gray-400">de</span>
+                      <span className="font-semibold text-gray-900 dark:text-slate-100">
+                        {viaje.total_guias}
                       </span>
                     </div>
                   </td>
 
-                  {/* Estado */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-2">
+                      <div className="relative w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                        <div className="absolute inset-0 flex">
+                          {porcentajes.entregadas > 0 && (
+                            <div
+                              className="h-full transition-all duration-500"
+                              style={{
+                                width: `${porcentajes.entregadas}%`,
+                                backgroundColor: "#10b981",
+                              }}
+                              title={`${viaje.guias_entregadas} entregadas (${porcentajes.entregadas}%)`}
+                            />
+                          )}
+
+                          {porcentajes.noEntregadas > 0 && (
+                            <div
+                              className="h-full transition-all duration-500"
+                              style={{
+                                width: `${porcentajes.noEntregadas}%`,
+                                backgroundColor: "#ef4444",
+                              }}
+                              title={`${viaje.guias_no_entregadas} no entregadas (${porcentajes.noEntregadas}%)`}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          {porcentajes.entregadas > 0 && (
+                            <div className="flex items-center gap-1">
+                              <div
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ backgroundColor: "#10b981" }}
+                              ></div>
+                              <span className="text-gray-600 dark:text-slate-400">
+                                {porcentajes.entregadas}%
+                              </span>
+                            </div>
+                          )}
+                          {porcentajes.noEntregadas > 0 && (
+                            <div className="flex items-center gap-1">
+                              <div
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ backgroundColor: "#ef4444" }}
+                              ></div>
+                              <span className="text-gray-600 dark:text-slate-400">
+                                {porcentajes.noEntregadas}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <span className="font-semibold text-gray-900 dark:text-slate-100">
+                          {progreso}%
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold ${estado.color} ${estado.bgColor} dark:bg-opacity-20`}
@@ -166,7 +211,6 @@ const TablaViajesDashboard: React.FC<TablaViajesDashboardProps> = ({
                     </span>
                   </td>
 
-                  {/* Acciones */}
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <button
                       onClick={(e) => {

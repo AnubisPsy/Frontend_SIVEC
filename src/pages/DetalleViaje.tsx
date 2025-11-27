@@ -44,6 +44,7 @@ interface Viaje {
   facturas: Factura[];
   total_guias: number;
   guias_entregadas: number;
+  guias_no_entregadas: number;
 }
 
 const DetalleViaje = () => {
@@ -116,6 +117,7 @@ const DetalleViaje = () => {
             ...prev,
             total_guias: data.total_guias,
             guias_entregadas: data.guias_entregadas,
+            guias_no_entregadas: data.guias_no_entregadas || 0,
           };
         });
 
@@ -163,7 +165,15 @@ const DetalleViaje = () => {
       console.log("🚛 Total guías:", viajeData.total_guias);
       console.log("✅ Guías entregadas:", viajeData.guias_entregadas);
 
-      setViaje(viajeData);
+      const guias_no_entregadas =
+        viajeData.facturas
+          ?.flatMap((f: Factura) => f.guias || [])
+          .filter((g: Guia) => g.estado_id === 5).length || 0;
+
+      setViaje({
+        ...viajeData,
+        guias_no_entregadas,
+      });
       setError(null);
     } catch (err) {
       console.error("❌ Error cargando viaje:", err);
@@ -187,10 +197,18 @@ const DetalleViaje = () => {
       const viajeData = response.data.data || response.data;
 
       // Actualizar datos sin mostrar spinner
-      setViaje(viajeData);
-      console.log("🔄 Datos actualizados silenciosamente");
+      // REEMPLAZAR:
+      const guias_no_entregadas =
+        viajeData.facturas
+          ?.flatMap((f: Factura) => f.guias || [])
+          .filter((g: Guia) => g.estado_id === 5).length || 0;
+
+      setViaje({
+        ...viajeData,
+        guias_no_entregadas,
+      });
     } catch (err) {
-      console.error("❌ Error en recarga silenciosa:", err);
+      console.error(" Error en recarga silenciosa:", err);
       // No mostrar error al usuario, es una actualización en background
     }
   };
@@ -251,6 +269,24 @@ const DetalleViaje = () => {
     viaje.total_guias > 0
       ? Math.round((viaje.guias_entregadas / viaje.total_guias) * 100)
       : 0;
+
+  const calcularPorcentajes = () => {
+    if (viaje.total_guias === 0) {
+      return { entregadas: 0, noEntregadas: 0, pendientes: 0 };
+    }
+
+    const entregadas = Math.round(
+      (viaje.guias_entregadas / viaje.total_guias) * 100
+    );
+    const noEntregadas = Math.round(
+      ((viaje.guias_no_entregadas || 0) / viaje.total_guias) * 100
+    );
+    const pendientes = 100 - entregadas - noEntregadas;
+
+    return { entregadas, noEntregadas, pendientes };
+  };
+
+  const porcentajes = calcularPorcentajes();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
@@ -326,31 +362,89 @@ const DetalleViaje = () => {
             </div>
           </div>
 
-          {/* Barra de progreso */}
+          {/* Barra de progreso tricolor */}
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600 dark:text-slate-400 font-medium">
                 Progreso general
               </span>
-              <span className="font-bold text-gray-700 dark:text-slate-300">
-                {progreso}%
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-green-600 dark:text-green-400">
+                  {viaje.guias_entregadas}
+                </span>
+                {viaje.guias_no_entregadas > 0 && (
+                  <>
+                    <span className="text-gray-400">/</span>
+                    <span className="font-bold text-red-600 dark:text-red-400">
+                      {viaje.guias_no_entregadas}
+                    </span>
+                  </>
+                )}
+                <span className="text-gray-400">de</span>
+                <span className="font-bold text-gray-900 dark:text-slate-100">
+                  {viaje.total_guias}
+                </span>
+              </div>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-500 ease-out"
-                style={{
-                  width: `${progreso}%`,
-                  background:
-                    progreso === 0
-                      ? "#d1d5db"
-                      : progreso < 50
-                      ? "linear-gradient(to right, #ef4444, #f97316)"
-                      : progreso < 100
-                      ? "linear-gradient(to right, #facc15, #3b82f6)"
-                      : "linear-gradient(to right, #22c55e, #10b981)",
-                }}
-              ></div>
+
+            {/* Barra tricolor */}
+            <div className="relative w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden mb-2">
+              <div className="absolute inset-0 flex">
+                {/* Verde: Entregadas */}
+                {porcentajes.entregadas > 0 && (
+                  <div
+                    className="h-full transition-all duration-500"
+                    style={{
+                      width: `${porcentajes.entregadas}%`,
+                      backgroundColor: "#10b981",
+                    }}
+                    title={`${viaje.guias_entregadas} entregadas`}
+                  />
+                )}
+
+                {/* Rojo: No entregadas */}
+                {porcentajes.noEntregadas > 0 && (
+                  <div
+                    className="h-full transition-all duration-500"
+                    style={{
+                      width: `${porcentajes.noEntregadas}%`,
+                      backgroundColor: "#ef4444",
+                    }}
+                    title={`${viaje.guias_no_entregadas} no entregadas`}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Leyendas */}
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-3">
+                {porcentajes.entregadas > 0 && (
+                  <div className="flex items-center gap-1">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: "#10b981" }}
+                    ></div>
+                    <span className="text-gray-600 dark:text-slate-400">
+                      {porcentajes.entregadas}% entregadas
+                    </span>
+                  </div>
+                )}
+                {porcentajes.noEntregadas > 0 && (
+                  <div className="flex items-center gap-1">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: "#ef4444" }}
+                    ></div>
+                    <span className="text-gray-600 dark:text-slate-400">
+                      {porcentajes.noEntregadas}% no entregadas
+                    </span>
+                  </div>
+                )}
+              </div>
+              <span className="font-bold text-gray-700 dark:text-slate-300">
+                {progreso}% procesado
+              </span>
             </div>
           </div>
         </div>
