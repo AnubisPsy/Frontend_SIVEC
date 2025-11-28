@@ -138,20 +138,28 @@ const HistorialViajes = () => {
     return `${horas}h ${minutos}m`;
   };
 
-  const getEstadoClasses = (porcentaje: number) => {
-    if (porcentaje === 100)
-      return "border-l-green-500 bg-green-50 dark:bg-green-900/20 dark:border-l-green-600";
-    if (porcentaje >= 80)
-      return "border-l-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 dark:border-l-yellow-600";
-    return "border-l-red-500 bg-red-50 dark:bg-red-900/20 dark:border-l-red-600";
-  };
-
   const getEstadoBadge = (porcentaje: number) => {
     if (porcentaje === 100)
       return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
     if (porcentaje >= 80)
       return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
     return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800";
+  };
+
+  const calcularPorcentajes = (viaje: Viaje) => {
+    const totalGuias = viaje.estadisticas.total_guias;
+    if (totalGuias === 0)
+      return { entregadas: 0, noEntregadas: 0, pendientes: 0 };
+
+    const entregadas = Math.round(
+      (viaje.estadisticas.guias_entregadas / totalGuias) * 100
+    );
+    const noEntregadas = Math.round(
+      (viaje.estadisticas.guias_no_entregadas / totalGuias) * 100
+    );
+    const pendientes = 100 - entregadas - noEntregadas;
+
+    return { entregadas, noEntregadas, pendientes };
   };
 
   if (loading) {
@@ -190,118 +198,114 @@ const HistorialViajes = () => {
               onClick={cargarHistorial}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
             >
-              <Icons.refresh className="w-5 h-5" />
+              <Icons.refresh className="w-4 h-4" />
               Actualizar
             </button>
           </div>
 
-          {/* Estadísticas rápidas */}
+          {/* Estadísticas generales */}
           {estadisticas && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-md border-2 border-blue-200 dark:border-blue-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                    <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  </div>
+              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 font-medium">
+                    <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
                       Total Viajes
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                       {estadisticas.total_viajes}
                     </p>
                   </div>
+                  <Icons.truck className="w-8 h-8 text-blue-500 dark:text-blue-400" />
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-md border-2 border-purple-200 dark:border-purple-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                    <Icons.document className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                  </div>
+              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 font-medium">
-                      Facturas
+                    <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
+                      Total Facturas
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                       {estadisticas.total_facturas}
                     </p>
                   </div>
+                  <Icons.document className="w-8 h-8 text-purple-500 dark:text-purple-400" />
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-md border-2 border-indigo-200 dark:border-indigo-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-                    <Icons.package className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                  </div>
+              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 font-medium">
+                    <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
                       Total Guías
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                       {estadisticas.total_guias}
                     </p>
                   </div>
+                  <Icons.package className="w-8 h-8 text-orange-500 dark:text-orange-400" />
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-md border-2 border-green-200 dark:border-green-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                    <Icons.checkCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                  </div>
+              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 font-medium">
+                    <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
                       Entregadas
                     </p>
                     <p className="text-2xl font-bold text-green-700 dark:text-green-400">
                       {estadisticas.total_entregadas}
                     </p>
                   </div>
+                  <Icons.checkCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Barra de búsqueda y filtros */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-4">
-            <div className="flex items-center gap-3 mb-4">
-              <Icons.search className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-              <h3 className="font-semibold text-gray-700 dark:text-slate-300">
-                Búsqueda y Filtros
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Filtros */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Búsqueda */}
-              <div className="md:col-span-2 relative">
-                <Icons.search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Buscar por piloto, vehículo o ID de viaje..."
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
-                />
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                  Buscar
+                </label>
+                <div className="relative">
+                  <Icons.search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Piloto, vehículo o #viaje..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                  />
+                </div>
               </div>
 
-              {/* Filtro por Estado */}
+              {/* Filtro por estado */}
               <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                  Estado
+                </label>
                 <select
                   value={filtroEstado}
                   onChange={(e) => setFiltroEstado(e.target.value as any)}
                   className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
                 >
-                  <option value="todos">Todos los estados</option>
+                  <option value="todos">Todos</option>
                   <option value="exitosos">Exitosos (100%)</option>
-                  <option value="parciales">Parciales (80-99%)</option>
+                  <option value="parciales">Parciales (≥80%)</option>
                   <option value="fallidos">Fallidos (&lt;80%)</option>
                 </select>
               </div>
 
               {/* Ordenamiento */}
               <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                  Ordenar por
+                </label>
                 <select
                   value={ordenamiento}
                   onChange={(e) => setOrdenamiento(e.target.value as any)}
@@ -338,7 +342,7 @@ const HistorialViajes = () => {
           </div>
         </div>
 
-        {/* Lista de viajes */}
+        {/* Tabla de viajes */}
         {viajesFiltrados.length === 0 ? (
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 p-12 text-center">
             <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -356,135 +360,204 @@ const HistorialViajes = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {viajesFiltrados.map((viaje) => {
-              const estadoClasses = getEstadoClasses(
-                viaje.estadisticas.porcentaje_exito
-              );
-              const badgeClasses = getEstadoBadge(
-                viaje.estadisticas.porcentaje_exito
-              );
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                      Viaje
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                      Piloto / Vehículo
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                      Fecha / Duración
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                      Facturas
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                      Guías
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                      Progreso
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                      Éxito
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+                  {viajesFiltrados.map((viaje) => {
+                    const badgeClasses = getEstadoBadge(
+                      viaje.estadisticas.porcentaje_exito
+                    );
+                    const porcentajes = calcularPorcentajes(viaje);
 
-              return (
-                <div
-                  key={viaje.viaje_id}
-                  className={`bg-white dark:bg-slate-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-l-[6px] ${estadoClasses}`}
-                >
-                  {/* Header */}
-                  <div className="p-5 border-b border-gray-200 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
-                        <Icons.truck className="w-5 h-5" />
-                        Viaje #{viaje.viaje_id}
-                      </h3>
-                      <span
-                        className={`px-3 py-1 rounded-lg text-sm font-bold border-2 inline-flex items-center gap-1 ${badgeClasses}`}
+                    return (
+                      <tr
+                        key={viaje.viaje_id}
+                        className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
                       >
-                        {viaje.estadisticas.porcentaje_exito}%
-                        <Icons.checkCircle className="w-4 h-4" />
-                      </span>
-                    </div>
+                        {/* Viaje ID */}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <Icons.truck className="w-5 h-5 text-gray-400 dark:text-slate-500" />
+                            <span className="text-sm font-bold text-gray-900 dark:text-slate-100">
+                              #{viaje.viaje_id}
+                            </span>
+                          </div>
+                        </td>
 
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
-                      <Icons.calendar className="w-4 h-4" />
-                      <span>
-                        {new Date(viaje.fecha_viaje).toLocaleDateString(
-                          "es-HN",
-                          {
-                            weekday: "short",
-                            day: "numeric",
-                            month: "short",
-                          }
-                        )}
-                      </span>
-                      <span className="mx-2">•</span>
-                      <Icons.clock className="w-4 h-4" />
-                      <span>
-                        {calcularDuracion(viaje.created_at, viaje.updated_at)}
-                      </span>
-                    </div>
-                  </div>
+                        {/* Piloto / Vehículo */}
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <Icons.user className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                              <span className="text-sm font-medium text-gray-900 dark:text-slate-100">
+                                {viaje.piloto}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Icons.truck className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                              <span className="text-sm text-gray-600 dark:text-slate-400">
+                                {viaje.numero_vehiculo}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
 
-                  {/* Body */}
-                  <div className="p-5">
-                    {/* Info principal */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
-                        <Icons.user className="w-5 h-5 text-gray-500 dark:text-slate-400" />
-                        <div>
-                          <p className="text-xs text-gray-500 dark:text-slate-400 font-semibold">
-                            Piloto
-                          </p>
-                          <p className="text-sm font-bold text-gray-900 dark:text-slate-100">
-                            {viaje.piloto}
-                          </p>
-                        </div>
-                      </div>
+                        {/* Fecha / Duración */}
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <Icons.calendar className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                              <span className="text-sm text-gray-900 dark:text-slate-100">
+                                {new Date(viaje.fecha_viaje).toLocaleDateString(
+                                  "es-HN",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                  }
+                                )}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Icons.clock className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                              <span className="text-sm text-gray-600 dark:text-slate-400">
+                                {calcularDuracion(
+                                  viaje.created_at,
+                                  viaje.updated_at
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
 
-                      <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
-                        <Icons.truck className="w-5 h-5 text-gray-500 dark:text-slate-400" />
-                        <div>
-                          <p className="text-xs text-gray-500 dark:text-slate-400 font-semibold">
-                            Vehículo
-                          </p>
-                          <p className="text-sm font-bold text-gray-900 dark:text-slate-100">
-                            {viaje.numero_vehiculo}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                        {/* Facturas */}
+                        <td className="px-6 py-4 text-center">
+                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 font-bold text-sm">
+                            {viaje.estadisticas.total_facturas}
+                          </span>
+                        </td>
 
-                    {/* Estadísticas */}
-                    <div className="grid grid-cols-4 gap-2 mb-4">
-                      <div className="text-center p-2 bg-gray-50 dark:bg-slate-700 rounded-lg">
-                        <p className="text-lg font-bold text-gray-900 dark:text-slate-100">
-                          {viaje.estadisticas.total_facturas}
-                        </p>
-                        <p className="text-[10px] text-gray-600 dark:text-slate-400 uppercase font-semibold">
-                          Facturas
-                        </p>
-                      </div>
+                        {/* Guías */}
+                        <td className="px-6 py-4 text-center">
+                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold text-sm">
+                            {viaje.estadisticas.total_guias}
+                          </span>
+                        </td>
 
-                      <div className="text-center p-2 bg-gray-50 dark:bg-slate-700 rounded-lg">
-                        <p className="text-lg font-bold text-gray-900 dark:text-slate-100">
-                          {viaje.estadisticas.total_guias}
-                        </p>
-                        <p className="text-[10px] text-gray-600 dark:text-slate-400 uppercase font-semibold">
-                          Guías
-                        </p>
-                      </div>
+                        {/* Barra tricolor */}
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-2 min-w-[200px]">
+                            {/* Contador E / NE de T */}
+                            <div className="text-xs text-gray-600 dark:text-slate-400 font-medium">
+                              {viaje.estadisticas.guias_entregadas} /{" "}
+                              {viaje.estadisticas.guias_no_entregadas} de{" "}
+                              {viaje.estadisticas.total_guias}
+                            </div>
 
-                      <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <p className="text-lg font-bold text-green-700 dark:text-green-400">
-                          {viaje.estadisticas.guias_entregadas}
-                        </p>
-                        <p className="text-[10px] text-green-600 dark:text-green-400 uppercase font-semibold">
-                          Entregadas
-                        </p>
-                      </div>
+                            {/* Barra tricolor */}
+                            <div className="flex h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                              {/* Verde - Entregadas */}
+                              <div
+                                style={{ width: `${porcentajes.entregadas}%` }}
+                                className="bg-green-500 dark:bg-green-600"
+                                title={`${porcentajes.entregadas}% entregadas`}
+                              />
+                              {/* Rojo - No entregadas */}
+                              <div
+                                style={{
+                                  width: `${porcentajes.noEntregadas}%`,
+                                }}
+                                className="bg-red-500 dark:bg-red-600"
+                                title={`${porcentajes.noEntregadas}% no entregadas`}
+                              />
+                              {/* Gris - Pendientes */}
+                              <div
+                                style={{ width: `${porcentajes.pendientes}%` }}
+                                className="bg-gray-300 dark:bg-slate-600"
+                                title={`${porcentajes.pendientes}% pendientes`}
+                              />
+                            </div>
 
-                      <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                        <p className="text-lg font-bold text-red-700 dark:text-red-400">
-                          {viaje.estadisticas.guias_no_entregadas}
-                        </p>
-                        <p className="text-[10px] text-red-600 dark:text-red-400 uppercase font-semibold">
-                          No entreg.
-                        </p>
-                      </div>
-                    </div>
+                            {/* Leyendas mini */}
+                            <div className="flex items-center gap-3 text-xs">
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 rounded-full bg-green-500" />
+                                <span className="text-gray-600 dark:text-slate-400">
+                                  {porcentajes.entregadas}%
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 rounded-full bg-red-500" />
+                                <span className="text-gray-600 dark:text-slate-400">
+                                  {porcentajes.noEntregadas}%
+                                </span>
+                              </div>
+                              {porcentajes.pendientes > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-slate-600" />
+                                  <span className="text-gray-600 dark:text-slate-400">
+                                    {porcentajes.pendientes}%
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
 
-                    {/* Botón ver detalles */}
-                    <button
-                      onClick={() => navigate(`/viaje/${viaje.viaje_id}`)}
-                      className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2"
-                    >
-                      <Icons.eye className="w-4 h-4" />
-                      Ver Detalles Completos
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                        {/* Badge éxito */}
+                        <td className="px-6 py-4 text-center">
+                          <span
+                            className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold border-2 ${badgeClasses}`}
+                          >
+                            {viaje.estadisticas.porcentaje_exito}%
+                            <Icons.checkCircle className="w-3 h-3" />
+                          </span>
+                        </td>
+
+                        {/* Acciones */}
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => navigate(`/viaje/${viaje.viaje_id}`)}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-all"
+                          >
+                            <Icons.eye className="w-3 h-3" />
+                            Ver
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

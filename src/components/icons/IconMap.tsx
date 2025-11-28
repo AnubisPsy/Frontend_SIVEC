@@ -133,4 +133,5 @@ export const Icons = {
   map: Map,
   power: Power,
   helpCircle: HelpCircle,
+  fileText: File,
 };
