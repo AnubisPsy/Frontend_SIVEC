@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { Icons } from "../components/icons/IconMap";
@@ -8,26 +8,33 @@ import { ConfirmDialog } from "../hooks/ConfirmDialog";
 import SelectorSucursal from "./SelectorSucursal";
 import sivecLogoSvg from "../assets/logos/sivec-logo.svg";
 import sivecIconOnly from "../assets/logos/sivec-icon-only.png";
-
-interface Usuario {
-  usuario_id: number;
-  nombre_usuario: string;
-  correo: string;
-  rol_id: number;
-}
+import {
+  Home,
+  Clock,
+  BarChart3,
+  Map,
+  Activity,
+  Users,
+  UserPlus,
+  Truck,
+  User,
+  HelpCircle,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
 
 const Layout = () => {
-  const [menuAbierto, setMenuAbierto] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
   const { logout, user } = useAuth();
   const { confirm, isOpen, options, handleConfirm, handleCancel } =
     useConfirm();
 
-  // ✅ USAR user del AuthContext directamente:
   const usuario = user;
 
-  // ✅ AGREGAR ESTA FUNCIÓN:
   const cerrarSesion = async () => {
     const confirmed = await confirm({
       title: "¿Cerrar sesión?",
@@ -39,7 +46,6 @@ const Layout = () => {
 
     if (confirmed) {
       console.log("🚪 Layout: Cerrando sesión...");
-      setMenuAbierto(false);
       logout();
     }
   };
@@ -57,31 +63,96 @@ const Layout = () => {
     }
   };
 
-  const getRolBadgeColor = (rolId: number) => {
-    switch (rolId) {
-      case 1:
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
-      case 2:
-        return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400";
-      case 3:
-        return "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400";
-      default:
-        return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
-    }
+  // Configuración del menú del sidebar
+  const menuSections = [
+    {
+      title: null,
+      items: [
+        { icon: Home, label: "Inicio", path: "/home", roles: [1, 2, 3] },
+        {
+          icon: Clock,
+          label: "Historial (24h)",
+          path: "/historial",
+          roles: [2, 3],
+        },
+        {
+          icon: BarChart3,
+          label: "Dashboard Analytics",
+          path: "/dashboard",
+          roles: [2, 3],
+        },
+        { icon: Map, label: "Mapa en Vivo", path: "/mapa-vivo", roles: [2, 3] },
+        {
+          icon: Activity,
+          label: "Reportes Avanzados",
+          path: "/reportes",
+          roles: [3],
+        },
+      ],
+    },
+    {
+      title: "Administración",
+      items: [
+        {
+          icon: Users,
+          label: "Administrar Usuarios",
+          path: "/admin/usuarios",
+          roles: [3],
+        },
+        {
+          icon: UserPlus,
+          label: "Pilotos Temporales",
+          path: "/admin/pilotos-temporales",
+          roles: [3],
+        },
+        {
+          icon: Truck,
+          label: "Administrar Vehículos",
+          path: "/admin/vehiculos",
+          roles: [3],
+        },
+        { icon: User, label: "Mi Perfil", path: "/perfil", roles: [1, 2, 3] },
+      ],
+    },
+    {
+      title: "Soporte",
+      items: [
+        {
+          icon: HelpCircle,
+          label: "Ayuda y Soporte",
+          path: "/ayuda",
+          roles: [1, 2, 3],
+        },
+      ],
+    },
+  ];
+
+  // Filtrar según rol
+  const filteredSections = menuSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) =>
+        item.roles.includes(usuario?.rol_id || 0)
+      ),
+    }))
+    .filter((section) => section.items.length > 0);
+
+  const isActive = (path: string) => {
+    if (path === "/home") return location.pathname === "/home";
+    return location.pathname.startsWith(path);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      {/* Navbar */}
-      <nav className="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700">
+      {/* Navbar (sin dropdown de usuario) */}
+      <nav className="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700 fixed top-0 left-0 right-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo y título - Click para ir al Inicio */}
+            {/* Logo */}
             <button
               onClick={() => navigate("/home")}
               className="flex items-center hover:opacity-80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1"
             >
-              {/* Contenedor con fondo para el ícono */}
               <div className="w-10 h-10 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center mr-3 shadow-sm border border-gray-100 dark:border-slate-600 transition-colors">
                 <img
                   src={sivecIconOnly}
@@ -89,8 +160,6 @@ const Layout = () => {
                   className="w-7 h-7 object-contain"
                 />
               </div>
-
-              {/* Texto HTML */}
               <div className="text-left">
                 <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">
                   SIVEC
@@ -101,19 +170,14 @@ const Layout = () => {
               </div>
             </button>
 
-            {/* Right side: Theme toggle + User menu */}
+            {/* Right side: Selector Sucursal + Theme toggle */}
             <div className="flex items-center gap-3">
-              {/* ✅ Selector de Sucursal (solo admins) */}
               <SelectorSucursal />
 
-              {/* Theme Toggle Button */}
               <button
                 onClick={toggleTheme}
                 className="p-2.5 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
                 aria-label="Toggle theme"
-                title={
-                  isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
-                }
               >
                 {isDark ? (
                   <Icons.sun className="w-5 h-5 text-yellow-500" />
@@ -122,223 +186,150 @@ const Layout = () => {
                 )}
               </button>
 
-              {/* Menú de usuario */}
-              <div className="relative">
-                <button
-                  onClick={() => setMenuAbierto(!menuAbierto)}
-                  className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-                >
-                  <div className="text-right hidden sm:block">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
-                      {usuario?.nombre_usuario || "USUARIO"}
-                    </p>
-                    <p
-                      className={`text-xs px-2 py-0.5 rounded-full inline-block ${getRolBadgeColor(
-                        usuario?.rol_id || 0
-                      )}`}
-                    >
-                      {usuario ? getRolNombre(usuario.rol_id) : ""}
-                    </p>
-                  </div>
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                    <Icons.user className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <Icons.chevronDown
-                    className={`w-5 h-5 text-gray-400 dark:text-slate-500 transition-transform ${
-                      menuAbierto ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {/* Dropdown menu */}
-                {menuAbierto && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 py-2 z-50 animate-fadeIn">
-                    {/* Info del usuario (móvil) */}
-                    <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-700 sm:hidden">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
-                        {usuario?.nombre_usuario}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-slate-400">
-                        {usuario?.correo}
-                      </p>
-                      <span
-                        className={`inline-block text-xs px-2 py-1 rounded-full mt-2 ${getRolBadgeColor(
-                          usuario?.rol_id || 0
-                        )}`}
-                      >
-                        {usuario ? getRolNombre(usuario.rol_id) : ""}
-                      </span>
-                    </div>
-
-                    {/* Opciones del menú */}
-                    <div className="py-1">
-                      <button
-                        onClick={() => {
-                          setMenuAbierto(false);
-                          navigate("/home");
-                        }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                      >
-                        <Icons.home className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                        <span className="font-medium">Inicio</span>
-                      </button>
-
-                      {/* Historial (para Jefes y Admins) */}
-                      {(usuario?.rol_id === 2 || usuario?.rol_id === 3) && (
-                        <button
-                          onClick={() => {
-                            setMenuAbierto(false);
-                            navigate("/historial");
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                        >
-                          <Icons.clock className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                          <span className="font-medium">Historial (24h)</span>
-                        </button>
-                      )}
-
-                      {/* Dashboard Analytics (para Jefes y Admins) */}
-                      {(usuario?.rol_id === 2 || usuario?.rol_id === 3) && (
-                        <button
-                          onClick={() => {
-                            setMenuAbierto(false);
-                            navigate("/dashboard");
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                        >
-                          <Icons.barChart className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                          <span className="font-medium">
-                            Dashboard Analytics
-                          </span>
-                        </button>
-                      )}
-
-                      {(usuario?.rol_id === 2 || usuario?.rol_id === 3) && (
-                        <button
-                          onClick={() => {
-                            setMenuAbierto(false);
-                            navigate("/mapa-vivo");
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                        >
-                          <Icons.map className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                          <span className="font-medium">Mapa en Vivo</span>
-                        </button>
-                      )}
-
-                      {/* Opciones solo para admins */}
-                      {usuario?.rol_id === 3 && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setMenuAbierto(false);
-                              navigate("/reportes");
-                            }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                          >
-                            <Icons.activity className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                            <span className="font-medium">
-                              Reportes Avanzados
-                            </span>
-                          </button>
-
-                          <div className="border-t border-gray-100 dark:border-slate-700 my-2"></div>
-
-                          <button
-                            onClick={() => {
-                              setMenuAbierto(false);
-                              navigate("/admin/usuarios");
-                            }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                          >
-                            <Icons.user className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                            <span className="font-medium">
-                              Administrar Usuarios
-                            </span>
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              setMenuAbierto(false);
-                              navigate("/admin/pilotos-temporales");
-                            }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                          >
-                            <Icons.user className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                            <span className="font-medium">
-                              Pilotos Temporales
-                            </span>
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              setMenuAbierto(false);
-                              navigate("/admin/vehiculos");
-                            }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                          >
-                            <Icons.truck className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                            <span className="font-medium">
-                              Administrar Vehículos
-                            </span>
-                          </button>
-                        </>
-                      )}
-
-                      <button
-                        onClick={() => {
-                          setMenuAbierto(false);
-                          navigate("/perfil");
-                          // Aquí irían más opciones
-                        }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                      >
-                        <Icons.user className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                        <span className="font-medium">Mi Perfil</span>
-                      </button>
-
-                      <div className="border-t border-gray-100 dark:border-slate-700 my-2"></div>
-                      <button
-                        onClick={() => {
-                          setMenuAbierto(false);
-                          navigate("/ayuda");
-                        }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                      >
-                        <Icons.helpCircle className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                        <span className="font-medium">Ayuda y Soporte</span>
-                      </button>
-
-                      <div className="border-t border-gray-100 dark:border-slate-700 my-2"></div>
-
-                      <button
-                        onClick={cerrarSesion}
-                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-colors"
-                      >
-                        <Icons.x className="w-5 h-5" />
-                        <span className="font-medium">Cerrar Sesión</span>
-                      </button>
-                    </div>
-                  </div>
+              {/* Botón hamburger para mobile */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2.5 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+              >
+                {sidebarOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
                 )}
-              </div>
+              </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Contenido principal */}
-      <main>
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed top-16 left-0 w-72
+          bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900
+          dark:from-slate-950 dark:via-slate-900 dark:to-slate-950
+          border-r border-slate-700/50 dark:border-slate-800/50
+          transition-transform duration-300 ease-in-out
+          z-20
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0
+        `}
+        style={{ height: "calc(100vh - 4rem)" }}
+      >
+        {/* Container flex para dividir el espacio */}
+        <div className="flex flex-col h-full">
+          {/* User info header - Fixed */}
+          <div className="flex-shrink-0 p-4 border-b border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <Icons.user className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white truncate">
+                  {usuario?.nombre_usuario || "Usuario"}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {getRolNombre(usuario?.rol_id || 0)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu items - Scrollable */}
+          <div className="flex-1 overflow-y-auto sidebar-scroll">
+            <nav className="p-4 space-y-2">
+              {filteredSections.map((section, sectionIdx) => (
+                <div key={sectionIdx}>
+                  {section.title && (
+                    <div className="px-3 pt-4 pb-2">
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {section.title}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    {section.items.map((item, itemIdx) => {
+                      const Icon = item.icon;
+                      const active = isActive(item.path);
+
+                      return (
+                        <button
+                          key={itemIdx}
+                          onClick={() => {
+                            navigate(item.path);
+                            // Cerrar sidebar en mobile después de navegar
+                            if (window.innerWidth < 1024) {
+                              setSidebarOpen(false);
+                            }
+                          }}
+                          className={`
+                            w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                            transition-all duration-200 group
+                            ${
+                              active
+                                ? "bg-slate-700/50 text-white shadow-lg shadow-slate-900/50"
+                                : "text-slate-300 hover:bg-slate-700/30 hover:text-white"
+                            }
+                          `}
+                        >
+                          <Icon
+                            size={20}
+                            className={`
+                              flex-shrink-0
+                              transition-colors
+                              ${
+                                active
+                                  ? "text-blue-400"
+                                  : "group-hover:text-blue-400"
+                              }
+                            `}
+                          />
+                          <span className="text-sm font-medium">
+                            {item.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {sectionIdx < filteredSections.length - 1 && (
+                    <div className="my-3 border-t border-slate-700/30" />
+                  )}
+                </div>
+              ))}
+            </nav>
+          </div>
+
+          {/* Logout button - Fixed at bottom */}
+          <div className="flex-shrink-0 p-4 border-t border-slate-700/50 bg-slate-900/50">
+            <button
+              onClick={cerrarSesion}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all group"
+            >
+              <LogOut
+                size={20}
+                className="group-hover:translate-x-0.5 transition-transform flex-shrink-0"
+              />
+              <span className="text-sm font-medium">Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-10 lg:hidden"
+          style={{ top: "4rem" }}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main content */}
+      <main className="pt-16 lg:ml-72">
         <Outlet />
       </main>
-
-      {/* Overlay para cerrar el menú al hacer clic fuera */}
-      {menuAbierto && (
-        <div
-          className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40 backdrop-blur-sm"
-          onClick={() => setMenuAbierto(false)}
-        ></div>
-      )}
 
       <ConfirmDialog
         isOpen={isOpen}
