@@ -225,19 +225,35 @@ const AdminVehiculos = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-3">
-            <Icons.truck className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-            Administración de Vehículos
-          </h1>
-          <p className="text-gray-600 dark:text-slate-400 mt-2">
-            Gestiona la flota de vehículos
-          </p>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      {/* Header - SIN padding, pegado arriba */}
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => window.history.back()}
+                className="text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors flex items-center gap-2"
+              >
+                <Icons.chevronLeft className="w-5 h-5" />
+                Volver
+              </button>
+              <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
+              <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
+                Administración de Vehículos
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-lg font-semibold">
+                {vehiculos.length} vehículos
+              </span>
+            </div>
+          </div>
         </div>
+      </header>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filtros y búsqueda */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -450,121 +466,121 @@ const AdminVehiculos = () => {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Modal Crear/Editar */}
-      {modalAbierto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-6">
-                {modoEdicion ? "Editar Vehículo" : "Agregar Vehículo"}
-              </h2>
+        {/* Modal Crear/Editar */}
+        {modalAbierto && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-6">
+                  {modoEdicion ? "Editar Vehículo" : "Agregar Vehículo"}
+                </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Número de vehículo */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                    Número de Vehículo *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.numero_vehiculo}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        numero_vehiculo: e.target.value,
-                      })
-                    }
-                    required
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej: C-001"
-                  />
-                </div>
-
-                {/* Placa */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                    Placa *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.placa}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        placa: e.target.value.toUpperCase(),
-                      })
-                    }
-                    required
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
-                    placeholder="Ej: PAB1234"
-                  />
-                </div>
-
-                {/* Agrupación */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                    Agrupación (Opcional)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.agrupacion}
-                    onChange={(e) =>
-                      setFormData({ ...formData, agrupacion: e.target.value })
-                    }
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej: Camiones, Pickups"
-                  />
-                </div>
-
-                {/* Sucursal (solo admin) */}
-                {user?.rol_id === 3 && (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Número de vehículo */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                      Sucursal *
+                      Número de Vehículo *
                     </label>
-                    <select
-                      value={formData.sucursal_id}
+                    <input
+                      type="text"
+                      value={formData.numero_vehiculo}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          sucursal_id: parseInt(e.target.value),
+                          numero_vehiculo: e.target.value,
                         })
                       }
                       required
                       className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {sucursales.map((s) => (
-                        <option key={s.sucursal_id} value={s.sucursal_id}>
-                          {s.nombre_sucursal}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Ej: C-001"
+                    />
                   </div>
-                )}
 
-                {/* Botones */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={cerrarModal}
-                    className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-900 dark:text-slate-100 rounded-lg transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                  >
-                    {modoEdicion ? "Actualizar" : "Crear"}
-                  </button>
-                </div>
-              </form>
+                  {/* Placa */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                      Placa *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.placa}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          placa: e.target.value.toUpperCase(),
+                        })
+                      }
+                      required
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                      placeholder="Ej: PAB1234"
+                    />
+                  </div>
+
+                  {/* Agrupación */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                      Agrupación (Opcional)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.agrupacion}
+                      onChange={(e) =>
+                        setFormData({ ...formData, agrupacion: e.target.value })
+                      }
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ej: Camiones, Pickups"
+                    />
+                  </div>
+
+                  {/* Sucursal (solo admin) */}
+                  {user?.rol_id === 3 && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        Sucursal *
+                      </label>
+                      <select
+                        value={formData.sucursal_id}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            sucursal_id: parseInt(e.target.value),
+                          })
+                        }
+                        required
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {sucursales.map((s) => (
+                          <option key={s.sucursal_id} value={s.sucursal_id}>
+                            {s.nombre_sucursal}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Botones */}
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={cerrarModal}
+                      className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-900 dark:text-slate-100 rounded-lg transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      {modoEdicion ? "Actualizar" : "Crear"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

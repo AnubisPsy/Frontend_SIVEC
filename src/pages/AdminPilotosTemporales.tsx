@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Icons } from "../components/icons/IconMap";
+import FormularioPilotoTemporal from "../components/FormularioPilotoTemporal";
 
 interface PilotoTemporal {
   piloto_temporal_id: number;
@@ -19,10 +20,6 @@ const AdminPilotosTemporales: React.FC = () => {
   const [pilotoEditando, setPilotoEditando] = useState<PilotoTemporal | null>(
     null
   );
-  const [formulario, setFormulario] = useState({
-    nombre: "",
-    notas: "",
-  });
 
   useEffect(() => {
     if (user?.rol_id !== 3) {
@@ -56,19 +53,14 @@ const AdminPilotosTemporales: React.FC = () => {
   };
 
   const limpiarFormulario = () => {
-    setFormulario({ nombre: "", notas: "" });
     setPilotoEditando(null);
     setMostrarFormulario(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formulario.nombre.trim()) {
-      alert("El nombre es requerido");
-      return;
-    }
-
+  const handleSubmit = async (formulario: {
+    nombre: string;
+    notas: string;
+  }) => {
     try {
       const token = localStorage.getItem("sivec_token");
       const url = pilotoEditando
@@ -101,15 +93,12 @@ const AdminPilotosTemporales: React.FC = () => {
       }
     } catch (error: any) {
       alert("Error: " + error.message);
+      throw error; // Re-lanzar para que el modal pueda manejar el loading
     }
   };
 
   const handleEditar = (piloto: PilotoTemporal) => {
     setPilotoEditando(piloto);
-    setFormulario({
-      nombre: piloto.nombre,
-      notas: piloto.notas || "",
-    });
     setMostrarFormulario(true);
   };
 
@@ -199,86 +188,12 @@ const AdminPilotosTemporales: React.FC = () => {
           </button>
         </div>
 
-        {/* Formulario */}
-        {mostrarFormulario && (
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-6 mb-8">
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-slate-700">
-              <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
-                <Icons.user className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
-                {pilotoEditando
-                  ? "Editar Piloto Temporal"
-                  : "Crear Piloto Temporal"}
-              </h3>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                    <Icons.user className="w-4 h-4" />
-                    Nombre Completo <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                    placeholder="Ej: Juan Pérez"
-                    value={formulario.nombre}
-                    onChange={(e) =>
-                      setFormulario({ ...formulario, nombre: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                    <Icons.edit className="w-4 h-4" />
-                    Notas
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                    placeholder="Observaciones"
-                    value={formulario.notas}
-                    onChange={(e) =>
-                      setFormulario({ ...formulario, notas: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <Icons.info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-blue-800 dark:text-blue-300">
-                    <strong>Nota:</strong> Los pilotos temporales aparecerán en
-                    el datalist cuando los jefes de yarda asignen facturas.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
-                >
-                  <Icons.save className="w-4 h-4" />
-                  {pilotoEditando ? "Actualizar" : "Crear"} Piloto
-                </button>
-                <button
-                  type="button"
-                  onClick={limpiarFormulario}
-                  className="px-6 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-slate-600 transition-all flex items-center gap-2"
-                >
-                  <Icons.x className="w-4 h-4" />
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        <FormularioPilotoTemporal
+          isOpen={mostrarFormulario}
+          onClose={limpiarFormulario}
+          pilotoEditando={pilotoEditando}
+          onSubmit={handleSubmit}
+        />
 
         {/* Lista de pilotos */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden">

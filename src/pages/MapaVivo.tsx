@@ -302,18 +302,35 @@ const MapaVivo = () => {
   return (
     <div className="h-screen bg-gray-50 dark:bg-slate-900 flex flex-col">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-3">
-            <Icons.map className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-            Mapa en Vivo
-            <span className="text-sm font-normal text-gray-500 dark:text-slate-400">
-              ({ubicacionesConGPS.length} de {ubicacionesFiltradas.length} con
-              GPS)
-            </span>
-          </h1>
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 mb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => window.history.back()}
+                className="text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors flex items-center gap-2"
+              >
+                <Icons.chevronLeft className="w-5 h-5" />
+                Volver
+              </button>
+              <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
+              <Icons.map className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
+                Mapa en Vivo
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-lg font-semibold">
+                {ubicacionesConGPS.length} con GPS
+              </span>
+              <span className="text-gray-500 dark:text-slate-400">de</span>
+              <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-slate-300 rounded-lg font-semibold">
+                {ubicacionesFiltradas.length} total
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* Filtros */}
       <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-4">

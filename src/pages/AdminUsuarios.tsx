@@ -6,6 +6,7 @@ import { Icons } from "../components/icons/IconMap";
 import { useConfirm } from "../hooks/useConfirm";
 import { ConfirmDialog } from "../hooks/ConfirmDialog";
 import { useNotification } from "../hooks/useNotification";
+import FormularioUsuario from "../components/FormularioUsuario";
 
 interface FormularioUsuario {
   nombre_usuario: string;
@@ -51,15 +52,6 @@ const AdminUsuarios: React.FC = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [usuarioEditando, setUsuarioEditando] =
     useState<UsuarioConPiloto | null>(null);
-  const [formulario, setFormulario] = useState<FormularioUsuario>({
-    nombre_usuario: "",
-    correo: "",
-    password: "",
-    rol_id: 1,
-    sucursal_id: 1,
-    piloto_sql_id: null,
-    piloto_temporal_id: null,
-  });
 
   const { confirm, isOpen, options, handleConfirm, handleCancel } =
     useConfirm();
@@ -74,9 +66,6 @@ const AdminUsuarios: React.FC = () => {
 
   const [pilotos, setPilotos] = useState<Piloto[]>([]);
   const [loadingPilotos, setLoadingPilotos] = useState(false);
-  const [tipoVinculacion, setTipoVinculacion] = useState<
-    "ninguno" | "sql" | "temporal"
-  >("ninguno");
 
   useEffect(() => {
     if (user?.rol_id !== 3) {
@@ -141,29 +130,18 @@ const AdminUsuarios: React.FC = () => {
   };
 
   const limpiarFormulario = () => {
-    setFormulario({
-      nombre_usuario: "",
-      correo: "",
-      password: "",
-      rol_id: 1,
-      sucursal_id: 1,
-      piloto_sql_id: null,
-      piloto_temporal_id: null,
-    });
-    setTipoVinculacion("ninguno");
     setUsuarioEditando(null);
     setMostrarFormulario(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async (formulario: FormularioUsuario) => {
+    // Validaciones se manejan en el formulario, pero por si acaso:
     if (!formulario.nombre_usuario || !formulario.password) {
       noti.warning({
         title: "Campos requeridos",
         message: "Nombre de usuario y contraseña son obligatorios",
       });
-      return;
+      throw new Error("Campos requeridos");
     }
 
     if (formulario.rol_id !== 1 && !formulario.correo) {
@@ -171,7 +149,7 @@ const AdminUsuarios: React.FC = () => {
         title: "Campo requerido",
         message: "El correo es obligatorio para jefes y administradores",
       });
-      return;
+      throw new Error("Campo requerido");
     }
 
     const datosUsuario = {
@@ -198,35 +176,16 @@ const AdminUsuarios: React.FC = () => {
       cargarUsuarios();
     } catch (error: any) {
       noti.error({
-        title: "Error al guardar",
-        message:
-          error.response?.data?.error ||
-          error.message ||
-          "No se pudo guardar el usuario",
+        title: "Error",
+        message: error.response?.data?.error || "Error al guardar el usuario",
       });
+      throw error; // Re-lanzar para que el modal pueda manejar el loading
     }
   };
 
   const handleEditar = (usuario: UsuarioConPiloto) => {
     setUsuarioEditando(usuario);
-
-    let tipo: "ninguno" | "sql" | "temporal" = "ninguno";
-    if (usuario.piloto_sql_id) tipo = "sql";
-    else if (usuario.piloto_temporal_id) tipo = "temporal";
-
-    setTipoVinculacion(tipo);
-
-    setFormulario({
-      nombre_usuario: usuario.nombre_usuario,
-      correo: usuario.correo,
-      password: "",
-      rol_id: usuario.rol_id,
-      sucursal_id: usuario.sucursal_id || 1,
-      piloto_sql_id: usuario.piloto_sql_id || null,
-      piloto_temporal_id: usuario.piloto_temporal_id || null,
-    });
     setMostrarFormulario(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleEliminar = async (usuario: UsuarioConPiloto) => {
@@ -300,33 +259,6 @@ const AdminUsuarios: React.FC = () => {
           error.response?.data?.error ||
           error.message ||
           "No se pudo reactivar el usuario",
-      });
-    }
-  };
-
-  const handleTipoVinculacionChange = (
-    tipo: "ninguno" | "sql" | "temporal"
-  ) => {
-    setTipoVinculacion(tipo);
-    setFormulario({
-      ...formulario,
-      piloto_sql_id: null,
-      piloto_temporal_id: null,
-    });
-  };
-
-  const handlePilotoChange = (valor: string) => {
-    if (tipoVinculacion === "sql") {
-      setFormulario({
-        ...formulario,
-        piloto_sql_id: parseInt(valor) || null,
-        piloto_temporal_id: null,
-      });
-    } else if (tipoVinculacion === "temporal") {
-      setFormulario({
-        ...formulario,
-        piloto_sql_id: null,
-        piloto_temporal_id: parseInt(valor) || null,
       });
     }
   };
@@ -441,292 +373,15 @@ const AdminUsuarios: React.FC = () => {
         </div>
 
         {/* Formulario */}
-        {mostrarFormulario && (
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-6 mb-8">
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-slate-700">
-              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <Icons.user className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
-                {usuarioEditando ? "Editar Usuario" : "Crear Nuevo Usuario"}
-              </h3>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                    <Icons.user className="w-4 h-4" />
-                    Nombre de Usuario <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                    value={formulario.nombre_usuario}
-                    onChange={(e) =>
-                      setFormulario({
-                        ...formulario,
-                        nombre_usuario: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                    <Icons.mail className="w-4 h-4" />
-                    Correo{" "}
-                    {formulario.rol_id !== 1 && (
-                      <span className="text-red-500">*</span>
-                    )}
-                  </label>
-                  <input
-                    type="email"
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                    placeholder={
-                      formulario.rol_id === 1
-                        ? "Opcional para pilotos"
-                        : "Requerido para jefes/admins"
-                    }
-                    value={formulario.correo}
-                    onChange={(e) =>
-                      setFormulario({ ...formulario, correo: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                    <Icons.lock className="w-4 h-4" />
-                    Contraseña <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                    placeholder={
-                      usuarioEditando
-                        ? "Dejar vacío para mantener actual"
-                        : "Contraseña"
-                    }
-                    value={formulario.password}
-                    onChange={(e) =>
-                      setFormulario({ ...formulario, password: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                    <Icons.settings className="w-4 h-4" />
-                    Rol <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    required
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                    value={formulario.rol_id}
-                    onChange={(e) =>
-                      setFormulario({
-                        ...formulario,
-                        rol_id: parseInt(e.target.value),
-                      })
-                    }
-                  >
-                    {ROLES.map((rol) => (
-                      <option key={rol.id} value={rol.id}>
-                        {rol.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                    <Icons.building className="w-4 h-4" />
-                    Sucursal <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    required
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                    value={formulario.sucursal_id}
-                    onChange={(e) =>
-                      setFormulario({
-                        ...formulario,
-                        sucursal_id: parseInt(e.target.value),
-                      })
-                    }
-                  >
-                    {sucursales.length === 0 ? (
-                      <option>Cargando sucursales...</option>
-                    ) : (
-                      sucursales.map(
-                        (sucursal: {
-                          sucursal_id: number;
-                          nombre_sucursal: string;
-                        }) => (
-                          <option
-                            key={sucursal.sucursal_id}
-                            value={sucursal.sucursal_id}
-                          >
-                            {sucursal.nombre_sucursal}
-                          </option>
-                        )
-                      )
-                    )}
-                  </select>
-                </div>
-              </div>
-
-              {/* Vinculación de Piloto (solo si rol es Piloto) */}
-              {formulario.rol_id === 1 && (
-                <div className="border-t border-gray-200 dark:border-slate-700 pt-4 mt-4">
-                  <h4 className="font-medium text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
-                    <Icons.navigation className="w-5 h-5" />
-                    Vincular con Piloto (Opcional)
-                  </h4>
-
-                  <div className="space-y-3">
-                    {/* Tipo de vinculación */}
-                    <div className="flex gap-4">
-                      <label className="flex items-center cursor-pointer">
-                        <input
-                          type="radio"
-                          name="tipoVinculacion"
-                          checked={tipoVinculacion === "ninguno"}
-                          onChange={() =>
-                            handleTipoVinculacionChange("ninguno")
-                          }
-                          className="mr-2"
-                        />
-                        <span className="text-sm text-gray-700 dark:text-slate-300">
-                          ⚪ No vincular
-                        </span>
-                      </label>
-
-                      <label className="flex items-center cursor-pointer">
-                        <input
-                          type="radio"
-                          name="tipoVinculacion"
-                          checked={tipoVinculacion === "sql"}
-                          onChange={() => handleTipoVinculacionChange("sql")}
-                          className="mr-2"
-                        />
-                        <span className="text-sm text-gray-700 dark:text-slate-300">
-                          🔵 Piloto SQL Server
-                        </span>
-                      </label>
-
-                      <label className="flex items-center cursor-pointer">
-                        <input
-                          type="radio"
-                          name="tipoVinculacion"
-                          checked={tipoVinculacion === "temporal"}
-                          onChange={() =>
-                            handleTipoVinculacionChange("temporal")
-                          }
-                          className="mr-2"
-                        />
-                        <span className="text-sm text-gray-700 dark:text-slate-300">
-                          🟡 Piloto Temporal
-                        </span>
-                      </label>
-                    </div>
-
-                    {/* Select de piloto según tipo */}
-                    {tipoVinculacion === "sql" && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                          Seleccionar Piloto SQL ({pilotosSQL.length}{" "}
-                          disponibles)
-                        </label>
-                        <select
-                          className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                          value={formulario.piloto_sql_id || ""}
-                          onChange={(e) => handlePilotoChange(e.target.value)}
-                        >
-                          <option value="">-- Seleccionar --</option>
-                          {loadingPilotos ? (
-                            <option>Cargando...</option>
-                          ) : (
-                            pilotosSQL.map((piloto) => (
-                              <option
-                                key={piloto.piloto_id}
-                                value={piloto.piloto_id}
-                              >
-                                {piloto.nombre_piloto}
-                              </option>
-                            ))
-                          )}
-                        </select>
-                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                          Pilotos de SQL Server
-                        </p>
-                      </div>
-                    )}
-
-                    {tipoVinculacion === "temporal" && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                          Seleccionar Piloto Temporal (
-                          {pilotosTemporales.length} disponibles)
-                        </label>
-                        <select
-                          className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                          value={formulario.piloto_temporal_id || ""}
-                          onChange={(e) => handlePilotoChange(e.target.value)}
-                        >
-                          <option value="">-- Seleccionar --</option>
-                          {loadingPilotos ? (
-                            <option>Cargando...</option>
-                          ) : (
-                            pilotosTemporales.map((piloto) => (
-                              <option
-                                key={piloto.piloto_temporal_id}
-                                value={piloto.piloto_temporal_id}
-                              >
-                                {piloto.nombre_piloto}
-                              </option>
-                            ))
-                          )}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-3">
-                    <div className="flex items-start gap-3">
-                      <Icons.info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-blue-800 dark:text-blue-300">
-                        <strong>Nota:</strong> La vinculación permite
-                        identificar qué usuario corresponde a cada piloto. Un
-                        piloto solo puede tener un usuario asignado.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
-                >
-                  <Icons.save className="w-4 h-4" />
-                  {usuarioEditando ? "Actualizar" : "Crear"} Usuario
-                </button>
-                <button
-                  type="button"
-                  onClick={limpiarFormulario}
-                  className="px-6 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-slate-600 transition-all flex items-center gap-2"
-                >
-                  <Icons.x className="w-4 h-4" />
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        <FormularioUsuario
+          isOpen={mostrarFormulario}
+          onClose={limpiarFormulario}
+          usuarioEditando={usuarioEditando}
+          onSubmit={handleSubmit}
+          sucursales={sucursales}
+          pilotos={pilotos}
+          loadingPilotos={loadingPilotos}
+        />
 
         {/* Tabla de usuarios */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden">

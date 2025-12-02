@@ -177,169 +177,174 @@ const HistorialViajes = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <Icons.clock className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">
-                  Historial de Viajes
-                </h1>
-                <p className="text-gray-600 dark:text-slate-400">
-                  Viajes completados en las últimas 24 horas de tu sucursal
-                </p>
+              <button
+                onClick={() => window.history.back()}
+                className="text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors flex items-center gap-2"
+              >
+                <Icons.chevronLeft className="w-5 h-5" />
+                Volver
+              </button>
+              <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
+              <Icons.clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
+                Historial de Viajes (24h)
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={cargarHistorial}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+              >
+                <Icons.refresh className="w-4 h-4" />
+                Actualizar
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Estadísticas generales */}
+        {estadisticas && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
+                    Total Viajes
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+                    {estadisticas.total_viajes}
+                  </p>
+                </div>
+                <Icons.truck className="w-8 h-8 text-blue-500 dark:text-blue-400" />
               </div>
             </div>
-            <button
-              onClick={cargarHistorial}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
-            >
-              <Icons.refresh className="w-4 h-4" />
-              Actualizar
-            </button>
+
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
+                    Total Facturas
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+                    {estadisticas.total_facturas}
+                  </p>
+                </div>
+                <Icons.document className="w-8 h-8 text-purple-500 dark:text-purple-400" />
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
+                    Total Guías
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+                    {estadisticas.total_guias}
+                  </p>
+                </div>
+                <Icons.package className="w-8 h-8 text-orange-500 dark:text-orange-400" />
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
+                    Entregadas
+                  </p>
+                  <p className="text-2xl font-bold text-green-700 dark:text-green-400">
+                    {estadisticas.total_entregadas}
+                  </p>
+                </div>
+                <Icons.checkCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Filtros */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Búsqueda */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                Buscar
+              </label>
+              <div className="relative">
+                <Icons.search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Piloto, vehículo o #viaje..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                />
+              </div>
+            </div>
+
+            {/* Filtro por estado */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                Estado
+              </label>
+              <select
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value as any)}
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+              >
+                <option value="todos">Todos</option>
+                <option value="exitosos">Exitosos (100%)</option>
+                <option value="parciales">Parciales (≥80%)</option>
+                <option value="fallidos">Fallidos (&lt;80%)</option>
+              </select>
+            </div>
+
+            {/* Ordenamiento */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                Ordenar por
+              </label>
+              <select
+                value={ordenamiento}
+                onChange={(e) => setOrdenamiento(e.target.value as any)}
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+              >
+                <option value="reciente">Más recientes</option>
+                <option value="antiguo">Más antiguos</option>
+                <option value="exito_desc">Mayor éxito</option>
+                <option value="exito_asc">Menor éxito</option>
+              </select>
+            </div>
           </div>
 
-          {/* Estadísticas generales */}
-          {estadisticas && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
-                      Total Viajes
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-                      {estadisticas.total_viajes}
-                    </p>
-                  </div>
-                  <Icons.truck className="w-8 h-8 text-blue-500 dark:text-blue-400" />
-                </div>
+          {/* Indicador de filtros activos */}
+          {(busqueda ||
+            filtroEstado !== "todos" ||
+            ordenamiento !== "reciente") && (
+            <div className="mt-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+                <span className="font-medium">
+                  {viajesFiltrados.length} resultado
+                  {viajesFiltrados.length !== 1 ? "s" : ""} encontrado
+                  {viajesFiltrados.length !== 1 ? "s" : ""}
+                </span>
               </div>
-
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
-                      Total Facturas
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-                      {estadisticas.total_facturas}
-                    </p>
-                  </div>
-                  <Icons.document className="w-8 h-8 text-purple-500 dark:text-purple-400" />
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
-                      Total Guías
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-                      {estadisticas.total_guias}
-                    </p>
-                  </div>
-                  <Icons.package className="w-8 h-8 text-orange-500 dark:text-orange-400" />
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 font-semibold">
-                      Entregadas
-                    </p>
-                    <p className="text-2xl font-bold text-green-700 dark:text-green-400">
-                      {estadisticas.total_entregadas}
-                    </p>
-                  </div>
-                  <Icons.checkCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
-                </div>
-              </div>
+              <button
+                onClick={limpiarFiltros}
+                className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+              >
+                Limpiar filtros
+              </button>
             </div>
           )}
-
-          {/* Filtros */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Búsqueda */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                  Buscar
-                </label>
-                <div className="relative">
-                  <Icons.search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500" />
-                  <input
-                    type="text"
-                    placeholder="Piloto, vehículo o #viaje..."
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
-                  />
-                </div>
-              </div>
-
-              {/* Filtro por estado */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                  Estado
-                </label>
-                <select
-                  value={filtroEstado}
-                  onChange={(e) => setFiltroEstado(e.target.value as any)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
-                >
-                  <option value="todos">Todos</option>
-                  <option value="exitosos">Exitosos (100%)</option>
-                  <option value="parciales">Parciales (≥80%)</option>
-                  <option value="fallidos">Fallidos (&lt;80%)</option>
-                </select>
-              </div>
-
-              {/* Ordenamiento */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                  Ordenar por
-                </label>
-                <select
-                  value={ordenamiento}
-                  onChange={(e) => setOrdenamiento(e.target.value as any)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
-                >
-                  <option value="reciente">Más recientes</option>
-                  <option value="antiguo">Más antiguos</option>
-                  <option value="exito_desc">Mayor éxito</option>
-                  <option value="exito_asc">Menor éxito</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Indicador de filtros activos */}
-            {(busqueda ||
-              filtroEstado !== "todos" ||
-              ordenamiento !== "reciente") && (
-              <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
-                  <span className="font-medium">
-                    {viajesFiltrados.length} resultado
-                    {viajesFiltrados.length !== 1 ? "s" : ""} encontrado
-                    {viajesFiltrados.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                <button
-                  onClick={limpiarFiltros}
-                  className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                >
-                  Limpiar filtros
-                </button>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Tabla de viajes */}

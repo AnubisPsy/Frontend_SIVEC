@@ -334,7 +334,7 @@ const Home = () => {
       bgColor: "bg-orange-100 dark:bg-orange-900/30",
     };
   };
-  
+
   const calcularProgreso = (viaje: Viaje): number => {
     if (viaje.total_guias === 0) return 0;
     const completadas =
@@ -424,76 +424,80 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <div className="mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {/* Header mejorado */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
-                Viajes Activos
-              </h1>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
-                  <Icons.truck className="w-4 h-4" />
-                  <span className="font-medium">
+      {/* Header */}
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-4">
+            {/* Lado izquierdo */}
+            <div className="flex items-center gap-3">
+              <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
+                  Viajes Activos
+                </h1>
+                <div className="flex items-center gap-3 text-sm mt-1">
+                  <span className="text-gray-600 dark:text-slate-400 font-medium">
                     {viajes.length} {viajes.length === 1 ? "viaje" : "viajes"}
                   </span>
+                  {isConnected && (
+                    <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      <span className="font-medium">En tiempo real</span>
+                    </div>
+                  )}
+                  {!isConnected && (
+                    <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                      <span className="font-medium">Reconectando...</span>
+                    </div>
+                  )}
                 </div>
-                {isConnected && (
-                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <span className="font-medium">En tiempo real</span>
-                  </div>
-                )}
-                {!isConnected && (
-                  <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                    <span className="font-medium">Reconectando...</span>
-                  </div>
-                )}
               </div>
             </div>
 
+            {/* Lado derecho - Controles */}
             <div className="flex items-center gap-3">
               {/* Toggle Vista */}
-              <div className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-lg p-1 shadow-sm border border-gray-200 dark:border-slate-700">
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-700 rounded-lg p-1">
                 <button
                   onClick={() => cambiarVista("cards")}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
                     vistaActual === "cards"
-                      ? "bg-blue-600 text-white shadow-sm"
+                      ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100"
                   }`}
                 >
-                  <Icons.grid className="w-4 h-4 inline mr-2" />
+                  <Icons.grid className="w-4 h-4" />
                   Cards
                 </button>
                 <button
                   onClick={() => cambiarVista("tabla")}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
                     vistaActual === "tabla"
-                      ? "bg-blue-600 text-white shadow-sm"
+                      ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100"
                   }`}
                 >
-                  <Icons.table className="w-4 h-4 inline mr-2" />
+                  <Icons.table className="w-4 h-4" />
                   Tabla
                 </button>
               </div>
 
+              {/* Botón Asignar Factura */}
               {puedeAsignar && (
-                <Button
-                  variant="primary"
-                  icon="plus"
+                <button
                   onClick={() => setMostrarFormulario(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
                 >
+                  <Icons.plus className="w-4 h-4" />
                   Asignar Factura
-                </Button>
+                </button>
               )}
 
+              {/* Botón Recargar */}
               <button
                 onClick={cargarViajes}
-                className="p-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                className="p-2 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
                 title="Recargar"
               >
                 <Icons.refresh className="w-5 h-5 text-gray-600 dark:text-slate-400" />
@@ -501,7 +505,9 @@ const Home = () => {
             </div>
           </div>
         </div>
+      </header>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error Alert */}
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-lg mb-6 flex items-start">
@@ -759,15 +765,16 @@ const Home = () => {
             })}
           </div>
         )}
-      </div>
 
-      {/* Modal Formulario */}
-      {mostrarFormulario && (
-        <FormularioAsignarFactura
-          onCancelar={() => setMostrarFormulario(false)}
-          onAsignarFactura={handleAsignarFactura}
-        />
-      )}
+        {/* Modal Formulario */}
+        {mostrarFormulario && (
+          <FormularioAsignarFactura
+            isOpen={mostrarFormulario}
+            onClose={() => setMostrarFormulario(false)}
+            onAsignarFactura={handleAsignarFactura}
+          />
+        )}
+      </div>
     </div>
   );
 };

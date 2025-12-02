@@ -181,27 +181,38 @@ const Reportes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-              <Icons.barChart className="w-7 h-7 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-slate-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      {/* Header */}
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => window.history.back()}
+                className="text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors flex items-center gap-2"
+              >
+                <Icons.chevronLeft className="w-5 h-5" />
+                Volver
+              </button>
+              <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
+              <Icons.barChart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Reportes de Viajes
               </h1>
-              <p className="text-gray-600 dark:text-slate-400 text-lg">
-                Visualiza y exporta el historial completo de viajes completados
-              </p>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 rounded-lg font-semibold">
+                Historial completo
+              </span>
             </div>
           </div>
         </div>
+      </header>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Estadísticas */}
-        {estadisticas && (
+        {/*   
+         {estadisticas && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
             <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border-l-4 border-blue-500 dark:border-blue-600">
               <div className="flex items-center justify-between">
@@ -283,7 +294,8 @@ const Reportes = () => {
               </div>
             </div>
           </div>
-        )}
+        )} 
+         */}
 
         {/* Filtros */}
         <FiltrosHistorial filtros={filtros} onAplicarFiltros={aplicarFiltros} />

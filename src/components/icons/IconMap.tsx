@@ -134,4 +134,5 @@ export const Icons = {
   power: Power,
   helpCircle: HelpCircle,
   fileText: File,
+  alert: AlertCircle,
 };
