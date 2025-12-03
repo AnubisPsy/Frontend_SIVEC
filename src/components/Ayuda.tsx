@@ -11,6 +11,7 @@ import {
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import { Icons } from "./icons/IconMap";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
@@ -199,25 +200,36 @@ const Ayuda: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-              <HelpCircle className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      {/* Header */}
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => window.history.back()}
+                className="text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors flex items-center gap-2"
+              >
+                <Icons.chevronLeft className="w-5 h-5" />
+                Volver
+              </button>
+              <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
+              <HelpCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Centro de Ayuda
               </h1>
-              <p className="text-gray-600 dark:text-slate-400">
-                Reporta problemas o envía sugerencias al equipo de soporte
-              </p>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-lg font-semibold flex items-center gap-1.5">
+                <Icons.checkCircle className="w-4 h-4" />
+                Soporte activo
+              </span>
             </div>
           </div>
         </div>
+      </header>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Formulario */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 p-6">
           <form onSubmit={handleSubmit}>
