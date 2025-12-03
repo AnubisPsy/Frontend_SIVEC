@@ -11,7 +11,7 @@ import {
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
-import { Icons } from "./icons/IconMap";
+import { Icons } from "../components/icons/IconMap";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 

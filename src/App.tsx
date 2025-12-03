@@ -26,7 +26,7 @@ import { SocketProvider } from "./contexts/SocketContext";
 import Dashboard from "./pages/Dashboard";
 import AdminVehiculos from "./pages/AdminVehiculos";
 import MapaVivo from "./pages/MapaVivo";
-import Ayuda from "./components/Ayuda";
+import Ayuda from "./pages/Ayuda";
 
 // ✅ Componente que maneja las rutas según autenticación
 function AppRoutes() {
