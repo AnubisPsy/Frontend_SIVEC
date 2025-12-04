@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Icons } from "../components/icons/IconMap";
 import FormularioPilotoTemporal from "../components/FormularioPilotoTemporal";
+import { useConfirm } from "../hooks/useConfirm";
+import { ConfirmDialog } from "../hooks/ConfirmDialog";
+import { useNotification } from "../hooks/useNotification";
 
 interface PilotoTemporal {
   piloto_temporal_id: number;
@@ -20,6 +23,10 @@ const AdminPilotosTemporales: React.FC = () => {
   const [pilotoEditando, setPilotoEditando] = useState<PilotoTemporal | null>(
     null
   );
+
+  const { confirm, isOpen, options, handleConfirm, handleCancel } =
+    useConfirm();
+  const noti = useNotification();
 
   useEffect(() => {
     if (user?.rol_id !== 3) {
@@ -46,7 +53,10 @@ const AdminPilotosTemporales: React.FC = () => {
       }
     } catch (error) {
       console.error("Error cargando pilotos temporales:", error);
-      alert("Error al cargar pilotos temporales");
+      noti.error({
+        title: "Error",
+        message: "No se pudieron cargar los pilotos temporales",
+      });
     } finally {
       setLoading(false);
     }
@@ -81,19 +91,26 @@ const AdminPilotosTemporales: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        alert(
-          pilotoEditando
-            ? "Piloto actualizado exitosamente"
-            : "Piloto temporal creado exitosamente"
-        );
+        noti.success({
+          title: pilotoEditando ? "Piloto actualizado" : "Piloto creado",
+          message: pilotoEditando
+            ? "El piloto temporal se actualizó correctamente"
+            : "El piloto temporal se creó correctamente",
+        });
         limpiarFormulario();
         cargarPilotos();
       } else {
-        alert("Error: " + data.error);
+        noti.error({
+          title: "Error",
+          message: data.error || "Ocurrió un error al procesar la solicitud",
+        });
       }
     } catch (error: any) {
-      alert("Error: " + error.message);
-      throw error; // Re-lanzar para que el modal pueda manejar el loading
+      noti.error({
+        title: "Error",
+        message: error.message || "Ocurrió un error inesperado",
+      });
+      throw error;
     }
   };
 
@@ -103,6 +120,18 @@ const AdminPilotosTemporales: React.FC = () => {
   };
 
   const handleToggleActivo = async (piloto: PilotoTemporal) => {
+    const confirmed = await confirm({
+      title: piloto.activo ? "¿Desactivar piloto?" : "¿Activar piloto?",
+      message: piloto.activo
+        ? `¿Estás seguro de que deseas desactivar al piloto "${piloto.nombre}"?`
+        : `¿Estás seguro de que deseas activar al piloto "${piloto.nombre}"?`,
+      confirmText: piloto.activo ? "Sí, desactivar" : "Sí, activar",
+      cancelText: "Cancelar",
+      variant: piloto.activo ? "danger" : "warning",
+    });
+
+    if (!confirmed) return;
+
     try {
       const token = localStorage.getItem("sivec_token");
       const response = await fetch(
@@ -116,15 +145,24 @@ const AdminPilotosTemporales: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        alert(
-          `Piloto ${piloto.activo ? "desactivado" : "activado"} exitosamente`
-        );
+        noti.success({
+          title: piloto.activo ? "Piloto desactivado" : "Piloto activado",
+          message: `El piloto ${piloto.nombre} fue ${
+            piloto.activo ? "desactivado" : "activado"
+          } correctamente`,
+        });
         cargarPilotos();
       } else {
-        alert("Error: " + data.error);
+        noti.error({
+          title: "Error",
+          message: data.error || "Ocurrió un error al cambiar el estado",
+        });
       }
     } catch (error: any) {
-      alert("Error: " + error.message);
+      noti.error({
+        title: "Error",
+        message: error.message || "Ocurrió un error inesperado",
+      });
     }
   };
 
@@ -193,6 +231,13 @@ const AdminPilotosTemporales: React.FC = () => {
           onClose={limpiarFormulario}
           pilotoEditando={pilotoEditando}
           onSubmit={handleSubmit}
+        />
+
+        <ConfirmDialog
+          isOpen={isOpen}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+          {...options}
         />
 
         {/* Lista de pilotos */}

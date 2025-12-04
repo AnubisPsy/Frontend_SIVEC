@@ -3,6 +3,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { vehiculosApi, sucursalesApi } from "../services/api";
 import { Icons } from "../components/icons/IconMap";
 import { useAuth } from "../contexts/AuthContext";
+import { useConfirm } from "../hooks/useConfirm";
+import { ConfirmDialog } from "../hooks/ConfirmDialog";
+import { useNotification } from "../hooks/useNotification";
 
 interface Vehiculo {
   vehiculo_id: number;
@@ -33,6 +36,10 @@ const AdminVehiculos = () => {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [vehiculoSeleccionado, setVehiculoSeleccionado] =
     useState<Vehiculo | null>(null);
+
+  const { confirm, isOpen, options, handleConfirm, handleCancel } =
+    useConfirm();
+  const noti = useNotification();
 
   // Filtros
   const [filtroSucursal, setFiltroSucursal] = useState<string>("todas");
@@ -72,6 +79,10 @@ const AdminVehiculos = () => {
       }
     } catch (error) {
       console.error("Error cargando datos:", error);
+      noti.error({
+        title: "Error",
+        message: "No se pudieron cargar los datos iniciales",
+      });
     } finally {
       setLoading(false);
     }
@@ -170,53 +181,108 @@ const AdminVehiculos = () => {
           vehiculoSeleccionado.vehiculo_id,
           formData
         );
+        noti.success({
+          title: "Vehículo actualizado",
+          message: "El vehículo se actualizó correctamente",
+        });
       } else {
         await vehiculosApi.crear(formData);
+        noti.success({
+          title: "Vehículo creado",
+          message: "El vehículo se creó correctamente",
+        });
       }
 
       cerrarModal();
-      recargarVehiculos(); // ✅ CORREGIDO
+      recargarVehiculos();
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al guardar vehículo");
+      noti.error({
+        title: "Error",
+        message: error.response?.data?.message || "Error al guardar vehículo",
+      });
     }
   };
 
   const handleToggleActivo = async (vehiculo: Vehiculo) => {
+    const confirmed = await confirm({
+      title: vehiculo.activo ? "¿Desactivar vehículo?" : "¿Activar vehículo?",
+      message: vehiculo.activo
+        ? `¿Estás seguro de que deseas desactivar el vehículo "${vehiculo.numero_vehiculo}"?`
+        : `¿Estás seguro de que deseas activar el vehículo "${vehiculo.numero_vehiculo}"?`,
+      confirmText: vehiculo.activo ? "Sí, desactivar" : "Sí, activar",
+      cancelText: "Cancelar",
+      variant: vehiculo.activo ? "danger" : "warning",
+    });
+
+    if (!confirmed) return;
+
     try {
       if (vehiculo.activo) {
         await vehiculosApi.desactivar(vehiculo.vehiculo_id);
       } else {
         await vehiculosApi.activar(vehiculo.vehiculo_id);
       }
-      recargarVehiculos(); // ✅ CORREGIDO
+
+      noti.success({
+        title: vehiculo.activo ? "Vehículo desactivado" : "Vehículo activado",
+        message: `El vehículo ${vehiculo.numero_vehiculo} fue ${
+          vehiculo.activo ? "desactivado" : "activado"
+        } correctamente`,
+      });
+
+      recargarVehiculos();
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al cambiar estado");
+      noti.error({
+        title: "Error",
+        message: error.response?.data?.message || "Error al cambiar estado",
+      });
     }
   };
 
   const handleEliminar = async (vehiculo: Vehiculo) => {
-    if (!window.confirm(`¿Eliminar el vehículo ${vehiculo.numero_vehiculo}?`))
-      return;
+    const confirmed = await confirm({
+      title: "¿Eliminar vehículo?",
+      message: `¿Estás seguro de que deseas eliminar el vehículo "${vehiculo.numero_vehiculo}"? Esta acción no se puede deshacer.`,
+      confirmText: "Sí, eliminar",
+      cancelText: "Cancelar",
+      variant: "danger",
+    });
+
+    if (!confirmed) return;
 
     try {
       await vehiculosApi.eliminar(vehiculo.vehiculo_id);
-      recargarVehiculos(); // ✅ CORREGIDO
+
+      noti.success({
+        title: "Vehículo eliminado",
+        message: `El vehículo ${vehiculo.numero_vehiculo} fue eliminado correctamente`,
+      });
+
+      recargarVehiculos();
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al eliminar vehículo");
+      noti.error({
+        title: "Error",
+        message: error.response?.data?.message || "Error al eliminar vehículo",
+      });
     }
   };
 
-  // Obtener agrupaciones únicas
-  const agrupaciones = Array.from(
-    new Set(vehiculos.map((v) => v.agrupacion).filter((a) => a))
-  );
+  // Obtener agrupaciones únicas para el filtro
+  const agrupaciones = useMemo(() => {
+    const agrupacionesSet = new Set(
+      vehiculosTodos
+        .map((v) => v.agrupacion)
+        .filter((a): a is string => a !== null && a !== "")
+    );
+    return Array.from(agrupacionesSet).sort();
+  }, [vehiculosTodos]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-400 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-slate-400">
+          <Icons.refresh className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
+          <p className="mt-4 text-gray-600 dark:text-slate-400">
             Cargando vehículos...
           </p>
         </div>
@@ -226,7 +292,7 @@ const AdminVehiculos = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      {/* Header - SIN padding, pegado arriba */}
+      {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -241,12 +307,16 @@ const AdminVehiculos = () => {
               <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
               <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
-                Administración de Vehículos
+                Administrar Vehículos
               </h1>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-lg font-semibold">
-                {vehiculos.length} vehículos
+              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-lg font-semibold">
+                {vehiculos.filter((v) => v.activo).length} activos
+              </span>
+              <span className="text-gray-500 dark:text-slate-400">de</span>
+              <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-slate-300 rounded-lg font-semibold">
+                {vehiculos.length} total
               </span>
             </div>
           </div>
@@ -254,24 +324,39 @@ const AdminVehiculos = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filtros y búsqueda */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {/* Botón crear */}
+        <div className="mb-6">
+          <button
+            onClick={abrirModalCrear}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+          >
+            <Icons.plus className="w-5 h-5" />
+            Agregar Vehículo
+          </button>
+        </div>
+
+        <ConfirmDialog
+          isOpen={isOpen}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+          {...options}
+        />
+
+        {/* Filtros */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Búsqueda */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                 Buscar
               </label>
-              <div className="relative">
-                <Icons.search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                  placeholder="Número o placa..."
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <input
+                type="text"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Número o placa..."
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
 
             {/* Filtro Sucursal (solo admin) */}
@@ -305,9 +390,9 @@ const AdminVehiculos = () => {
                 onChange={(e) => setFiltroAgrupacion(e.target.value)}
                 className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="todas">Todas</option>
+                <option value="todas">Todas las agrupaciones</option>
                 {agrupaciones.map((a) => (
-                  <option key={a} value={a!}>
+                  <option key={a} value={a}>
                     {a}
                   </option>
                 ))}
@@ -330,51 +415,37 @@ const AdminVehiculos = () => {
               </select>
             </div>
           </div>
-
-          {/* Botón agregar */}
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600 dark:text-slate-400">
-              {vehiculos.length} vehículo(s) encontrado(s)
-            </p>
-            <button
-              onClick={abrirModalCrear}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              <Icons.plus className="w-5 h-5" />
-              Agregar Vehículo
-            </button>
-          </div>
         </div>
 
         {/* Tabla */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
               <thead className="bg-gray-50 dark:bg-slate-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Número
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Placa
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Agrupación
                   </th>
                   {user?.rol_id === 3 && (
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                       Sucursal
                     </th>
                   )}
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Estado
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+              <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                 {vehiculos.map((vehiculo) => (
                   <tr
                     key={vehiculo.vehiculo_id}

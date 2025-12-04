@@ -373,21 +373,6 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
                 )}
               </div>
 
-              {/* Agrupación */}
-              <div className="flex flex-col">
-                <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                  <Icons.navigation className="w-4 h-4" />
-                  Agrupación
-                </label>
-                <input
-                  type="text"
-                  className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
-                  placeholder="Ej: Flota A"
-                  value={filtrosTemp.agrupacion || ""}
-                  onChange={(e) => handleChange("agrupacion", e.target.value)}
-                />
-              </div>
-
               {/* % Éxito Mínimo */}
               <div className="flex flex-col">
                 <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 flex items-center gap-2">
