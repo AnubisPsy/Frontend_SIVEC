@@ -95,6 +95,14 @@ const MapaVivo = () => {
     actualizarMarcadores();
   }, [ubicaciones]);
 
+  // 🐛 DEBUG: Loguear cuando cambian los filtros
+  useEffect(() => {
+    const total = ubicaciones.length;
+    const filtradas = obtenerUbicacionesFiltradas().length;
+    // console.log(`🔍 Filtros aplicados: ${filtradas} de ${total} ubicaciones`);
+    // console.log(`   ✓ Solo GPS: ${soloConGPS}, Solo Viaje: ${soloEnViaje}`);
+  }, [soloConGPS, soloEnViaje, busqueda, filtroSucursal]);
+
   const cargarDatosIniciales = async () => {
     try {
       setLoading(true);
@@ -109,13 +117,26 @@ const MapaVivo = () => {
 
       // Cargar ubicaciones
       const params: any = {};
+
+      // ✅ FIX: Filtrar por sucursal para jefes de yarda (rol_id = 2)
       if (user?.rol_id === 2) {
         params.sucursal_id = user.sucursal_id;
+        //  console.log("🗺️ Filtrando vehículos por sucursal:", user.sucursal_id);
       }
 
       const resUbicaciones = await ubicacionesApi.obtenerTodas(params);
       if (resUbicaciones.data.success) {
-        setUbicaciones(resUbicaciones.data.data.ubicaciones);
+        const ubicaciones = resUbicaciones.data.data.ubicaciones;
+        /*         console.log("✅ Ubicaciones cargadas:", ubicaciones?.length);
+        console.log(
+          "   📊 Con GPS:",
+          ubicaciones?.filter((u: Ubicacion) => u.tiene_gps).length
+        );
+        console.log(
+          "   📊 Sin GPS:",
+          ubicaciones?.filter((u: Ubicacion) => !u.tiene_gps).length
+        ); */
+        setUbicaciones(ubicaciones);
       }
     } catch (error) {
       console.error("Error cargando datos:", error);
@@ -138,20 +159,41 @@ const MapaVivo = () => {
     });
 
     newSocket.on("connect", () => {
-      console.log("✅ WebSocket conectado");
+      //  console.log("✅ WebSocket conectado");
+
+      // ✅ FIX: Enviar sucursal_id al conectar para recibir solo actualizaciones relevantes
+      if (user?.rol_id === 2) {
+        newSocket.emit("join_sucursal", { sucursal_id: user.sucursal_id });
+      }
     });
 
-    newSocket.on("ubicaciones:actualizadas", (datos) => {
-      //console.log("📍 Ubicaciones actualizadas vía WebSocket");
-      setUbicaciones(datos.ubicaciones);
+    newSocket.on("ubicaciones_actualizadas", (data) => {
+      //  console.log("📡 Ubicaciones actualizadas:", data.ubicaciones.length);
+
+      // ✅ FILTRAR POR SUCURSAL SEGÚN ROL ANTES DE ACTUALIZAR ESTADO
+      let ubicacionesFiltradas = data.ubicaciones;
+
+      if (user?.rol_id === 2 && user?.sucursal_id) {
+        ubicacionesFiltradas = data.ubicaciones.filter(
+          (u: Ubicacion) => u.sucursal_id === user.sucursal_id
+        );
+        /*         console.log(
+          "🔍 Filtradas por sucursal:",
+          ubicacionesFiltradas.length,
+          "de",
+          data.ubicaciones.length
+        ); */
+      }
+
+      setUbicaciones(ubicacionesFiltradas);
     });
 
     newSocket.on("disconnect", () => {
-      console.log("❌ WebSocket desconectado");
+      console.log("WebSocket desconectado");
     });
 
     newSocket.on("connect_error", (error) => {
-      console.error("❌ Error conectando WebSocket:", error);
+      console.error("Error conectando WebSocket:", error);
     });
 
     setSocket(newSocket);

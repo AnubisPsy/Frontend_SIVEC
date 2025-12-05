@@ -140,7 +140,7 @@ const Layout = () => {
           icon: Activity,
           label: "Reportes Avanzados",
           path: "/reportes",
-          roles: [3],
+          roles: [2, 3],
         },
       ],
     },

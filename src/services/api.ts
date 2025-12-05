@@ -118,6 +118,20 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
+export interface ReporteDinamicoResponse {
+  success: boolean;
+  modo: "agregado" | "especificar";
+  agrupar_por: string;
+  data: any[];
+  columnas_disponibles: Array<{
+    id: string;
+    nombre: string;
+    visible: boolean;
+    tipo: "detalle" | "agregada";
+  }>;
+  message?: string;
+}
+
 // ==========================================
 // AUTH API
 // ==========================================
@@ -207,6 +221,41 @@ export const viajesApi = {
     piloto?: string;
     numero_vehiculo?: string;
   }) => api.get<HistorialResponse>("/api/viajes/historial", { params }),
+
+  // Nuevo endpoint para reportes dinámicos
+  obtenerReporteDinamico: (params: {
+    fecha_desde?: string;
+    fecha_hasta?: string;
+    piloto?: string;
+    numero_vehiculo?: string;
+    sucursal_id?: number;
+    modo: "agregado" | "especificar";
+    agrupar_por?: "piloto" | "vehiculo" | "sucursal" | "fecha" | "ninguno";
+  }) =>
+    api.get<ReporteDinamicoResponse>("/api/viajes/reportes/dinamico", {
+      params,
+    }),
+
+  obtenerSucursales: () =>
+    api.get<
+      ApiResponse<Array<{ sucursal_id: number; nombre_sucursal: string }>>
+    >("/api/viajes/sucursales"),
+
+  obtenerTodosPilotos: () =>
+    api.get<ApiResponse<string[]>>("/api/viajes/pilotos"),
+
+  obtenerVehiculosPorSucursal: (sucursal_id?: number) =>
+    api.get<
+      ApiResponse<
+        Array<{
+          vehiculo_id: number;
+          numero_vehiculo: string;
+          placa: string;
+          sucursal_id: number;
+          sucursales: { nombre_sucursal: string };
+        }>
+      >
+    >("/api/viajes/vehiculos", { params: { sucursal_id } }),
 };
 
 export const sucursalesApi = {
@@ -451,7 +500,7 @@ export const ubicacionesApi = {
           velocidad: number;
           direccion: number;
           ultima_actualizacion: string | null;
-          wialon_nombre: string | null; 
+          wialon_nombre: string | null;
           tiene_viaje: boolean;
           viaje_id: number | null;
           piloto: string | null;
