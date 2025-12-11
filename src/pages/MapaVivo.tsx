@@ -1,5 +1,11 @@
 // src/pages/MapaVivo.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Icons } from "../components/icons/IconMap";
@@ -136,7 +142,38 @@ const MapaVivo = () => {
           "   📊 Sin GPS:",
           ubicaciones?.filter((u: Ubicacion) => !u.tiene_gps).length
         ); */
+
         setUbicaciones(ubicaciones);
+
+        // ✅ AGREGAR ESTOS LOGS:
+        /*         console.log("📊 Ubicaciones recibidas:", ubicaciones.length);
+        console.log(
+          "📊 Con viaje:",
+          ubicaciones.filter((u: Ubicacion) => u.tiene_viaje).length
+        );
+        console.log(
+          "📊 Sin viaje:",
+          ubicaciones.filter((u: Ubicacion) => !u.tiene_viaje).length
+        );
+        console.log(
+          "📊 Ejemplo ubicación con viaje:",
+          ubicaciones.find((u: Ubicacion) => u.tiene_viaje)
+        );
+        console.log(
+          "📊 Ejemplo ubicación sin viaje:",
+          ubicaciones.find((u: Ubicacion) => !u.tiene_viaje)
+        );
+
+        console.log("🔍 C-101 y C-09 en ubicaciones:", {
+          total: ubicaciones.length,
+          c101: ubicaciones.find(
+            (u: Ubicacion) => u.numero_vehiculo === "C-101"
+          ),
+          c09: ubicaciones.find((u: Ubicacion) => u.numero_vehiculo === "C-09"),
+          todos_con_viaje: ubicaciones
+            .filter((u: Ubicacion) => u.tiene_viaje)
+            .map((u: Ubicacion) => u.numero_vehiculo),
+        }); */
       }
     } catch (error) {
       console.error("Error cargando datos:", error);
@@ -168,7 +205,19 @@ const MapaVivo = () => {
     });
 
     newSocket.on("ubicaciones_actualizadas", (data) => {
-      //  console.log("📡 Ubicaciones actualizadas:", data.ubicaciones.length);
+      /*       console.log(
+        "📡 WebSocket recibió:",
+        data.ubicaciones?.length || 0,
+        "ubicaciones"
+      );
+      console.log(
+        "📡 Con viaje en WebSocket:",
+        data.ubicaciones?.filter((u: Ubicacion) => u.tiene_viaje).length || 0
+      );
+      console.log(
+        "📡 Ejemplo con viaje:",
+        data.ubicaciones?.find((u: Ubicacion) => u.tiene_viaje)
+      ); */
 
       // ✅ FILTRAR POR SUCURSAL SEGÚN ROL ANTES DE ACTUALIZAR ESTADO
       let ubicacionesFiltradas = data.ubicaciones;
@@ -203,9 +252,15 @@ const MapaVivo = () => {
     if (!mapInstance.current) return;
 
     const ubicacionesFiltradas = obtenerUbicacionesFiltradas();
-    const ubicacionesConGPS = ubicacionesFiltradas.filter(
+    const ubicacionesConGPS = ubicacionesFiltradas.filter((u) => u.tiene_gps);
+    const ubicacionesParaMapa = ubicacionesFiltradas.filter(
       (u) => u.tiene_gps && u.latitud && u.longitud
     );
+    /*     console.log("🗺️ ubicacionesParaMapa CALCULADO:", {
+      total: ubicacionesParaMapa.length,
+      con_viaje: ubicacionesParaMapa.filter((u) => u.tiene_viaje).length,
+      numeros: ubicacionesParaMapa.map((u) => u.numero_vehiculo),
+    }); */
 
     // Remover marcadores que ya no existen
     Object.keys(markersRef.current).forEach((key) => {
@@ -292,18 +347,15 @@ const MapaVivo = () => {
   };
 
   const obtenerUbicacionesFiltradas = () => {
-    return ubicaciones.filter((ubicacion) => {
+    const resultado = ubicaciones.filter((ubicacion) => {
       // Filtro por sucursal
       if (user?.rol_id === 3 && filtroSucursal !== "todas") {
         if (ubicacion.sucursal_id !== parseInt(filtroSucursal)) return false;
       }
-
       // Filtro solo con GPS
       if (soloConGPS && !ubicacion.tiene_gps) return false;
-
       // Filtro solo en viaje
       if (soloEnViaje && !ubicacion.tiene_viaje) return false;
-
       // Búsqueda
       if (busqueda) {
         const busquedaLower = busqueda.toLowerCase();
@@ -313,22 +365,54 @@ const MapaVivo = () => {
           ubicacion.piloto?.toLowerCase().includes(busquedaLower);
         if (!coincide) return false;
       }
-
       return true;
     });
+
+    // ✅ LOG ANTES DEL RETURN:
+    /*     console.log("🔍 FILTROS APLICADOS:", {
+      soloEnViaje,
+      soloConGPS,
+      total_ubicaciones: ubicaciones.length,
+      resultado_filtrado: resultado.length,
+      con_viaje: resultado.filter((u) => u.tiene_viaje).length,
+    });
+ */
+    return resultado; // ✅ Ahora sí retorna
   };
 
-  const handleSeleccionarVehiculo = (ubicacion: Ubicacion) => {
+  const handleSeleccionarVehiculo = useCallback((ubicacion: Ubicacion) => {
     setVehiculoSeleccionado(ubicacion);
     if (ubicacion.latitud && ubicacion.longitud && mapInstance.current) {
       mapInstance.current.flyTo([ubicacion.latitud, ubicacion.longitud], 15, {
         duration: 1,
       });
     }
-  };
+  }, []);
 
   const ubicacionesFiltradas = obtenerUbicacionesFiltradas();
   const ubicacionesConGPS = ubicacionesFiltradas.filter((u) => u.tiene_gps);
+
+  // ✅ Memoizar ubicaciones para el mapa (evita re-renders infinitos)
+  const ubicacionesParaMapa = useMemo(() => {
+    const filtradas = obtenerUbicacionesFiltradas();
+    console.log("🔄 useMemo - Recalculando ubicaciones para mapa");
+    console.log("   📊 Total filtradas:", filtradas.length);
+    console.log(
+      "   📊 Con viaje:",
+      filtradas.filter((u) => u.tiene_viaje).length
+    );
+
+    const conGPS = filtradas.filter(
+      (u) => u.tiene_gps && u.latitud && u.longitud
+    );
+    console.log("   📊 Con GPS válido:", conGPS.length);
+    console.log(
+      "   📋 Vehículos:",
+      conGPS.map((u) => u.numero_vehiculo).join(", ")
+    );
+
+    return conGPS;
+  }, [ubicaciones, filtroSucursal, busqueda, soloConGPS, soloEnViaje]);
 
   if (loading) {
     return (
@@ -445,7 +529,7 @@ const MapaVivo = () => {
         {/* Mapa */}
         <div className="flex-1 relative z-0">
           <MapaVivoComponent
-            ubicaciones={ubicacionesConGPS}
+            ubicaciones={ubicacionesParaMapa}
             onVehiculoClick={handleSeleccionarVehiculo}
           />
         </div>
