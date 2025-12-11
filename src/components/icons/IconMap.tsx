@@ -64,7 +64,8 @@ import {
   TargetIcon,
   Map,
   Power,
-  HelpCircle, // %
+  HelpCircle,
+  CheckCheck, // %
 } from "lucide-react";
 
 export const Icons = {
@@ -135,4 +136,5 @@ export const Icons = {
   helpCircle: HelpCircle,
   fileText: File,
   alert: AlertCircle,
+  userCheck: CheckCheck,
 };

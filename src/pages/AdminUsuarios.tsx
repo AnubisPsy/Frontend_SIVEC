@@ -7,6 +7,7 @@ import { useConfirm } from "../hooks/useConfirm";
 import { ConfirmDialog } from "../hooks/ConfirmDialog";
 import { useNotification } from "../hooks/useNotification";
 import FormularioUsuario from "../components/FormularioUsuario";
+import MigrarPilotoModal from "../components/MigrarPilotoModal";
 
 interface FormularioUsuario {
   nombre_usuario: string;
@@ -66,6 +67,11 @@ const AdminUsuarios: React.FC = () => {
 
   const [pilotos, setPilotos] = useState<Piloto[]>([]);
   const [loadingPilotos, setLoadingPilotos] = useState(false);
+
+  const [modalMigrarPiloto, setModalMigrarPiloto] = useState(false);
+  const [usuarioAMigrar, setUsuarioAMigrar] = useState<UsuarioConPiloto | null>(
+    null
+  );
 
   useEffect(() => {
     if (user?.rol_id !== 3) {
@@ -263,12 +269,55 @@ const AdminUsuarios: React.FC = () => {
     }
   };
 
+  const handleAbrirMigrarPiloto = (usuario: UsuarioConPiloto) => {
+    console.log("🔄 Abriendo modal de migración para:", usuario.nombre_usuario);
+    setUsuarioAMigrar(usuario);
+    setModalMigrarPiloto(true);
+  };
+
+  const handleCerrarMigrarPiloto = () => {
+    setModalMigrarPiloto(false);
+    setUsuarioAMigrar(null);
+  };
+
+  const handleMigracionExitosa = async (resultado: any) => {
+    console.log("✅ Migración completada:", resultado);
+
+    // Cerrar modal de migración
+    setModalMigrarPiloto(false);
+    setUsuarioAMigrar(null);
+
+    // Refrescar lista
+    cargarUsuarios();
+
+    // Mostrar confirmación usando el hook
+    await confirm({
+      title: "✅ Migración Exitosa",
+      message: `Piloto migrado correctamente:
+
+👤 Usuario: ${resultado.data.nombre_usuario}
+📤 De: ${resultado.data.piloto_temporal_anterior}
+📥 A: ${resultado.data.piloto_sql_nuevo} (ID: ${resultado.data.piloto_sql_id})
+
+${
+  resultado.data.desactivado
+    ? "✅ El piloto temporal ha sido desactivado."
+    : "⚠️ El piloto temporal se mantiene activo."
+}`,
+      confirmText: "Entendido",
+    //  cancelText: "", // Sin botón cancelar
+      variant: "info",
+    });
+  };
+
   const getRolNombre = (rol_id: number) => {
     const rol = ROLES.find((r) => r.id === rol_id);
     return rol ? rol.nombre : `Rol ${rol_id}`;
   };
 
-  const getRolBadge = (rol_id: number) => {
+  const getRolBadge = (usuario: UsuarioConPiloto) => {
+    const rol_id = usuario.rol_id;
+
     const colors = {
       1: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
       2: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -276,14 +325,27 @@ const AdminUsuarios: React.FC = () => {
     };
 
     return (
-      <span
-        className={`px-2 py-1 rounded-full text-xs font-medium ${
-          colors[rol_id as keyof typeof colors] ||
-          "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
-        }`}
-      >
-        {getRolNombre(rol_id)}
-      </span>
+      <div className="flex items-center gap-2">
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            colors[rol_id as keyof typeof colors] ||
+            "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
+          }`}
+        >
+          {getRolNombre(rol_id)}
+        </span>
+
+        {/* ✅ NUEVO: Badge Temporal */}
+        {usuario.piloto_temporal_id && (
+          <span
+            className="px-2 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 rounded-full text-xs font-medium flex items-center gap-1"
+            title="Este usuario tiene un piloto temporal asignado"
+          >
+            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+            Temporal
+          </span>
+        )}
+      </div>
     );
   };
 
@@ -483,7 +545,7 @@ const AdminUsuarios: React.FC = () => {
                         {usuario.correo}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {getRolBadge(usuario.rol_id)}
+                        {getRolBadge(usuario)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getPilotoBadge(usuario)}
@@ -511,6 +573,22 @@ const AdminUsuarios: React.FC = () => {
                               <Icons.edit className="w-4 h-4" />
                               Editar
                             </button>
+
+                            {/* ✅ NUEVO: Botón Migrar Piloto */}
+                            {usuario.piloto_temporal_id &&
+                              user?.rol_id === 3 && (
+                                <button
+                                  onClick={() =>
+                                    handleAbrirMigrarPiloto(usuario)
+                                  }
+                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors inline-flex items-center gap-1"
+                                  title="Migrar a Piloto Permanente"
+                                >
+                                  <Icons.userCheck className="w-4 h-4" />
+                                  Migrar
+                                </button>
+                              )}
+
                             {usuario.usuario_id !== user?.usuario_id && (
                               <button
                                 onClick={() => handleEliminar(usuario)}
@@ -539,12 +617,20 @@ const AdminUsuarios: React.FC = () => {
           </div>
         </div>
       </div>
+      {modalMigrarPiloto && usuarioAMigrar && (
+        <MigrarPilotoModal
+          usuario={usuarioAMigrar}
+          onClose={handleCerrarMigrarPiloto}
+          onSuccess={handleMigracionExitosa}
+        />
+      )}
+
       <ConfirmDialog
         isOpen={isOpen}
         title={options.title}
         message={options.message}
         confirmText={options.confirmText}
-        cancelText={options.cancelText}
+        //cancelText={options.cancelText}
         variant={options.variant}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
