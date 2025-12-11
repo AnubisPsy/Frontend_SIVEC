@@ -61,6 +61,11 @@ const AdminUsuarios: React.FC = () => {
 
   const [mostrarInactivos, setMostrarInactivos] = useState(false);
 
+  // ✅ Filtros adicionales
+  const [filtroSucursal, setFiltroSucursal] = useState<string>("todas");
+  const [filtroRol, setFiltroRol] = useState<string>("todos");
+  const [busqueda, setBusqueda] = useState("");
+
   const [sucursales, setSucursales] = useState<
     Array<{ sucursal_id: number; nombre_sucursal: string }>
   >([]);
@@ -305,7 +310,7 @@ ${
     : "⚠️ El piloto temporal se mantiene activo."
 }`,
       confirmText: "Entendido",
-    //  cancelText: "", // Sin botón cancelar
+      //  cancelText: "", // Sin botón cancelar
       variant: "info",
     });
   };
@@ -388,9 +393,39 @@ ${
   const pilotosSQL = pilotos.filter((p) => !p.es_temporal);
   const pilotosTemporales = pilotos.filter((p) => p.es_temporal);
 
-  const usuariosFiltrados = mostrarInactivos
-    ? usuarios
-    : usuarios.filter((u) => u.activo !== false);
+  // ✅ Función de limpiar filtros
+  const limpiarFiltros = () => {
+    setBusqueda("");
+    setFiltroSucursal("todas");
+    setFiltroRol("todos");
+  };
+
+  // ✅ Lógica de filtrado completa
+  const usuariosFiltrados = usuarios.filter((usuario) => {
+    // Filtro por estado (activo/inactivo)
+    if (!mostrarInactivos && usuario.activo === false) return false;
+
+    // Filtro por sucursal
+    if (filtroSucursal !== "todas") {
+      if (usuario.sucursal_id !== parseInt(filtroSucursal)) return false;
+    }
+
+    // Filtro por rol
+    if (filtroRol !== "todos") {
+      if (usuario.rol_id !== parseInt(filtroRol)) return false;
+    }
+
+    // Filtro por búsqueda (nombre de usuario o correo)
+    if (busqueda) {
+      const busquedaLower = busqueda.toLowerCase();
+      const coincide =
+        usuario.nombre_usuario.toLowerCase().includes(busquedaLower) ||
+        usuario.correo.toLowerCase().includes(busquedaLower);
+      if (!coincide) return false;
+    }
+
+    return true;
+  });
 
   const usuariosInactivos = usuarios.filter((u) => u.activo === false).length;
 
@@ -432,6 +467,77 @@ ${
             <Icons.plus className="w-5 h-5" />
             Crear Usuario
           </button>
+        </div>
+
+        {/* ✅ SECCIÓN DE FILTROS */}
+        <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 p-6">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+            <Icons.search className="w-4 h-4" />
+            Filtros de búsqueda
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Búsqueda por texto */}
+            <div className="md:col-span-2">
+              <div className="relative">
+                <Icons.search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  placeholder="Buscar por usuario o correo..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Filtro por Sucursal */}
+            <div>
+              <select
+                value={filtroSucursal}
+                onChange={(e) => setFiltroSucursal(e.target.value)}
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="todas">Todas las sucursales</option>
+                {sucursales.map((s) => (
+                  <option key={s.sucursal_id} value={s.sucursal_id}>
+                    {s.nombre_sucursal}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Filtro por Rol */}
+            <div>
+              <select
+                value={filtroRol}
+                onChange={(e) => setFiltroRol(e.target.value)}
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="todos">Todos los roles</option>
+                {ROLES.map((rol) => (
+                  <option key={rol.id} value={rol.id}>
+                    {rol.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Botón limpiar filtros */}
+          {(busqueda ||
+            filtroSucursal !== "todas" ||
+            filtroRol !== "todos") && (
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={limpiarFiltros}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
+              >
+                <Icons.xCircle className="w-4 h-4" />
+                Limpiar filtros
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Formulario */}
@@ -491,6 +597,9 @@ ${
                     Rol
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                    Sucursal
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                     Piloto Vinculado
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
@@ -505,12 +614,12 @@ ${
                 {usuariosFiltrados.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="px-6 py-8 text-center text-gray-500 dark:text-slate-400"
                     >
                       {mostrarInactivos
                         ? "No hay usuarios inactivos"
-                        : "No hay usuarios activos"}
+                        : "No hay usuarios que coincidan con los filtros"}
                     </td>
                   </tr>
                 ) : (
@@ -546,6 +655,14 @@ ${
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getRolBadge(usuario)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                          <Icons.building className="w-3 h-3" />
+                          {sucursales.find(
+                            (s) => s.sucursal_id === usuario.sucursal_id
+                          )?.nombre_sucursal || "N/A"}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getPilotoBadge(usuario)}
