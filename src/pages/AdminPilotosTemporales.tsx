@@ -120,6 +120,22 @@ const AdminPilotosTemporales: React.FC = () => {
   };
 
   const handleToggleActivo = async (piloto: PilotoTemporal) => {
+    // ✅ Si está intentando ACTIVAR un piloto inactivo, verificar si fue migrado
+    if (!piloto.activo) {
+      // Verificar si las notas indican que fue migrado
+      if (piloto.notas && piloto.notas.includes("Migrado a piloto SQL ID")) {
+        // Extraer el SQL ID de las notas
+        const match = piloto.notas.match(/SQL ID (\d+)/);
+        const sqlId = match ? match[1] : "desconocido";
+
+        noti.error({
+          title: "No se puede activar",
+          message: `El piloto "${piloto.nombre}" fue migrado a piloto permanente (SQL ID: ${sqlId}). No es posible reactivarlo como piloto temporal.`,
+        });
+        return; // Detener la ejecución
+      }
+    }
+
     const confirmed = await confirm({
       title: piloto.activo ? "¿Desactivar piloto?" : "¿Activar piloto?",
       message: piloto.activo

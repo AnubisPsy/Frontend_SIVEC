@@ -36,6 +36,7 @@ interface Piloto {
   piloto_temporal_id?: number;
   piloto_id?: number;
   fuente: string;
+  migrado?: boolean; // ✅ Campo para identificar si fue migrado
 }
 
 interface Sucursal {
@@ -166,8 +167,9 @@ const FormularioUsuario: React.FC<FormularioUsuarioProps> = ({
   };
 
   const pilotosSQL = pilotos.filter((p) => !p.es_temporal && p.piloto_id);
+  // ✅ Filtrar pilotos temporales que NO estén migrados
   const pilotosTemporales = pilotos.filter(
-    (p) => p.es_temporal && p.piloto_temporal_id
+    (p) => p.es_temporal && p.piloto_temporal_id && !p.migrado
   );
 
   const esRolPiloto = formulario.rol_id === 1;
