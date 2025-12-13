@@ -177,6 +177,38 @@ const AdminVehiculos = () => {
 
     try {
       if (modoEdicion && vehiculoSeleccionado) {
+        // ✅ VALIDAR si está cambiando de sucursal
+        const cambiandoSucursal =
+          formData.sucursal_id !== vehiculoSeleccionado.sucursal_id;
+
+        if (cambiandoSucursal) {
+          // Verificar si tiene viajes activos (estados 7 y 8)
+          const token = localStorage.getItem("sivec_token");
+          const response = await fetch(
+            `http://localhost:3000/api/viajes?numero_vehiculo=${vehiculoSeleccionado.numero_vehiculo}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          const dataViajes = await response.json();
+
+          if (dataViajes.success) {
+            // Filtrar solo viajes activos (estado 7 = Pendiente, 8 = En Proceso)
+            const viajesActivos = dataViajes.data.filter(
+              (v: any) => v.estado_viaje === 7 || v.estado_viaje === 8
+            );
+
+            if (viajesActivos.length > 0) {
+              noti.error({
+                title: "No se puede cambiar de sucursal",
+                message: `El vehículo ${vehiculoSeleccionado.numero_vehiculo} tiene ${viajesActivos.length} viaje(s) activo(s). Complete o cancele los viajes antes de cambiar de sucursal.`,
+              });
+              return; // Detener la actualización
+            }
+          }
+        }
+
+        // Si no hay viajes activos o no está cambiando sucursal, continuar
         await vehiculosApi.actualizar(
           vehiculoSeleccionado.vehiculo_id,
           formData

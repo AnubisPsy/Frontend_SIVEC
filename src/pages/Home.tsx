@@ -369,15 +369,20 @@ const Home = () => {
         return;
       }
 
-      const response = await axios.get<Viaje[]>(
+      const response = await axios.get<any>(
         "http://localhost:3000/api/viajes?estado=activo",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
+      // ✅ Manejar ambos formatos de respuesta
+      const viajesData = response.data.success
+        ? response.data.data // Nuevo formato: { success: true, data: [...] }
+        : response.data; // Formato antiguo: [...]
+
       // Agregar total_facturas y guias_no_entregadas a cada viaje
-      const viajesConCalculos = response.data.map((viaje) => ({
+      const viajesConCalculos = viajesData.map((viaje: Viaje) => ({
         ...viaje,
         total_facturas: viaje.facturas?.length || 0,
         guias_no_entregadas:
