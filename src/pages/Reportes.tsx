@@ -323,7 +323,7 @@ const Reportes = () => {
         Object.entries(datosAgrupados).forEach(
           ([grupo, filas]: [string, any]) => {
             // Fila de grupo
-            const grupoRow = worksheet.addRow([`═══ ${grupo} ═══`]);
+            const grupoRow = worksheet.addRow([`${grupo}`]);
             worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
             grupoRow.font = { bold: true };
             grupoRow.fill = {
@@ -456,7 +456,7 @@ const Reportes = () => {
             head: headers,
             body: body,
             theme: "grid",
-            headStyles: { fillColor: [37, 99, 235] }, // Azul
+            headStyles: { fillColor: [0, 166, 81] },
             styles: { fontSize: 9, cellPadding: 3 },
           });
         } else {
@@ -481,9 +481,13 @@ const Reportes = () => {
               // Fila de grupo
               body.push([
                 {
-                  content: `========= ${grupo} =========`,
+                  content: `${grupo}`,
                   colSpan: 8,
-                  styles: { fontStyle: "bold", fillColor: [219, 234, 254], AlignCenter: "center" },
+                  styles: {
+                    fontStyle: "bold",
+                    fillColor: [230, 247, 238],
+                    AlignCenter: "center",
+                  },
                 },
               ]);
 
@@ -508,7 +512,7 @@ const Reportes = () => {
             head: headers,
             body: body,
             theme: "grid",
-            headStyles: { fillColor: [37, 99, 235] },
+            headStyles: { fillColor: [0, 166, 81] },
             styles: { fontSize: 8, cellPadding: 2 },
           });
         }
@@ -551,6 +555,194 @@ const Reportes = () => {
       });
     }
   };
+  const imprimirPDF = () => {
+    try {
+      const encabezado = generarEncabezado();
+      const doc = new jsPDF();
+
+      // ============================================
+      // LOGO (imagen a la izquierda)
+      // ============================================
+      const img = new Image();
+      img.src = MadeysoLogo;
+
+      img.onload = () => {
+        // Logo en la esquina superior izquierda
+        doc.addImage(img, "PNG", 14, 10, 30, 15);
+
+        // ============================================
+        // ENCABEZADO (texto a la derecha del logo)
+        // ============================================
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text(encabezado.empresa, 50, 15);
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text(encabezado.titulo, 50, 22);
+
+        doc.setFontSize(10);
+        doc.text(encabezado.periodo, 50, 28);
+        doc.text(encabezado.fechaGeneracion, 50, 34);
+        doc.text(encabezado.usuario, 50, 40);
+
+        // Línea separadora
+        doc.setLineWidth(0.5);
+        doc.line(14, 45, 196, 45);
+
+        // ============================================
+        // TABLA DE DATOS
+        // ============================================
+        if (modo === "agregado") {
+          // MODO AGREGADO
+          const headers = [
+            [
+              columnas.find((c) => c.id === "grupo")?.nombre || "Grupo",
+              "Viajes",
+              "Facturas",
+              "Guías",
+              "Entregadas",
+              "No Entregadas",
+              "% Éxito",
+            ],
+          ];
+
+          const body = datos.map((fila) => [
+            fila.grupo,
+            fila.total_viajes,
+            fila.total_facturas,
+            fila.total_guias,
+            fila.guias_entregadas,
+            fila.guias_no_entregadas,
+            `${fila.porcentaje_exito}%`,
+          ]);
+
+          autoTable(doc, {
+            startY: 50,
+            head: headers,
+            body: body,
+            theme: "grid",
+            headStyles: { fillColor: [0, 166, 81] }, // ✅ Verde MADEYSO
+            styles: { fontSize: 9, cellPadding: 3 },
+          });
+        } else {
+          // MODO ESPECIFICAR
+          const headers = [
+            [
+              "Piloto",
+              "ID Viaje",
+              "Fecha",
+              "Vehículo",
+              "Sucursal",
+              "Factura",
+              "Guía",
+              "Estado",
+            ],
+          ];
+
+          const body: any[] = [];
+
+          Object.entries(datosAgrupados).forEach(
+            ([grupo, filas]: [string, any]) => {
+              // Fila de grupo
+              body.push([
+                {
+                  content: `${grupo}`,
+                  colSpan: 8,
+                  styles: {
+                    fontStyle: "bold",
+                    fillColor: [230, 247, 238], // ✅ Verde MADEYSO suave
+                    halign: "left",
+                  },
+                },
+              ]);
+
+              // Filas del grupo
+              filas.forEach((fila: any) => {
+                body.push([
+                  fila.piloto,
+                  fila.viaje_id,
+                  new Date(fila.fecha_viaje).toLocaleDateString("es-HN"),
+                  fila.numero_vehiculo,
+                  fila.sucursal,
+                  fila.numero_factura,
+                  fila.numero_guia,
+                  fila.estado_guia,
+                ]);
+              });
+            },
+          );
+
+          autoTable(doc, {
+            startY: 50,
+            head: headers,
+            body: body,
+            theme: "grid",
+            headStyles: { fillColor: [0, 166, 81] }, // ✅ Verde MADEYSO
+            styles: { fontSize: 8, cellPadding: 2 },
+          });
+        }
+
+        // Pie de página
+        const pageCount = (doc as any).internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(128);
+          doc.text(
+            `Página ${i} de ${pageCount}`,
+            doc.internal.pageSize.width / 2,
+            doc.internal.pageSize.height - 10,
+            { align: "center" },
+          );
+        }
+
+        // ✅ SOLUCIÓN: Usar autoPrint() de jsPDF y abrir en nueva ventana
+        doc.autoPrint();
+
+        // Abrir en nueva ventana con el PDF
+        window.open(doc.output("bloburl"), "_blank");
+
+        noti.success({
+          title: "PDF abierto",
+          message: "El diálogo de impresión se abrirá automáticamente",
+        });
+      };
+
+      img.onerror = () => {
+        console.error("Error cargando logo");
+        noti.error({
+          title: "Error",
+          message: "No se pudo cargar el logo de la empresa",
+        });
+      };
+    } catch (error) {
+      console.error("Error generando PDF para imprimir:", error);
+      noti.error({
+        title: "Error",
+        message: "No se pudo generar el PDF para imprimir",
+      });
+    }
+  };
+
+  // Interceptar Ctrl+P para usar nuestra función de impresión personalizada
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Detectar Ctrl+P (Windows/Linux) o Cmd+P (Mac)
+      if ((e.ctrlKey || e.metaKey) && e.key === "p") {
+        e.preventDefault(); // Prevenir el diálogo de impresión por defecto
+        imprimirPDF(); // Ejecutar nuestra función personalizada
+      }
+    };
+
+    // Agregar listener
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Limpiar listener al desmontar
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [imprimirPDF]); // Dependencia: se actualiza si imprimirPDF cambia
 
   const imprimir = () => {
     window.print();
@@ -596,7 +788,7 @@ const Reportes = () => {
               </button>
 
               <button
-                onClick={imprimir}
+                onClick={imprimirPDF}
                 disabled={loading || datos.length === 0}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-slate-700 text-white rounded-lg transition flex items-center gap-2 disabled:cursor-not-allowed"
               >
