@@ -66,6 +66,7 @@ import {
   Power,
   HelpCircle,
   CheckCheck, // %
+  PrinterIcon
 } from "lucide-react";
 
 export const Icons = {
@@ -137,4 +138,5 @@ export const Icons = {
   fileText: File,
   alert: AlertCircle,
   userCheck: CheckCheck,
+  printer: PrinterIcon,
 };

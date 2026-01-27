@@ -5,6 +5,11 @@ import { Icons } from "../components/icons/IconMap";
 import { useNotification } from "../hooks/useNotification";
 import * as XLSX from "xlsx";
 import { useAuth } from "../contexts/AuthContext";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import MadeysoLogo from "../assets/logos/madeyso_logo.png";
+import ExcelJS from "exceljs";
+import { AlignCenter } from "lucide-react";
 
 interface FiltrosReporte {
   fecha_desde?: string;
@@ -48,8 +53,27 @@ const Reportes = () => {
 
   // Estados UI
   const [gruposExpandidos, setGruposExpandidos] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
+
+  // Función para generar encabezado común
+  const generarEncabezado = () => {
+    const empresa = "MADERAS Y SUMINISTROS Oseguera S.A (MADEYSO)";
+    const titulo = `Reporte ${modo === "agregado" ? "Agregado" : "Detallado"} - Agrupado por ${
+      agrupacion === "piloto"
+        ? "Piloto"
+        : agrupacion === "vehiculo"
+          ? "Vehículo"
+          : agrupacion === "sucursal"
+            ? "Sucursal"
+            : "Sin Agrupar"
+    }`;
+    const periodo = `Periodo: ${new Date(filtros.fecha_desde || "").toLocaleDateString("es-HN")} - ${new Date(filtros.fecha_hasta || "").toLocaleDateString("es-HN")}`;
+    const fechaGeneracion = `Generado: ${new Date().toLocaleDateString("es-HN")} ${new Date().toLocaleTimeString("es-HN")}`;
+    const usuario = `Usuario: ${user?.nombre_usuario || "Sistema"}`;
+
+    return { empresa, titulo, periodo, fechaGeneracion, usuario };
+  };
 
   // Cargar listas de opciones al montar
   useEffect(() => {
@@ -155,10 +179,10 @@ const Reportes = () => {
       agrupacion === "piloto"
         ? "piloto"
         : agrupacion === "vehiculo"
-        ? "numero_vehiculo"
-        : agrupacion === "sucursal"
-        ? "sucursal"
-        : "piloto";
+          ? "numero_vehiculo"
+          : agrupacion === "sucursal"
+            ? "sucursal"
+            : "piloto";
 
     return datos.reduce((grupos: any, fila: any) => {
       const clave = fila[campo] || "Sin especificar";
@@ -190,77 +214,346 @@ const Reportes = () => {
     setGruposExpandidos(new Set());
   };
 
-  // Exportar a Excel
-  const exportarExcel = () => {
+  // Exportar a Excel CON LOGO Y ENCABEZADO
+  const exportarExcel = async () => {
     try {
-      let datosExportar: any[] = [];
+      const encabezado = generarEncabezado();
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Reporte");
 
+      // ============================================
+      // AGREGAR LOGO
+      // ============================================
+      const response = await fetch(MadeysoLogo);
+      const imageBlob = await response.blob(); // ← RENOMBRADO de 'blob' a 'imageBlob'
+      const arrayBuffer = await imageBlob.arrayBuffer();
+      const imageId = workbook.addImage({
+        buffer: arrayBuffer,
+        extension: "png",
+      });
+
+      worksheet.addImage(imageId, {
+        tl: { col: 0, row: 0 }, // Top-left corner
+        ext: { width: 150, height: 75 }, // Tamaño del logo
+      });
+
+      // ============================================
+      // ENCABEZADO (empezar después del logo)
+      // ============================================
+      worksheet.mergeCells("C1:G1");
+      worksheet.getCell("C1").value = encabezado.empresa;
+      worksheet.getCell("C1").font = { size: 16, bold: true };
+
+      worksheet.mergeCells("C2:G2");
+      worksheet.getCell("C2").value = encabezado.titulo;
+      worksheet.getCell("C2").font = { size: 12 };
+
+      worksheet.mergeCells("C3:G3");
+      worksheet.getCell("C3").value = encabezado.periodo;
+
+      worksheet.mergeCells("C4:G4");
+      worksheet.getCell("C4").value = encabezado.fechaGeneracion;
+
+      worksheet.mergeCells("C5:G5");
+      worksheet.getCell("C5").value = encabezado.usuario;
+
+      // Línea vacía
+      let currentRow = 7;
+
+      // ============================================
+      // DATOS DEL REPORTE
+      // ============================================
       if (modo === "agregado") {
-        // Modo agregado: exportar directamente
-        datosExportar = datos.map((fila) => ({
-          [columnas.find((c) => c.id === "grupo")?.nombre || "Grupo"]:
+        // Headers
+        const headers = [
+          columnas.find((c) => c.id === "grupo")?.nombre || "Grupo",
+          "Total Viajes",
+          "Total Facturas",
+          "Total Guías",
+          "Guías Entregadas",
+          "No Entregadas",
+          "% Éxito",
+        ];
+
+        worksheet.addRow(headers);
+        worksheet.getRow(currentRow).font = { bold: true };
+        worksheet.getRow(currentRow).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF2563EB" },
+        };
+        worksheet.getRow(currentRow).font = { color: { argb: "FFFFFFFF" } };
+        currentRow++;
+
+        // Data
+        datos.forEach((fila) => {
+          worksheet.addRow([
             fila.grupo,
-          "Total Viajes": fila.total_viajes,
-          "Total Facturas": fila.total_facturas,
-          "Total Guías": fila.total_guias,
-          "Guías Entregadas": fila.guias_entregadas,
-          "No Entregadas": fila.guias_no_entregadas,
-          "% Éxito": `${fila.porcentaje_exito}%`,
-        }));
+            fila.total_viajes,
+            fila.total_facturas,
+            fila.total_guias,
+            fila.guias_entregadas,
+            fila.guias_no_entregadas,
+            `${fila.porcentaje_exito}%`,
+          ]);
+        });
       } else {
-        // Modo especificar: exportar con grupos y líneas vacías
+        // MODO ESPECIFICAR
+        const headers = [
+          "Piloto",
+          "ID Viaje",
+          "Fecha",
+          "Vehículo",
+          "Sucursal",
+          "Factura",
+          "Guía",
+          "Estado",
+        ];
+
+        worksheet.addRow(headers);
+        worksheet.getRow(currentRow).font = { bold: true };
+        worksheet.getRow(currentRow).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF2563EB" },
+        };
+        worksheet.getRow(currentRow).font = { color: { argb: "FFFFFFFF" } };
+        currentRow++;
+
         Object.entries(datosAgrupados).forEach(
           ([grupo, filas]: [string, any]) => {
-            // Línea de grupo
-            datosExportar.push({
-              Piloto: grupo,
-              "ID Viaje": "",
-              Fecha: "",
-              Vehículo: "",
-              Sucursal: "",
-              Factura: "",
-              Guía: "",
-              Estado: "",
-            });
+            // Fila de grupo
+            const grupoRow = worksheet.addRow([`═══ ${grupo} ═══`]);
+            worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+            grupoRow.font = { bold: true };
+            grupoRow.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFDBEAFE" },
+            };
+            currentRow++;
 
             // Filas del grupo
             filas.forEach((fila: any) => {
-              datosExportar.push({
-                Piloto: "",
-                "ID Viaje": fila.viaje_id,
-                Fecha: new Date(fila.fecha_viaje).toLocaleDateString("es-HN"),
-                Vehículo: fila.numero_vehiculo,
-                Sucursal: fila.sucursal,
-                Factura: fila.numero_factura,
-                Guía: fila.numero_guia,
-                Estado: fila.estado_guia,
-              });
+              worksheet.addRow([
+                fila.piloto,
+                fila.viaje_id,
+                new Date(fila.fecha_viaje).toLocaleDateString("es-HN"),
+                fila.numero_vehiculo,
+                fila.sucursal,
+                fila.numero_factura,
+                fila.numero_guia,
+                fila.estado_guia,
+              ]);
+              currentRow++;
             });
-
-            // Línea vacía entre grupos
-            datosExportar.push({});
-          }
+          },
         );
       }
 
-      const ws = XLSX.utils.json_to_sheet(datosExportar);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Reporte");
+      // Ajustar ancho de columnas
+      worksheet.columns = [
+        { width: 25 },
+        { width: 12 },
+        { width: 12 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+      ];
 
-      const nombreArchivo = `reporte_${modo}_${agrupacion}_${filtros.fecha_desde}_${filtros.fecha_hasta}.xlsx`;
-      XLSX.writeFile(wb, nombreArchivo);
+      // Guardar archivo
+      const buffer = await workbook.xlsx.writeBuffer();
+      const fileBlob = new Blob([buffer], {
+        // ← RENOMBRADO de 'blob' a 'fileBlob'
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(fileBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `reporte_SIVEC_${modo}_${agrupacion}_${filtros.fecha_desde}_${filtros.fecha_hasta}.xlsx`;
+      link.click();
 
       noti.success({
         title: "Exportado",
-        message: `Reporte exportado como ${nombreArchivo}`,
+        message: "Reporte exportado con logo exitosamente",
       });
     } catch (error) {
-      console.error("Error exportando:", error);
+      console.error("Error exportando Excel:", error);
       noti.error({
         title: "Error",
         message: "No se pudo exportar el reporte",
       });
     }
+  };
+
+  // Exportar a PDF CON ENCABEZADO Y LOGO
+  const exportarPDF = () => {
+    try {
+      const encabezado = generarEncabezado();
+      const doc = new jsPDF();
+
+      // ============================================
+      // LOGO (imagen a la izquierda)
+      // ============================================
+      const img = new Image();
+      img.src = MadeysoLogo;
+
+      img.onload = () => {
+        // Logo en la esquina superior izquierda (ajusta tamaño según tu logo)
+        doc.addImage(img, "PNG", 14, 10, 30, 15); // x, y, width, height
+
+        // ============================================
+        // ENCABEZADO (texto a la derecha del logo)
+        // ============================================
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text(encabezado.empresa, 50, 15); // Movido a la derecha del logo
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text(encabezado.titulo, 50, 22);
+
+        doc.setFontSize(10);
+        doc.text(encabezado.periodo, 50, 28);
+        doc.text(encabezado.fechaGeneracion, 50, 34);
+        doc.text(encabezado.usuario, 50, 40);
+
+        // Línea separadora
+        doc.setLineWidth(0.5);
+        doc.line(14, 45, 196, 45);
+
+        // ============================================
+        // TABLA DE DATOS
+        // ============================================
+        if (modo === "agregado") {
+          // MODO AGREGADO
+          const headers = [
+            [
+              columnas.find((c) => c.id === "grupo")?.nombre || "Grupo",
+              "Viajes",
+              "Facturas",
+              "Guías",
+              "Entregadas",
+              "No Entregadas",
+              "% Éxito",
+            ],
+          ];
+
+          const body = datos.map((fila) => [
+            fila.grupo,
+            fila.total_viajes,
+            fila.total_facturas,
+            fila.total_guias,
+            fila.guias_entregadas,
+            fila.guias_no_entregadas,
+            `${fila.porcentaje_exito}%`,
+          ]);
+
+          autoTable(doc, {
+            startY: 50,
+            head: headers,
+            body: body,
+            theme: "grid",
+            headStyles: { fillColor: [37, 99, 235] }, // Azul
+            styles: { fontSize: 9, cellPadding: 3 },
+          });
+        } else {
+          // MODO ESPECIFICAR
+          const headers = [
+            [
+              "Piloto",
+              "ID Viaje",
+              "Fecha",
+              "Vehículo",
+              "Sucursal",
+              "Factura",
+              "Guía",
+              "Estado",
+            ],
+          ];
+
+          const body: any[] = [];
+
+          Object.entries(datosAgrupados).forEach(
+            ([grupo, filas]: [string, any]) => {
+              // Fila de grupo
+              body.push([
+                {
+                  content: `========= ${grupo} =========`,
+                  colSpan: 8,
+                  styles: { fontStyle: "bold", fillColor: [219, 234, 254], AlignCenter: "center" },
+                },
+              ]);
+
+              // Filas del grupo
+              filas.forEach((fila: any) => {
+                body.push([
+                  fila.piloto,
+                  fila.viaje_id,
+                  new Date(fila.fecha_viaje).toLocaleDateString("es-HN"),
+                  fila.numero_vehiculo,
+                  fila.sucursal,
+                  fila.numero_factura,
+                  fila.numero_guia,
+                  fila.estado_guia,
+                ]);
+              });
+            },
+          );
+
+          autoTable(doc, {
+            startY: 50,
+            head: headers,
+            body: body,
+            theme: "grid",
+            headStyles: { fillColor: [37, 99, 235] },
+            styles: { fontSize: 8, cellPadding: 2 },
+          });
+        }
+
+        // Pie de página
+        const pageCount = (doc as any).internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(128);
+          doc.text(
+            `Página ${i} de ${pageCount}`,
+            doc.internal.pageSize.width / 2,
+            doc.internal.pageSize.height - 10,
+            { align: "center" },
+          );
+        }
+
+        const nombreArchivo = `reporte_SIVEC_${modo}_${agrupacion}_${filtros.fecha_desde}_${filtros.fecha_hasta}.pdf`;
+        doc.save(nombreArchivo);
+
+        noti.success({
+          title: "Exportado",
+          message: `Reporte exportado como ${nombreArchivo}`,
+        });
+      };
+
+      img.onerror = () => {
+        console.error("Error cargando logo");
+        noti.error({
+          title: "Error",
+          message: "No se pudo cargar el logo de la empresa",
+        });
+      };
+    } catch (error) {
+      console.error("Error exportando PDF:", error);
+      noti.error({
+        title: "Error",
+        message: "No se pudo exportar el PDF",
+      });
+    }
+  };
+
+  const imprimir = () => {
+    window.print();
   };
 
   return (
@@ -291,6 +584,24 @@ const Reportes = () => {
               >
                 <Icons.download className="w-4 h-4" />
                 Exportar Excel
+              </button>
+
+              <button
+                onClick={exportarPDF}
+                disabled={loading || datos.length === 0}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 dark:disabled:bg-slate-700 text-white rounded-lg transition flex items-center gap-2 disabled:cursor-not-allowed"
+              >
+                <Icons.download className="w-4 h-4" />
+                Exportar PDF
+              </button>
+
+              <button
+                onClick={imprimir}
+                disabled={loading || datos.length === 0}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-slate-700 text-white rounded-lg transition flex items-center gap-2 disabled:cursor-not-allowed"
+              >
+                <Icons.printer className="w-4 h-4" />
+                Imprimir
               </button>
             </div>
           </div>
@@ -340,12 +651,12 @@ const Reportes = () => {
                   list="sucursales-list"
                   value={
                     sucursales.find(
-                      (s) => s.sucursal_id === filtros.sucursal_id
+                      (s) => s.sucursal_id === filtros.sucursal_id,
                     )?.nombre_sucursal || ""
                   }
                   onChange={(e) => {
                     const sucursal = sucursales.find(
-                      (s) => s.nombre_sucursal === e.target.value
+                      (s) => s.nombre_sucursal === e.target.value,
                     );
                     setFiltros({
                       ...filtros,
@@ -556,8 +867,8 @@ const Reportes = () => {
                             fila.porcentaje_exito >= 90
                               ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                               : fila.porcentaje_exito >= 70
-                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                              : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                           }`}
                         >
                           {fila.porcentaje_exito}%
@@ -607,20 +918,20 @@ const Reportes = () => {
                       // Calcular totales del grupo
                       const totalGuias = filas.length;
                       const guiasEntregadas = filas.filter(
-                        (r: any) => r.estado_guia === "Entregada"
+                        (r: any) => r.estado_guia === "Entregada",
                       ).length;
                       const guiasNoEntregadas = filas.filter(
-                        (r: any) => r.estado_guia === "No Entregada"
+                        (r: any) => r.estado_guia === "No Entregada",
                       ).length;
                       const porcentajeExito =
                         totalGuias > 0
                           ? Math.round((guiasEntregadas / totalGuias) * 100)
                           : 0;
                       const viajesUnicos = new Set(
-                        filas.map((r: any) => r.viaje_id)
+                        filas.map((r: any) => r.viaje_id),
                       ).size;
                       const facturasUnicas = new Set(
-                        filas.map((r: any) => r.numero_factura)
+                        filas.map((r: any) => r.numero_factura),
                       ).size;
 
                       return (
@@ -679,8 +990,8 @@ const Reportes = () => {
                                         porcentajeExito >= 90
                                           ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                                           : porcentajeExito >= 70
-                                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                                       }`}
                                     >
                                       {porcentajeExito}% éxito
@@ -707,7 +1018,7 @@ const Reportes = () => {
                                 </td>
                                 <td className="px-6 py-3 text-sm text-gray-700 dark:text-slate-300">
                                   {new Date(
-                                    fila.fecha_viaje
+                                    fila.fecha_viaje,
                                   ).toLocaleDateString("es-HN")}
                                 </td>
                                 <td className="px-6 py-3 text-sm text-gray-700 dark:text-slate-300">
@@ -737,7 +1048,7 @@ const Reportes = () => {
                             ))}
                         </React.Fragment>
                       );
-                    }
+                    },
                   )}
                 </tbody>
               </table>
