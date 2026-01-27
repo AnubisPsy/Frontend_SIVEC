@@ -324,7 +324,7 @@ ${
     const rol_id = usuario.rol_id;
 
     const colors = {
-      1: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      1: "bg-madeyso-green-100 text-blue-800 dark:bg-blue-900/30 dark:text-madeyso-primary-light",
       2: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
       3: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
     };
@@ -366,7 +366,7 @@ ${
     const { tipo, nombre } = usuario.piloto_vinculado;
     const color =
       tipo === "sql"
-        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+        ? "bg-madeyso-green-100 text-blue-800 dark:bg-blue-900/30 dark:text-madeyso-primary-light"
         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
     const icono = tipo === "sql" ? "🔵" : "🟡";
 
@@ -381,7 +381,7 @@ ${
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <Icons.refresh className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
+          <Icons.refresh className="w-12 h-12 text-madeyso-primary dark:text-madeyso-primary-light animate-spin mx-auto" />
           <p className="mt-4 text-gray-600 dark:text-slate-400">
             Cargando usuarios...
           </p>
@@ -443,12 +443,12 @@ ${
                 Volver
               </button>
               <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
-              <Icons.users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <Icons.users className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Administración de Usuarios
               </h1>
             </div>
-            <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-lg font-semibold text-sm">
+            <div className="px-3 py-1 bg-madeyso-green-100 dark:bg-blue-900/30 text-blue-800 dark:text-madeyso-primary-light rounded-lg font-semibold text-sm">
               {usuarios.length} usuarios
             </div>
           </div>
@@ -462,7 +462,7 @@ ${
               limpiarFormulario();
               setMostrarFormulario(true);
             }}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+            className="px-6 py-3 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
           >
             <Icons.plus className="w-5 h-5" />
             Crear Usuario
@@ -486,7 +486,7 @@ ${
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar por usuario o correo..."
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-madeyso-primary focus:border-transparent"
                 />
               </div>
             </div>
@@ -496,7 +496,7 @@ ${
               <select
                 value={filtroSucursal}
                 onChange={(e) => setFiltroSucursal(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary focus:border-transparent"
               >
                 <option value="todas">Todas las sucursales</option>
                 {sucursales.map((s) => (
@@ -512,7 +512,7 @@ ${
               <select
                 value={filtroRol}
                 onChange={(e) => setFiltroRol(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary focus:border-transparent"
               >
                 <option value="todos">Todos los roles</option>
                 {ROLES.map((rol) => (
@@ -531,7 +531,7 @@ ${
             <div className="mt-4 flex justify-end">
               <button
                 onClick={limpiarFiltros}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
+                className="text-sm text-madeyso-primary dark:text-madeyso-primary-light hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
               >
                 <Icons.xCircle className="w-4 h-4" />
                 Limpiar filtros
@@ -569,7 +569,7 @@ ${
                     onChange={(e) => setMostrarInactivos(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 dark:bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-900/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 dark:bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-900/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-madeyso-primary-dark"></div>
                 </div>
                 <span className="ml-3 text-sm font-medium text-gray-700 dark:text-slate-300 group-hover:text-gray-900 dark:group-hover:text-slate-100">
                   Mostrar inactivos
@@ -685,7 +685,7 @@ ${
                           <>
                             <button
                               onClick={() => handleEditar(usuario)}
-                              className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors inline-flex items-center gap-1"
+                              className="text-madeyso-primary dark:text-madeyso-primary-light hover:text-blue-900 dark:hover:text-blue-300 transition-colors inline-flex items-center gap-1"
                             >
                               <Icons.edit className="w-4 h-4" />
                               Editar
@@ -698,7 +698,7 @@ ${
                                   onClick={() =>
                                     handleAbrirMigrarPiloto(usuario)
                                   }
-                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors inline-flex items-center gap-1"
+                                  className="text-madeyso-primary dark:text-madeyso-primary-light hover:text-blue-900 dark:hover:text-blue-300 transition-colors inline-flex items-center gap-1"
                                   title="Migrar a Piloto Permanente"
                                 >
                                   <Icons.userCheck className="w-4 h-4" />

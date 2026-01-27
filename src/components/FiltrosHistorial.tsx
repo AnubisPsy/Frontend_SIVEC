@@ -188,7 +188,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
         {/* Filtros Rápidos */}
         <div className="mb-6">
           <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-            <Icons.activity className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <Icons.activity className="w-4 h-4 text-madeyso-primary dark:text-madeyso-primary-light" />
             Rangos rápidos
           </label>
           <div className="flex flex-wrap gap-2">
@@ -201,7 +201,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
               <button
                 key={dias}
                 onClick={() => establecerRangoRapido(dias)}
-                className="px-4 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:border-blue-500 dark:hover:border-blue-600 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                className="px-4 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:border-madeyso-primary dark:hover:border-blue-600 hover:text-madeyso-primary dark:hover:text-madeyso-primary-light hover:bg-madeyso-green-50 dark:hover:bg-blue-900/20 transition-all"
               >
                 {label}
               </button>
@@ -218,7 +218,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
             </label>
             <input
               type="date"
-              className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+              className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
               value={filtrosTemp.fecha_desde || ""}
               onChange={(e) => handleChange("fecha_desde", e.target.value)}
             />
@@ -231,7 +231,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
             </label>
             <input
               type="date"
-              className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+              className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
               value={filtrosTemp.fecha_hasta || ""}
               onChange={(e) => handleChange("fecha_hasta", e.target.value)}
             />
@@ -243,7 +243,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
               Sucursal
             </label>
             <select
-              className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+              className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
               value={filtrosTemp.sucursal_id || ""}
               onChange={(e) => handleChange("sucursal_id", e.target.value)}
               disabled={loadingSucursales}
@@ -263,7 +263,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
               Estado de Viaje
             </label>
             <select
-              className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+              className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
               value={filtrosTemp.estado_viaje || ""}
               onChange={(e) => handleChange("estado_viaje", e.target.value)}
             >
@@ -290,7 +290,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
               <Icons.chevronDown className="w-4 h-4" />
               <span>Mostrar filtros avanzados</span>
               {contarFiltrosActivos() > 0 && (
-                <span className="ml-2 px-2 py-0.5 bg-blue-600 dark:bg-blue-500 text-white text-xs rounded-full">
+                <span className="ml-2 px-2 py-0.5 bg-madeyso-primary-dark dark:bg-madeyso-primary text-white text-xs rounded-full">
                   {contarFiltrosActivos()}
                 </span>
               )}
@@ -318,7 +318,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
                 <input
                   list="pilotos-list"
                   type="text"
-                  className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                  className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                   placeholder="Buscar piloto..."
                   value={filtrosTemp.piloto || ""}
                   onChange={(e) => handleChange("piloto", e.target.value)}
@@ -346,7 +346,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
                 <input
                   list="vehiculos-list"
                   type="text"
-                  className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                  className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                   placeholder="Buscar vehículo..."
                   value={filtrosTemp.numero_vehiculo || ""}
                   onChange={(e) =>
@@ -366,7 +366,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
                   ))}
                 </datalist>
                 {filtrosTemp.sucursal_id && (
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
+                  <p className="text-xs text-madeyso-primary dark:text-madeyso-primary-light mt-1 flex items-center gap-1">
                     <Icons.info className="w-3 h-3" />
                     Filtrando por sucursal seleccionada
                   </p>
@@ -379,7 +379,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
                   <Icons.trendingUp className="w-4 h-4" />% Éxito Mínimo
                 </label>
                 <select
-                  className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                  className="px-3 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                   value={filtrosTemp.porcentaje_minimo || ""}
                   onChange={(e) =>
                     handleChange("porcentaje_minimo", e.target.value)
@@ -398,7 +398,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
             {contarFiltrosActivos() > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-600">
                 <div className="flex items-center gap-2 text-sm">
-                  <Icons.filter className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <Icons.filter className="w-4 h-4 text-madeyso-primary dark:text-madeyso-primary-light" />
                   <span className="font-semibold text-gray-700 dark:text-slate-300">
                     Filtros avanzados activos:
                   </span>
@@ -429,7 +429,7 @@ const FiltrosHistorial: React.FC<Props> = ({ filtros, onAplicarFiltros }) => {
           </button>
           <button
             onClick={aplicar}
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
+            className="px-6 py-2.5 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
           >
             <Icons.search className="w-4 h-4" />
             Aplicar Filtros

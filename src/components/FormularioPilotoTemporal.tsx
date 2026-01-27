@@ -90,7 +90,7 @@ const FormularioPilotoTemporal: React.FC<FormularioPilotoTemporalProps> = ({
               type="text"
               required
               disabled={loading}
-              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="Ej: Juan Pérez"
               value={formulario.nombre}
               onChange={(e) =>
@@ -108,7 +108,7 @@ const FormularioPilotoTemporal: React.FC<FormularioPilotoTemporalProps> = ({
             <input
               type="text"
               disabled={loading}
-              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="Observaciones"
               value={formulario.notas}
               onChange={(e) =>
@@ -119,9 +119,9 @@ const FormularioPilotoTemporal: React.FC<FormularioPilotoTemporalProps> = ({
         </div>
 
         {/* Información */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="bg-madeyso-green-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <Icons.info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <Icons.info className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light flex-shrink-0 mt-0.5" />
             <p className="text-sm text-blue-800 dark:text-blue-300">
               <strong>Nota:</strong> Los pilotos temporales aparecerán en el
               datalist cuando los jefes de yarda asignen facturas.
@@ -134,7 +134,7 @@ const FormularioPilotoTemporal: React.FC<FormularioPilotoTemporalProps> = ({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>

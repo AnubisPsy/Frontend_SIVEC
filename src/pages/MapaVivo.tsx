@@ -418,7 +418,7 @@ const MapaVivo = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
         <div className="text-center">
-          <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-400 animate-spin mx-auto mb-4" />
+          <Icons.refresh className="w-16 h-16 text-madeyso-primary dark:text-madeyso-primary-light animate-spin mx-auto mb-4" />
           <p className="text-gray-600 dark:text-slate-400">Cargando mapa...</p>
         </div>
       </div>
@@ -440,7 +440,7 @@ const MapaVivo = () => {
                 Volver
               </button>
               <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
-              <Icons.map className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <Icons.map className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Mapa en Vivo
               </h1>
@@ -470,7 +470,7 @@ const MapaVivo = () => {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Buscar vehículo o piloto..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
               />
             </div>
           </div>
@@ -481,7 +481,7 @@ const MapaVivo = () => {
               <select
                 value={filtroSucursal}
                 onChange={(e) => setFiltroSucursal(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
               >
                 <option value="todas">Todas las sucursales</option>
                 {sucursales.map((s) => (
@@ -500,7 +500,7 @@ const MapaVivo = () => {
                 type="checkbox"
                 checked={soloConGPS}
                 onChange={(e) => setSoloConGPS(e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-madeyso-primary border-gray-300 rounded focus:ring-madeyso-primary"
               />
               <span className="text-sm text-gray-700 dark:text-slate-300">
                 Solo con GPS
@@ -514,7 +514,7 @@ const MapaVivo = () => {
                 type="checkbox"
                 checked={soloEnViaje}
                 onChange={(e) => setSoloEnViaje(e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-madeyso-primary border-gray-300 rounded focus:ring-madeyso-primary"
               />
               <span className="text-sm text-gray-700 dark:text-slate-300">
                 Solo en viaje
@@ -549,7 +549,7 @@ const MapaVivo = () => {
                 onClick={() => handleSeleccionarVehiculo(ubicacion)}
                 className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors ${
                   vehiculoSeleccionado?.vehiculo_id === ubicacion.vehiculo_id
-                    ? "bg-blue-50 dark:bg-blue-900/20"
+                    ? "bg-madeyso-green-50 dark:bg-blue-900/20"
                     : ""
                 }`}
               >
@@ -557,7 +557,7 @@ const MapaVivo = () => {
                   <Icons.truck
                     className={`w-5 h-5 mt-1 ${
                       ubicacion.tiene_gps
-                        ? "text-blue-600 dark:text-blue-400"
+                        ? "text-madeyso-primary dark:text-madeyso-primary-light"
                         : "text-gray-400"
                     }`}
                   />
@@ -579,7 +579,7 @@ const MapaVivo = () => {
                       <span
                         className={`px-2 py-1 text-xs rounded-full ${
                           ubicacion.tiene_viaje
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                            ? "bg-madeyso-green-100 text-blue-700 dark:bg-blue-900/30 dark:text-madeyso-primary-light"
                             : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                         }`}
                       >

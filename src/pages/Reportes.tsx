@@ -425,7 +425,7 @@ const Reportes = () => {
                   onClick={() => setModo("agregado")}
                   className={`flex items-center justify-center gap-2 flex-1 px-4 py-2 rounded-lg font-medium transition ${
                     modo === "agregado"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-madeyso-primary-dark text-white"
                       : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600"
                   }`}
                 >
@@ -436,7 +436,7 @@ const Reportes = () => {
                   onClick={() => setModo("especificar")}
                   className={`flex items-center justify-center gap-2 flex-1 px-4 py-2 rounded-lg font-medium transition ${
                     modo === "especificar"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-madeyso-primary-dark text-white"
                       : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600"
                   }`}
                 >
@@ -455,7 +455,7 @@ const Reportes = () => {
                 onChange={(e) =>
                   setAgrupacion(e.target.value as TipoAgrupacion)
                 }
-                className="w-full max-w-xs px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full max-w-xs px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-madeyso-primary focus:border-transparent"
               >
                 <option value="piloto">Piloto</option>
                 <option value="vehiculo">Vehículo</option>
@@ -499,7 +499,7 @@ const Reportes = () => {
           <div className="overflow-x-auto">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Icons.refresh className="w-8 h-8 animate-spin text-blue-600" />
+                <Icons.refresh className="w-8 h-8 animate-spin text-madeyso-primary" />
                 <span className="ml-3 text-gray-600 dark:text-slate-400">
                   Cargando reporte...
                 </span>
@@ -628,14 +628,14 @@ const Reportes = () => {
                           {/* Fila de grupo */}
                           {agrupacion !== "ninguno" && (
                             <tr
-                              className="bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 cursor-pointer border-t-2 border-blue-200 dark:border-blue-800"
+                              className="bg-madeyso-green-50 dark:bg-blue-900/20 hover:bg-madeyso-green-100 dark:hover:bg-blue-900/30 cursor-pointer border-t-2 border-blue-200 dark:border-blue-800"
                               onClick={() => toggleGrupo(grupo)}
                             >
                               <td className="px-6 py-3">
                                 {expandido ? (
-                                  <Icons.chevronDown className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                  <Icons.chevronDown className="w-4 h-4 text-madeyso-primary dark:text-madeyso-primary-light" />
                                 ) : (
-                                  <Icons.chevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                  <Icons.chevronRight className="w-4 h-4 text-madeyso-primary dark:text-madeyso-primary-light" />
                                 )}
                               </td>
                               <td colSpan={8} className="px-6 py-3">

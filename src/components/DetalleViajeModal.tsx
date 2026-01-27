@@ -48,7 +48,7 @@ const DetalleViajeModal: React.FC<Props> = ({ viaje, onCerrar }) => {
     switch (estado_id) {
       case 3:
         return {
-          bg: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+          bg: "bg-madeyso-green-100 text-blue-800 dark:bg-blue-900/30 dark:text-madeyso-primary-light",
           icon: <Icons.package className="w-4 h-4" />,
           text: "Asignada",
         };
@@ -123,16 +123,16 @@ const DetalleViajeModal: React.FC<Props> = ({ viaje, onCerrar }) => {
           {/* Información General */}
           <div className="mb-6">
             <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-              <Icons.info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Icons.info className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
               Información General
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
-                <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold uppercase mb-2">
+              <div className="p-4 bg-madeyso-green-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                <p className="text-xs text-madeyso-primary dark:text-madeyso-primary-light font-semibold uppercase mb-2">
                   Piloto
                 </p>
                 <div className="flex items-center gap-2">
-                  <Icons.user className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <Icons.user className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
                   <p className="text-lg font-bold text-gray-900 dark:text-slate-100">
                     {viaje.piloto}
                   </p>
@@ -174,8 +174,8 @@ const DetalleViajeModal: React.FC<Props> = ({ viaje, onCerrar }) => {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="text-center p-4 bg-gray-50 dark:bg-slate-700 rounded-xl border-2 border-gray-200 dark:border-slate-600">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Icons.document className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="w-10 h-10 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Icons.document className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">
                   {viaje.estadisticas.total_facturas}
@@ -251,8 +251,8 @@ const DetalleViajeModal: React.FC<Props> = ({ viaje, onCerrar }) => {
             </h3>
             <div className="flex items-center justify-between p-5 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Icons.clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-12 h-12 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Icons.clock className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
                 </div>
                 <p className="text-xs text-gray-600 dark:text-slate-400 uppercase font-semibold mb-1">
                   Inicio
@@ -305,7 +305,7 @@ const DetalleViajeModal: React.FC<Props> = ({ viaje, onCerrar }) => {
           {/* Facturas */}
           <div className="mb-6">
             <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-              <Icons.document className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Icons.document className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
               Facturas Asignadas ({viaje.facturas.length})
             </h3>
             {viaje.facturas.length > 0 ? (
@@ -317,8 +317,8 @@ const DetalleViajeModal: React.FC<Props> = ({ viaje, onCerrar }) => {
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                          <Icons.document className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <div className="w-10 h-10 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                          <Icons.document className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
                         </div>
                         <div>
                           <p className="font-bold text-gray-900 dark:text-slate-100">
@@ -411,7 +411,7 @@ const DetalleViajeModal: React.FC<Props> = ({ viaje, onCerrar }) => {
         <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-t border-gray-200 dark:border-slate-600 flex justify-end">
           <button
             onClick={onCerrar}
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+            className="px-6 py-2.5 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
           >
             <Icons.x className="w-4 h-4" />
             Cerrar

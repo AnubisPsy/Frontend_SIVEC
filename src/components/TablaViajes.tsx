@@ -137,7 +137,7 @@ const TablaViajes: React.FC<Props> = ({ viajes, columnas, onVerDetalle }) => {
                   <div className="flex items-center gap-2">
                     <span>{columna.nombre}</span>
                     {ordenamiento.columna === columna.id && (
-                      <span className="text-blue-600 dark:text-blue-400">
+                      <span className="text-madeyso-primary dark:text-madeyso-primary-light">
                         {ordenamiento.direccion === "asc" ? (
                           <Icons.chevronUp className="w-4 h-4" />
                         ) : (
@@ -195,7 +195,7 @@ const TablaViajes: React.FC<Props> = ({ viajes, columnas, onVerDetalle }) => {
                 <td className="px-4 py-4">
                   <button
                     onClick={() => onVerDetalle(viaje)}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-md text-xs font-semibold transition-all hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1"
+                    className="px-3 py-1.5 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-md text-xs font-semibold transition-all hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1"
                   >
                     <Icons.eye className="w-3 h-3" />
                     Ver

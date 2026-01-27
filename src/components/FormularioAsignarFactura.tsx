@@ -151,7 +151,7 @@ const FormularioAsignarFacturaModal: React.FC<
         size="lg"
       >
         <div className="flex items-center justify-center py-8">
-          <Icons.refresh className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
+          <Icons.refresh className="w-8 h-8 text-madeyso-primary dark:text-madeyso-primary-light animate-spin" />
           <span className="ml-3 text-gray-700 dark:text-slate-300">
             Cargando datos del formulario...
           </span>
@@ -179,7 +179,7 @@ const FormularioAsignarFacturaModal: React.FC<
               <input
                 type="text"
                 required
-                className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                 placeholder="Ej: FACT-2501"
                 value={nuevaFactura.numero_factura}
                 onChange={(e) => handleChange("numero_factura", e.target.value)}
@@ -199,7 +199,7 @@ const FormularioAsignarFacturaModal: React.FC<
                 list="pilotos-list"
                 type="text"
                 required
-                className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                 placeholder="Seleccionar o escribir nombre del piloto"
                 value={nuevaFactura.piloto}
                 onChange={(e) => handleChange("piloto", e.target.value)}
@@ -213,7 +213,7 @@ const FormularioAsignarFacturaModal: React.FC<
                 ))}
               </datalist>
               <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span className="w-2 h-2 bg-madeyso-primary rounded-full"></span>
                 Pilotos regulares
                 <span className="w-2 h-2 bg-yellow-500 rounded-full ml-2"></span>
                 Pilotos temporales
@@ -233,7 +233,7 @@ const FormularioAsignarFacturaModal: React.FC<
                 list="vehiculos-list"
                 type="text"
                 required
-                className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                 placeholder="Seleccionar número de vehículo"
                 value={nuevaFactura.numero_vehiculo}
                 onChange={(e) =>
@@ -261,7 +261,7 @@ const FormularioAsignarFacturaModal: React.FC<
               </label>
               <input
                 type="text"
-                className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                 placeholder="Observaciones adicionales"
                 value={nuevaFactura.notas_jefe}
                 onChange={(e) => handleChange("notas_jefe", e.target.value)}
@@ -270,22 +270,22 @@ const FormularioAsignarFacturaModal: React.FC<
           </div>
 
           {/* Información adicional */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="bg-madeyso-green-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <Icons.info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <Icons.info className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light flex-shrink-0 mt-0.5" />
               <div className="text-sm text-blue-800 dark:text-blue-300">
                 <p className="font-semibold mb-2">Información:</p>
                 <ul className="space-y-1 text-xs">
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                    <span className="text-madeyso-primary dark:text-madeyso-primary-light mt-0.5">
                       •
                     </span>
                     <span>
-                      Pilotos obtenidos del sistema externo (SQL Server)
+                      Pilotos obtenidos del sistema externo (Redis)
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                    <span className="text-madeyso-primary dark:text-madeyso-primary-light mt-0.5">
                       •
                     </span>
                     <span>
@@ -294,7 +294,7 @@ const FormularioAsignarFacturaModal: React.FC<
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                    <span className="text-madeyso-primary dark:text-madeyso-primary-light mt-0.5">
                       •
                     </span>
                     <span>
@@ -312,7 +312,7 @@ const FormularioAsignarFacturaModal: React.FC<
             <button
               type="submit"
               disabled={loading}
-              className={`flex-1 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+              className={`flex-1 px-6 py-2.5 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >

@@ -220,7 +220,7 @@ const DetalleViaje = () => {
   const getEstadoColor = (estadoCodigo: string) => {
     switch (estadoCodigo) {
       case "guia_asignada":
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+        return "bg-madeyso-green-100 text-blue-700 dark:bg-blue-900/30 dark:text-madeyso-primary-light";
       case "guia_entregada":
         return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
       case "guia_no_entregada":
@@ -236,7 +236,7 @@ const DetalleViaje = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
         <div className="text-center">
-          <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-400 animate-spin mx-auto mb-4" />
+          <Icons.refresh className="w-16 h-16 text-madeyso-primary dark:text-madeyso-primary-light animate-spin mx-auto mb-4" />
           <p className="text-gray-600 dark:text-slate-400">
             Cargando detalle del viaje...
           </p>
@@ -251,7 +251,7 @@ const DetalleViaje = () => {
         <div className="max-w-7xl mx-auto">
           <button
             onClick={() => navigate("/home")}
-            className="mb-4 flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors gap-2"
+            className="mb-4 flex items-center text-madeyso-primary dark:text-madeyso-primary-light hover:text-blue-700 dark:hover:text-blue-300 transition-colors gap-2"
           >
             <Icons.chevronLeft className="w-5 h-5" />
             Volver al Inicio
@@ -294,7 +294,7 @@ const DetalleViaje = () => {
         {/* Botón volver */}
         <button
           onClick={() => navigate("/home")}
-          className="mb-6 flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors gap-2"
+          className="mb-6 flex items-center text-madeyso-primary dark:text-madeyso-primary-light hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors gap-2"
         >
           <Icons.chevronLeft className="w-5 h-5" />
           Volver al Inicio
@@ -319,9 +319,9 @@ const DetalleViaje = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <Icons.user className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center gap-3 p-4 bg-madeyso-green-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+              <div className="w-12 h-12 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <Icons.user className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">
@@ -456,7 +456,7 @@ const DetalleViaje = () => {
         {/* Lista de facturas */}
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
-            <Icons.document className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <Icons.document className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
             Facturas ({viaje.facturas?.length || 0})
           </h2>
 
@@ -472,8 +472,8 @@ const DetalleViaje = () => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                      <Icons.document className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <div className="w-10 h-10 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                      <Icons.document className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 dark:text-slate-100">

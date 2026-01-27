@@ -8,6 +8,7 @@ import { ConfirmDialog } from "../hooks/ConfirmDialog";
 import SelectorSucursal from "./SelectorSucursal";
 import sivecLogoSvg from "../assets/logos/sivec-logo.svg";
 import sivecIconOnly from "../assets/logos/sivec-icon-only.png";
+import MadeysoLogo from "../assets/logos/madeyso_logo.png";
 import {
   Home,
   Clock,
@@ -186,7 +187,7 @@ const Layout = () => {
     .map((section) => ({
       ...section,
       items: section.items.filter((item) =>
-        item.roles.includes(usuario?.rol_id || 0)
+        item.roles.includes(usuario?.rol_id || 0),
       ),
     }))
     .filter((section) => section.items.length > 0);
@@ -205,7 +206,7 @@ const Layout = () => {
             {/* Logo */}
             <button
               onClick={() => navigate("/home")}
-              className="flex items-center hover:opacity-80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1"
+              className="flex items-center hover:opacity-80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-madeyso-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1"
             >
               <div className="w-10 h-10 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center mr-3 shadow-sm border border-gray-100 dark:border-slate-600 transition-colors">
                 <img
@@ -214,13 +215,28 @@ const Layout = () => {
                   className="w-7 h-7 object-contain"
                 />
               </div>
-              <div className="text-left">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">
-                  SIVEC
-                </h1>
-                <p className="text-xs text-gray-600 dark:text-slate-400">
-                  Sistema de Control de Vehículos
-                </p>
+              <div className="flex items-center gap-4">
+                {/* Título SIVEC */}
+                <div className="text-left">
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">
+                    SIVEC
+                  </h1>
+                  <p className="text-xs text-gray-600 dark:text-slate-400">
+                    Sistema de Control de Vehículos
+                  </p>
+                </div>
+
+                {/* Barra vertical divisoria */}
+                <div className="h-10 w-px bg-gray-300 dark:bg-slate-600"></div>
+
+                {/* Logo MADEYSO */}
+                <div>
+                  <img
+                    src={MadeysoLogo}
+                    alt="MADEYSO"
+                    className="h-10 w-auto"
+                  />
+                </div>
               </div>
             </button>
 
@@ -274,8 +290,8 @@ const Layout = () => {
           {/* User info header - Fixed */}
           <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-slate-700/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                <Icons.user className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <div className="w-10 h-10 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <Icons.user className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
@@ -321,7 +337,7 @@ const Layout = () => {
                             transition-all duration-200 group
                             ${
                               active
-                                ? "bg-blue-100 dark:bg-slate-700/50 text-blue-700 dark:text-white shadow-sm dark:shadow-slate-900/50"
+                                ? "bg-madeyso-green-100 dark:bg-slate-700/50 text-blue-700 dark:text-white shadow-sm dark:shadow-slate-900/50"
                                 : "text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700/30 hover:text-gray-900 dark:hover:text-white"
                             }
                           `}
@@ -333,8 +349,8 @@ const Layout = () => {
                               transition-colors
                               ${
                                 active
-                                  ? "text-blue-600 dark:text-blue-400"
-                                  : "text-gray-600 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                                  ? "text-madeyso-primary dark:text-madeyso-primary-light"
+                                  : "text-gray-600 dark:text-slate-400 group-hover:text-madeyso-primary dark:group-hover:text-madeyso-primary-light"
                               }
                             `}
                           />
@@ -359,7 +375,7 @@ const Layout = () => {
             <div className="flex items-start gap-2.5">
               <Calendar
                 size={16}
-                className="flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400"
+                className="flex-shrink-0 mt-0.5 text-madeyso-primary dark:text-madeyso-primary-light"
               />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium leading-tight truncate text-gray-900 dark:text-white">

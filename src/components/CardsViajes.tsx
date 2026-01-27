@@ -110,8 +110,8 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                 {/* Info Principal */}
                 <div className="grid grid-cols-2 gap-3 mb-5">
                   <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                      <Icons.user className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <div className="w-10 h-10 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                      <Icons.user className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] text-gray-500 dark:text-slate-400 font-semibold uppercase tracking-wider mb-1">
@@ -141,8 +141,8 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                 {/* Estadísticas Grid */}
                 <div className="grid grid-cols-4 gap-3 mb-5">
                   <div className="text-center p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
-                      <Icons.document className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <div className="w-8 h-8 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
+                      <Icons.document className="w-4 h-4 text-madeyso-primary dark:text-madeyso-primary-light" />
                     </div>
                     <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                       {viaje.estadisticas.total_facturas}
@@ -212,8 +212,8 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
                 {/* Timeline */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                      <Icons.clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <div className="w-8 h-8 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                      <Icons.clock className="w-4 h-4 text-madeyso-primary dark:text-madeyso-primary-light" />
                     </div>
                     <div>
                       <p className="text-[9px] text-gray-500 dark:text-slate-400 uppercase font-semibold mb-0.5">
@@ -275,7 +275,7 @@ const CardsViajes: React.FC<Props> = ({ viajes, onVerDetalle }) => {
               <div className="px-5 pb-5 pt-2 bg-gray-50 dark:bg-slate-700/30 border-t border-gray-200 dark:border-slate-700">
                 <button
                   onClick={() => onVerDetalle(viaje)}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
                 >
                   <Icons.info className="w-4 h-4" />
                   Ver Detalles Completos

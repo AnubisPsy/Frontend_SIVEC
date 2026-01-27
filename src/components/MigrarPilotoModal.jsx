@@ -37,7 +37,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Error al cargar pilotos de SQL Server");
+        throw new Error("Error al cargar pilotos de Redis");
       }
 
       const data = await response.json();
@@ -141,8 +141,8 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
         {/* Header */}
         <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <UserCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="p-2 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg">
+              <UserCheck className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
@@ -191,7 +191,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
                 <span className="text-gray-600 dark:text-slate-400">
                   Piloto Temporal:
                 </span>
-                <span className="font-medium text-blue-600 dark:text-blue-400">
+                <span className="font-medium text-madeyso-primary dark:text-madeyso-primary-light">
                   {usuario.piloto_temporal?.nombre || "N/A"}
                 </span>
               </div>
@@ -241,7 +241,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
               placeholder="Buscar piloto por nombre..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-slate-100"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-madeyso-primary dark:bg-slate-700 dark:text-slate-100"
               disabled={loadingPilotos || loading}
             />
 
@@ -267,7 +267,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
                       key={piloto.piloto_id}
                       className={`flex items-center gap-3 p-3 border-b border-gray-200 dark:border-slate-600 last:border-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${
                         pilotoSeleccionado === piloto.piloto_id.toString()
-                          ? "bg-blue-50 dark:bg-blue-900/20"
+                          ? "bg-madeyso-green-50 dark:bg-blue-900/20"
                           : ""
                       }`}
                     >
@@ -279,7 +279,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
                           pilotoSeleccionado === piloto.piloto_id.toString()
                         }
                         onChange={(e) => setPilotoSeleccionado(e.target.value)}
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 text-madeyso-primary"
                         disabled={loading}
                       />
                       <div className="flex-1">
@@ -291,7 +291,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
                         </p>
                       </div>
                       {piloto.piloto_id.toString() === pilotoSeleccionado && (
-                        <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <CheckCircle2 className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
                       )}
                     </label>
                   ))
@@ -307,7 +307,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
               id="desactivar_temporal"
               checked={desactivarTemporal}
               onChange={(e) => setDesactivarTemporal(e.target.checked)}
-              className="w-4 h-4 text-blue-600 mt-1"
+              className="w-4 h-4 text-madeyso-primary mt-1"
               disabled={loading}
             />
             <label
@@ -331,7 +331,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
           )}
 
           {/* Advertencia */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-madeyso-green-50 border border-blue-200 rounded-lg p-4">
             <h4 className="font-semibold text-blue-900 text-sm mb-2">
               ⚠️ Importante:
             </h4>
@@ -364,7 +364,7 @@ const MigrarPilotoModal = ({ usuario, onClose, onSuccess }) => {
           <button
             onClick={handleMigrar}
             disabled={loading || !pilotoSeleccionado || loadingPilotos}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-madeyso-primary-dark text-white rounded-lg hover:bg-madeyso-green-700 disabled:bg-gray-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
             {loading ? (
               <>

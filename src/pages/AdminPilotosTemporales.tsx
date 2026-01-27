@@ -123,7 +123,7 @@ const AdminPilotosTemporales: React.FC = () => {
     // ✅ Si está intentando ACTIVAR un piloto inactivo, verificar si fue migrado
     if (!piloto.activo) {
       // Verificar si las notas indican que fue migrado
-      if (piloto.notas && piloto.notas.includes("Migrado a piloto SQL ID")) {
+      if (piloto.notas && piloto.notas.includes("Migrado a piloto Redis ID")) {
         // Extraer el SQL ID de las notas
         const match = piloto.notas.match(/SQL ID (\d+)/);
         const sqlId = match ? match[1] : "desconocido";
@@ -186,7 +186,7 @@ const AdminPilotosTemporales: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <Icons.refresh className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
+          <Icons.refresh className="w-12 h-12 text-madeyso-primary dark:text-madeyso-primary-light animate-spin mx-auto" />
           <p className="mt-4 text-gray-600 dark:text-slate-400">
             Cargando pilotos temporales...
           </p>
@@ -235,7 +235,7 @@ const AdminPilotosTemporales: React.FC = () => {
               limpiarFormulario();
               setMostrarFormulario(true);
             }}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+            className="px-6 py-3 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
           >
             <Icons.plus className="w-5 h-5" />
             Crear Piloto Temporal
@@ -333,7 +333,7 @@ const AdminPilotosTemporales: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button
                         onClick={() => handleEditar(piloto)}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors inline-flex items-center gap-1"
+                        className="text-madeyso-primary dark:text-madeyso-primary-light hover:text-blue-900 dark:hover:text-blue-300 transition-colors inline-flex items-center gap-1"
                       >
                         <Icons.edit className="w-4 h-4" />
                         Editar

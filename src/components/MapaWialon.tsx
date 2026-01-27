@@ -133,8 +133,8 @@ const MapaWialon: React.FC<MapaWialonProps> = ({ numeroVehiculo }) => {
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-            <Icons.mapPin className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <div className="w-10 h-10 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+            <Icons.mapPin className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
           </div>
           <div>
             <h3 className="font-bold text-gray-800 dark:text-slate-100">
@@ -148,7 +148,7 @@ const MapaWialon: React.FC<MapaWialonProps> = ({ numeroVehiculo }) => {
         <button
           onClick={cargarUbicacion}
           disabled={loading}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-50 flex items-center gap-2"
+          className="px-4 py-2 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-50 flex items-center gap-2"
         >
           <Icons.refresh
             className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}

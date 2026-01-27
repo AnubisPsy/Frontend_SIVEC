@@ -313,7 +313,7 @@ const AdminVehiculos = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <Icons.refresh className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
+          <Icons.refresh className="w-12 h-12 text-madeyso-primary dark:text-madeyso-primary-light animate-spin mx-auto" />
           <p className="mt-4 text-gray-600 dark:text-slate-400">
             Cargando vehículos...
           </p>
@@ -337,7 +337,7 @@ const AdminVehiculos = () => {
                 Volver
               </button>
               <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
-              <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <Icons.truck className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Administrar Vehículos
               </h1>
@@ -360,7 +360,7 @@ const AdminVehiculos = () => {
         <div className="mb-6">
           <button
             onClick={abrirModalCrear}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+            className="px-6 py-3 bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
           >
             <Icons.plus className="w-5 h-5" />
             Agregar Vehículo
@@ -387,7 +387,7 @@ const AdminVehiculos = () => {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Número o placa..."
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
               />
             </div>
 
@@ -400,7 +400,7 @@ const AdminVehiculos = () => {
                 <select
                   value={filtroSucursal}
                   onChange={(e) => setFiltroSucursal(e.target.value)}
-                  className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
                 >
                   <option value="todas">Todas las sucursales</option>
                   {sucursales.map((s) => (
@@ -420,7 +420,7 @@ const AdminVehiculos = () => {
               <select
                 value={filtroAgrupacion}
                 onChange={(e) => setFiltroAgrupacion(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
               >
                 <option value="todas">Todas las agrupaciones</option>
                 {agrupaciones.map((a) => (
@@ -439,7 +439,7 @@ const AdminVehiculos = () => {
               <select
                 value={filtroActivo}
                 onChange={(e) => setFiltroActivo(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
               >
                 <option value="todos">Todos</option>
                 <option value="activos">Activos</option>
@@ -485,7 +485,7 @@ const AdminVehiculos = () => {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <Icons.truck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <Icons.truck className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
                         <span className="font-medium text-gray-900 dark:text-slate-100">
                           {vehiculo.numero_vehiculo}
                         </span>
@@ -525,7 +525,7 @@ const AdminVehiculos = () => {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => abrirModalEditar(vehiculo)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                          className="p-2 text-madeyso-primary hover:bg-madeyso-green-50 dark:text-madeyso-primary-light dark:hover:bg-blue-900/30 rounded-lg transition-colors"
                           title="Editar"
                         >
                           <Icons.edit className="w-5 h-5" />
@@ -595,7 +595,7 @@ const AdminVehiculos = () => {
                         })
                       }
                       required
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
                       placeholder="Ej: C-001"
                     />
                   </div>
@@ -615,7 +615,7 @@ const AdminVehiculos = () => {
                         })
                       }
                       required
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary uppercase"
                       placeholder="Ej: PAB1234"
                     />
                   </div>
@@ -631,7 +631,7 @@ const AdminVehiculos = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, agrupacion: e.target.value })
                       }
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
                       placeholder="Ej: Camiones, Pickups"
                     />
                   </div>
@@ -651,7 +651,7 @@ const AdminVehiculos = () => {
                           })
                         }
                         required
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
                       >
                         {sucursales.map((s) => (
                           <option key={s.sucursal_id} value={s.sucursal_id}>
@@ -673,7 +673,7 @@ const AdminVehiculos = () => {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      className="flex-1 px-4 py-2 bg-madeyso-primary-dark hover:bg-madeyso-green-700 text-white rounded-lg transition-colors"
                     >
                       {modoEdicion ? "Actualizar" : "Crear"}
                     </button>

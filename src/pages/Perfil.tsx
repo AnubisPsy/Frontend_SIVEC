@@ -154,7 +154,7 @@ const Perfil = () => {
   const getRolColor = (rolId: number) => {
     switch (rolId) {
       case 1:
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+        return "bg-madeyso-green-100 text-blue-700 dark:bg-blue-900/30 dark:text-madeyso-primary-light";
       case 2:
         return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400";
       case 3:
@@ -179,7 +179,7 @@ const Perfil = () => {
                 Volver
               </button>
               <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
-              <Icons.user className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <Icons.user className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Mi Perfil
               </h1>
@@ -269,7 +269,7 @@ const Perfil = () => {
                   type={mostrarPasswordActual ? "text" : "password"}
                   value={passwordActual}
                   onChange={(e) => setPasswordActual(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-3 pr-12 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-madeyso-primary dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
                   placeholder="Ingresa tu contraseña actual"
                   disabled={loading}
                 />
@@ -299,7 +299,7 @@ const Perfil = () => {
                   type={mostrarPasswordNuevo ? "text" : "password"}
                   value={passwordNuevo}
                   onChange={(e) => setPasswordNuevo(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-3 pr-12 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-madeyso-primary dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
                   placeholder="Ingresa tu nueva contraseña"
                   disabled={loading}
                 />
@@ -437,7 +437,7 @@ const Perfil = () => {
                   type={mostrarPasswordConfirmar ? "text" : "password"}
                   value={passwordConfirmar}
                   onChange={(e) => setPasswordConfirmar(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-3 pr-12 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-madeyso-primary dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
                   placeholder="Confirma tu nueva contraseña"
                   disabled={loading}
                 />
@@ -483,7 +483,7 @@ const Perfil = () => {
               <button
                 type="submit"
                 disabled={loading || !todasValidas || !passwordsCoinciden}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 flex items-center gap-2"
+                className="px-6 py-3 bg-madeyso-primary-dark hover:bg-madeyso-green-700 disabled:bg-gray-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 flex items-center gap-2"
               >
                 {loading ? (
                   <>

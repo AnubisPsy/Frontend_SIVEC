@@ -214,7 +214,7 @@ const Ayuda: React.FC = () => {
                 Volver
               </button>
               <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
-              <HelpCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <HelpCircle className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Centro de Ayuda
               </h1>
@@ -242,7 +242,7 @@ const Ayuda: React.FC = () => {
                 value={categoria}
                 onChange={(e) => setCategoria(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-madeyso-primary focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
               >
                 <option value="">Selecciona una categoría</option>
                 {categorias.map((cat) => (
@@ -264,7 +264,7 @@ const Ayuda: React.FC = () => {
                 onChange={(e) => setAsunto(e.target.value)}
                 required
                 placeholder="Describe brevemente el problema o sugerencia"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-madeyso-primary focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
               />
             </div>
 
@@ -279,7 +279,7 @@ const Ayuda: React.FC = () => {
                 required
                 rows={6}
                 placeholder="Proporciona todos los detalles que puedan ayudarnos a entender y resolver el problema..."
-                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 resize-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-madeyso-primary focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 resize-none"
               />
             </div>
 
@@ -358,7 +358,7 @@ const Ayuda: React.FC = () => {
               <button
                 type="submit"
                 disabled={enviando}
-                className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3 bg-madeyso-primary-dark hover:bg-madeyso-green-700 disabled:bg-blue-400 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
               >
                 {enviando ? (
                   <>

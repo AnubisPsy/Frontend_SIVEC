@@ -17,6 +17,41 @@ module.exports = {
           800: "#1e293b",
           900: "#0f172a",
         },
+        // ✅ NUEVOS COLORES CORPORATIVOS MADEYSO
+        madeyso: {
+          primary: "#00A651",
+          "primary-light": "#33B871",
+          "primary-dark": "#008742",
+          secondary: "#9FD856",
+          accent: "#E31E24",
+          dark: "#1A1A1A",
+          // Escala de verdes MADEYSO
+          green: {
+            50: "#E6F7EE",
+            100: "#B3E6CE",
+            200: "#80D5AE",
+            300: "#4DC48E",
+            400: "#1AB36E",
+            500: "#00A651",
+            600: "#008542",
+            700: "#006433",
+            800: "#004324",
+            900: "#002115",
+          },
+          // Escala de lima
+          lime: {
+            50: "#F7FDE6",
+            100: "#E8F9B8",
+            200: "#D9F58A",
+            300: "#CAF15C",
+            400: "#BBED2E",
+            500: "#9FD856",
+            600: "#8AC647",
+            700: "#75B438",
+            800: "#60A229",
+            900: "#4B901A",
+          },
+        },
       },
       animation: {
         fadeIn: "fadeIn 0.2s ease-out",

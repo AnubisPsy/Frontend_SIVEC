@@ -4,6 +4,7 @@ import { useSocket } from "../contexts/SocketContext";
 import { estadisticasApi, sucursalesApi } from "../services/api";
 import { Icons } from "../components/icons/IconMap";
 import { useAuth } from "../contexts/AuthContext";
+import { chartColors, getChartColor, getEstadoColor } from "../styles/theme";
 
 import {
   LineChart,
@@ -34,6 +35,7 @@ interface ComparacionEstado {
   estado: string;
   cantidad: number;
   color: string;
+  estado_id?: number;
 }
 
 interface TendenciaDia {
@@ -186,13 +188,12 @@ const Dashboard = () => {
   };
 
   // Colores para gráficos
-  const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
         <div className="text-center">
-          <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-400 animate-spin mx-auto mb-4" />
+          <Icons.refresh className="w-16 h-16 text-madeyso-primary dark:text-madeyso-primary-light animate-spin mx-auto mb-4" />
           <p className="text-gray-600 dark:text-slate-400">
             Cargando estadísticas...
           </p>
@@ -216,13 +217,19 @@ const Dashboard = () => {
                 Volver
               </button>
               <div className="w-px h-6 bg-gray-300 dark:bg-slate-600"></div>
-              <Icons.barChart className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <Icons.barChart className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                 Dashboard Analytics
               </h1>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-lg font-semibold flex items-center gap-1">
+              <span
+                className="px-3 py-1 rounded-lg font-semibold flex items-center gap-1"
+                style={{
+                  backgroundColor: `${chartColors.madeyso.green[100]}`,
+                  color: chartColors.madeyso.primary,
+                }}
+              >
                 <Icons.activity className="w-4 h-4" />
                 Tiempo real
               </span>
@@ -237,14 +244,27 @@ const Dashboard = () => {
           <div
             className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${
               isConnected
-                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                ? "text-green-700 dark:text-green-400"
                 : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
             }`}
+            style={
+              isConnected
+                ? {
+                    backgroundColor: chartColors.madeyso.green[100],
+                    color: chartColors.madeyso.primary,
+                  }
+                : {}
+            }
           >
             <div
               className={`w-2 h-2 rounded-full ${
-                isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"
+                isConnected ? "animate-pulse" : "bg-red-500"
               }`}
+              style={
+                isConnected
+                  ? { backgroundColor: chartColors.madeyso.primary }
+                  : {}
+              }
             ></div>
             <span className="text-sm font-medium">
               {isConnected
@@ -259,7 +279,7 @@ const Dashboard = () => {
           {/* 1. Comparación de Estados (Barras) */}
           <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-              <Icons.barChart className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Icons.barChart className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
               Estados de Entregas
             </h2>
             <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
@@ -319,9 +339,9 @@ const Dashboard = () => {
                   <Line
                     type="monotone"
                     dataKey="entregas"
-                    stroke="#8b5cf6"
+                    stroke={chartColors.madeyso.primary}
                     strokeWidth={3}
-                    dot={{ fill: "#8b5cf6", r: 5 }}
+                    dot={{ fill: chartColors.madeyso.primary, r: 5 }}
                     activeDot={{ r: 7 }}
                   />
                 </LineChart>
@@ -358,14 +378,17 @@ const Dashboard = () => {
                     endAngle={-270}
                     dataKey="value"
                   >
-                    <Cell fill="#10b981" />
+                    <Cell fill={chartColors.estados.completado} />
                     <Cell fill="#e5e7eb" />
                   </Pie>
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
               <div className="text-center mt-4">
-                <p className="text-5xl font-bold text-green-600 dark:text-green-400">
+                <p
+                  className="text-5xl font-bold"
+                  style={{ color: chartColors.madeyso.primary }}
+                >
                   {metricas.tasaExito}%
                 </p>
                 <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">
@@ -395,10 +418,10 @@ const Dashboard = () => {
                     setSucursalSeleccionada(
                       e.target.value === "todas"
                         ? "todas"
-                        : parseInt(e.target.value)
+                        : parseInt(e.target.value),
                     )
                   }
-                  className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-slate-100 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-slate-100 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeyso-primary"
                 >
                   <option value="todas">Todas las sucursales</option>
                   {sucursalesDisponibles.map((sucursal) => (
@@ -426,10 +449,7 @@ const Dashboard = () => {
                     label
                   >
                     {viajesPorSucursal.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
+                      <Cell key={`cell-${index}`} fill={getChartColor(index)} />
                     ))}
                   </Pie>
                   <Tooltip
@@ -455,7 +475,7 @@ const Dashboard = () => {
           {/* Top 5 Pilotos */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-              <Icons.user className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Icons.user className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
               Top 5 Pilotos
             </h2>
             {topPilotos.length > 0 ? (
@@ -466,7 +486,7 @@ const Dashboard = () => {
                     className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-slate-700"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">
+                      <div className="w-8 h-8 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-madeyso-primary dark:text-madeyso-primary-light font-bold">
                         {index + 1}
                       </div>
                       <div>
@@ -480,7 +500,10 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                      <p
+                        className="text-lg font-bold"
+                        style={{ color: chartColors.madeyso.primary }}
+                      >
                         {piloto.tasaExito}%
                       </p>
                       <p className="text-xs text-gray-500 dark:text-slate-400">
@@ -514,13 +537,15 @@ const Dashboard = () => {
                   className="flex items-center gap-3 p-2 bg-gray-50 dark:bg-slate-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                 >
                   <div
-                    className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                      actividad.estado === 4
-                        ? "bg-green-500"
-                        : actividad.estado === 5
-                        ? "bg-red-500"
-                        : "bg-blue-500"
-                    }`}
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{
+                      backgroundColor:
+                        actividad.estado === 4
+                          ? chartColors.estados.completado
+                          : actividad.estado === 5
+                            ? chartColors.estados.noEntregado
+                            : chartColors.madeyso.secondary,
+                    }}
                   ></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-900 dark:text-slate-100 truncate">

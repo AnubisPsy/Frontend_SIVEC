@@ -3,22 +3,122 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+/* ============================================
+   🎨 VARIABLES CSS - COLORES MADEYSO
+   ============================================ */
+:root {
+  /* Colores corporativos MADEYSO */
+  --madeyso-primary: #00a651;
+  --madeyso-primary-light: #33b871;
+  --madeyso-primary-dark: #008742;
+  --madeyso-secondary: #9fd856;
+  --madeyso-accent: #e31e24;
+  --madeyso-dark: #1a1a1a;
+
+  /* Escala de verdes MADEYSO */
+  --madeyso-green-50: #e6f7ee;
+  --madeyso-green-100: #b3e6ce;
+  --madeyso-green-200: #80d5ae;
+  --madeyso-green-300: #4dc48e;
+  --madeyso-green-400: #1ab36e;
+  --madeyso-green-500: #00a651;
+  --madeyso-green-600: #008542;
+  --madeyso-green-700: #006433;
+  --madeyso-green-800: #004324;
+  --madeyso-green-900: #002115;
+
+  /* Escala de lima */
+  --madeyso-lime-50: #f7fde6;
+  --madeyso-lime-100: #e8f9b8;
+  --madeyso-lime-200: #d9f58a;
+  --madeyso-lime-300: #caf15c;
+  --madeyso-lime-400: #bbed2e;
+  --madeyso-lime-500: #9fd856;
+  --madeyso-lime-600: #8ac647;
+  --madeyso-lime-700: #75b438;
+  --madeyso-lime-800: #60a229;
+  --madeyso-lime-900: #4b901a;
+
+  /* Estados semánticos con colores MADEYSO */
+  --color-success: var(--madeyso-primary);
+  --color-warning: var(--madeyso-secondary);
+  --color-error: var(--madeyso-accent);
+  --color-info: var(--madeyso-primary-light);
+}
+
+/* Dark mode */
+.dark {
+  --madeyso-primary: #33b871; /* Más suave en dark mode */
+  --madeyso-primary-light: #4dc48e;
+  --madeyso-secondary: #9fd856;
+}
+
 /* Estilos globales */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-/* Estilos para scrollbar personalizado */
+/* ============================================
+   🎨 CLASES UTILITARIAS MADEYSO
+   ============================================ */
+
+/* Botones primarios MADEYSO */
+.btn-madeyso-primary {
+  @apply bg-[var(--madeyso-primary)] hover:bg-[var(--madeyso-primary-dark)] 
+         text-white font-medium px-4 py-2 rounded-lg 
+         transition-colors duration-200;
+}
+
+.btn-madeyso-secondary {
+  @apply bg-[var(--madeyso-secondary)] hover:bg-[var(--madeyso-lime-600)] 
+         text-gray-900 font-medium px-4 py-2 rounded-lg 
+         transition-colors duration-200;
+}
+
+.btn-madeyso-outline {
+  @apply border-2 border-[var(--madeyso-primary)] text-[var(--madeyso-primary)]
+         hover:bg-[var(--madeyso-green-50)] dark:hover:bg-[var(--madeyso-green-900)]
+         font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+}
+
+/* Badges MADEYSO */
+.badge-madeyso {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+         bg-[var(--madeyso-green-100)] text-[var(--madeyso-green-800)]
+         dark:bg-[var(--madeyso-green-900)] dark:text-[var(--madeyso-green-300)];
+}
+
+.badge-madeyso-lime {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+         bg-[var(--madeyso-lime-100)] text-[var(--madeyso-lime-800)]
+         dark:bg-[var(--madeyso-lime-900)] dark:text-[var(--madeyso-lime-300)];
+}
+
+/* Links MADEYSO */
+.link-madeyso {
+  @apply text-[var(--madeyso-primary)] hover:text-[var(--madeyso-primary-dark)]
+         dark:text-[var(--madeyso-primary-light)] dark:hover:text-[var(--madeyso-primary)]
+         transition-colors duration-200;
+}
+
+/* Inputs con acento MADEYSO */
+.input-madeyso {
+  @apply focus:ring-2 focus:ring-[var(--madeyso-primary)] 
+         focus:border-[var(--madeyso-primary)]
+         border-gray-300 dark:border-slate-600;
+}
+
+/* Estilos para scrollbar personalizado con colores MADEYSO */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -29,11 +129,13 @@ code {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 dark:bg-slate-600 rounded-lg;
+  background-color: var(--madeyso-primary);
+  border-radius: 8px;
+  transition: background-color 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500 dark:bg-slate-500;
+  background-color: var(--madeyso-primary-dark);
 }
 
 /* Animaciones para modales */
@@ -65,7 +167,7 @@ code {
   animation: scaleIn 0.2s ease-out;
 }
 
-/* SCROLLBAR SIDEBAR */
+/* SCROLLBAR SIDEBAR con colores MADEYSO */
 .sidebar-scroll::-webkit-scrollbar {
   width: 8px;
 }
@@ -76,15 +178,457 @@ code {
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgb(71, 85, 105);
+  background: var(--madeyso-primary);
   border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgb(100, 116, 139);
+  background: var(--madeyso-primary-dark);
 }
 
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgb(71, 85, 105) rgba(30, 41, 59, 0.3);
+  scrollbar-color: var(--madeyso-primary) rgba(30, 41, 59, 0.3);
+}
+
+/* Spinner/Loading con colores MADEYSO */
+.spinner-madeyso {
+  border: 3px solid var(--madeyso-green-100);
+  border-top: 3px solid var(--madeyso-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} /* src/index.css */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* ============================================
+   🎨 VARIABLES CSS - COLORES MADEYSO
+   ============================================ */
+:root {
+  /* Colores corporativos MADEYSO */
+  --madeyso-primary: #00a651;
+  --madeyso-primary-light: #33b871;
+  --madeyso-primary-dark: #008742;
+  --madeyso-secondary: #9fd856;
+  --madeyso-accent: #e31e24;
+  --madeyso-dark: #1a1a1a;
+
+  /* Escala de verdes MADEYSO */
+  --madeyso-green-50: #e6f7ee;
+  --madeyso-green-100: #b3e6ce;
+  --madeyso-green-200: #80d5ae;
+  --madeyso-green-300: #4dc48e;
+  --madeyso-green-400: #1ab36e;
+  --madeyso-green-500: #00a651;
+  --madeyso-green-600: #008542;
+  --madeyso-green-700: #006433;
+  --madeyso-green-800: #004324;
+  --madeyso-green-900: #002115;
+
+  /* Escala de lima */
+  --madeyso-lime-50: #f7fde6;
+  --madeyso-lime-100: #e8f9b8;
+  --madeyso-lime-200: #d9f58a;
+  --madeyso-lime-300: #caf15c;
+  --madeyso-lime-400: #bbed2e;
+  --madeyso-lime-500: #9fd856;
+  --madeyso-lime-600: #8ac647;
+  --madeyso-lime-700: #75b438;
+  --madeyso-lime-800: #60a229;
+  --madeyso-lime-900: #4b901a;
+
+  /* Estados semánticos con colores MADEYSO */
+  --color-success: var(--madeyso-primary);
+  --color-warning: var(--madeyso-secondary);
+  --color-error: var(--madeyso-accent);
+  --color-info: var(--madeyso-primary-light);
+}
+
+/* Dark mode */
+.dark {
+  --madeyso-primary: #33b871; /* Más suave en dark mode */
+  --madeyso-primary-light: #4dc48e;
+  --madeyso-secondary: #9fd856;
+}
+
+/* Estilos globales */
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+/* ============================================
+   🎨 CLASES UTILITARIAS MADEYSO
+   ============================================ */
+
+/* Botones primarios MADEYSO */
+.btn-madeyso-primary {
+  @apply bg-[var(--madeyso-primary)] hover:bg-[var(--madeyso-primary-dark)] 
+         text-white font-medium px-4 py-2 rounded-lg 
+         transition-colors duration-200;
+}
+
+.btn-madeyso-secondary {
+  @apply bg-[var(--madeyso-secondary)] hover:bg-[var(--madeyso-lime-600)] 
+         text-gray-900 font-medium px-4 py-2 rounded-lg 
+         transition-colors duration-200;
+}
+
+.btn-madeyso-outline {
+  @apply border-2 border-[var(--madeyso-primary)] text-[var(--madeyso-primary)]
+         hover:bg-[var(--madeyso-green-50)] dark:hover:bg-[var(--madeyso-green-900)]
+         font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+}
+
+/* Badges MADEYSO */
+.badge-madeyso {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+         bg-[var(--madeyso-green-100)] text-[var(--madeyso-green-800)]
+         dark:bg-[var(--madeyso-green-900)] dark:text-[var(--madeyso-green-300)];
+}
+
+.badge-madeyso-lime {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+         bg-[var(--madeyso-lime-100)] text-[var(--madeyso-lime-800)]
+         dark:bg-[var(--madeyso-lime-900)] dark:text-[var(--madeyso-lime-300)];
+}
+
+/* Links MADEYSO */
+.link-madeyso {
+  @apply text-[var(--madeyso-primary)] hover:text-[var(--madeyso-primary-dark)]
+         dark:text-[var(--madeyso-primary-light)] dark:hover:text-[var(--madeyso-primary)]
+         transition-colors duration-200;
+}
+
+/* Inputs con acento MADEYSO */
+.input-madeyso {
+  @apply focus:ring-2 focus:ring-[var(--madeyso-primary)] 
+         focus:border-[var(--madeyso-primary)]
+         border-gray-300 dark:border-slate-600;
+}
+
+/* Estilos para scrollbar personalizado con colores MADEYSO */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-slate-800;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--madeyso-primary);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--madeyso-primary-dark);
+}
+
+/* Animaciones para modales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* SCROLLBAR SIDEBAR con colores MADEYSO */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--madeyso-primary);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--madeyso-primary-dark);
+}
+
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--madeyso-primary) rgba(30, 41, 59, 0.3);
+}
+
+/* Spinner/Loading con colores MADEYSO */
+.spinner-madeyso {
+  border: 3px solid var(--madeyso-green-100);
+  border-top: 3px solid var(--madeyso-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} /* src/index.css */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* ============================================
+   🎨 VARIABLES CSS - COLORES MADEYSO
+   ============================================ */
+:root {
+  /* Colores corporativos MADEYSO */
+  --madeyso-primary: #00a651;
+  --madeyso-primary-light: #33b871;
+  --madeyso-primary-dark: #008742;
+  --madeyso-secondary: #9fd856;
+  --madeyso-accent: #e31e24;
+  --madeyso-dark: #1a1a1a;
+
+  /* Escala de verdes MADEYSO */
+  --madeyso-green-50: #e6f7ee;
+  --madeyso-green-100: #b3e6ce;
+  --madeyso-green-200: #80d5ae;
+  --madeyso-green-300: #4dc48e;
+  --madeyso-green-400: #1ab36e;
+  --madeyso-green-500: #00a651;
+  --madeyso-green-600: #008542;
+  --madeyso-green-700: #006433;
+  --madeyso-green-800: #004324;
+  --madeyso-green-900: #002115;
+
+  /* Escala de lima */
+  --madeyso-lime-50: #f7fde6;
+  --madeyso-lime-100: #e8f9b8;
+  --madeyso-lime-200: #d9f58a;
+  --madeyso-lime-300: #caf15c;
+  --madeyso-lime-400: #bbed2e;
+  --madeyso-lime-500: #9fd856;
+  --madeyso-lime-600: #8ac647;
+  --madeyso-lime-700: #75b438;
+  --madeyso-lime-800: #60a229;
+  --madeyso-lime-900: #4b901a;
+
+  /* Estados semánticos con colores MADEYSO */
+  --color-success: var(--madeyso-primary);
+  --color-warning: var(--madeyso-secondary);
+  --color-error: var(--madeyso-accent);
+  --color-info: var(--madeyso-primary-light);
+}
+
+/* Dark mode */
+.dark {
+  --madeyso-primary: #33b871; /* Más suave en dark mode */
+  --madeyso-primary-light: #4dc48e;
+  --madeyso-secondary: #9fd856;
+}
+
+/* Estilos globales */
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+/* ============================================
+   🎨 CLASES UTILITARIAS MADEYSO
+   ============================================ */
+
+/* Botones primarios MADEYSO */
+.btn-madeyso-primary {
+  @apply bg-[var(--madeyso-primary)] hover:bg-[var(--madeyso-primary-dark)] 
+         text-white font-medium px-4 py-2 rounded-lg 
+         transition-colors duration-200;
+}
+
+.btn-madeyso-secondary {
+  @apply bg-[var(--madeyso-secondary)] hover:bg-[var(--madeyso-lime-600)] 
+         text-gray-900 font-medium px-4 py-2 rounded-lg 
+         transition-colors duration-200;
+}
+
+.btn-madeyso-outline {
+  @apply border-2 border-[var(--madeyso-primary)] text-[var(--madeyso-primary)]
+         hover:bg-[var(--madeyso-green-50)] dark:hover:bg-[var(--madeyso-green-900)]
+         font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+}
+
+/* Badges MADEYSO */
+.badge-madeyso {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+         bg-[var(--madeyso-green-100)] text-[var(--madeyso-green-800)]
+         dark:bg-[var(--madeyso-green-900)] dark:text-[var(--madeyso-green-300)];
+}
+
+.badge-madeyso-lime {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+         bg-[var(--madeyso-lime-100)] text-[var(--madeyso-lime-800)]
+         dark:bg-[var(--madeyso-lime-900)] dark:text-[var(--madeyso-lime-300)];
+}
+
+/* Links MADEYSO */
+.link-madeyso {
+  @apply text-[var(--madeyso-primary)] hover:text-[var(--madeyso-primary-dark)]
+         dark:text-[var(--madeyso-primary-light)] dark:hover:text-[var(--madeyso-primary)]
+         transition-colors duration-200;
+}
+
+/* Inputs con acento MADEYSO */
+.input-madeyso {
+  @apply focus:ring-2 focus:ring-[var(--madeyso-primary)] 
+         focus:border-[var(--madeyso-primary)]
+         border-gray-300 dark:border-slate-600;
+}
+
+/* Estilos para scrollbar personalizado con colores MADEYSO */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-slate-800;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--madeyso-primary);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--madeyso-primary-dark);
+}
+
+/* Animaciones para modales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* SCROLLBAR SIDEBAR con colores MADEYSO */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--madeyso-primary);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--madeyso-primary-dark);
+}
+
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--madeyso-primary) rgba(30, 41, 59, 0.3);
+}
+
+/* Spinner/Loading con colores MADEYSO */
+.spinner-madeyso {
+  border: 3px solid var(--madeyso-green-100);
+  border-top: 3px solid var(--madeyso-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

@@ -64,7 +64,7 @@ const SelectorSucursal: React.FC = () => {
               //console.log("🎯 Cambio seleccionado:", nuevaSucursalId);
               cambiarSucursal(nuevaSucursalId);
             }}
-            className="bg-transparent border-none text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1 cursor-pointer min-w-[8rem]"
+            className="bg-transparent border-none text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-madeyso-primary rounded px-2 py-1 cursor-pointer min-w-[8rem]"
             title="Cambiar sucursal (Admin)"
           >
             {sucursales.map((s) => (

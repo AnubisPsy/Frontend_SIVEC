@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Icons } from "../components/icons/IconMap";
 import { useNotification } from "../hooks/useNotification";
 import sivecLogoPng from "../assets/logos/sivec-logo.png";
+import MadeysoLogo from "../assets/logos/madeyso_logo.png";
 
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
 
@@ -88,7 +89,7 @@ const Login = () => {
             sitekey: RECAPTCHA_SITE_KEY,
             theme: "light",
             size: "normal",
-          }
+          },
         );
       } catch (err) {
         console.error("❌ Error al renderizar captcha:", err);
@@ -144,7 +145,7 @@ const Login = () => {
         if (result.requiereCaptcha && !requiereCaptcha) {
           setRequiereCaptcha(true);
           setError(
-            "Demasiados intentos fallidos. Por favor completa el captcha."
+            "Demasiados intentos fallidos. Por favor completa el captcha.",
           );
         } else {
           // Resetear captcha si existe
@@ -178,12 +179,12 @@ const Login = () => {
             case "USUARIO_INACTIVO":
               setError(
                 result.message ||
-                  "Tu cuenta está desactivada. Contacta al administrador."
+                  "Tu cuenta está desactivada. Contacta al administrador.",
               );
               break;
             case "ERROR_SERVIDOR":
               setError(
-                result.message || "Error del servidor. Intenta nuevamente."
+                result.message || "Error del servidor. Intenta nuevamente.",
               );
               break;
             default:
@@ -203,7 +204,7 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Elementos decorativos de fondo */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 dark:bg-madeyso-primary-dark rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400 dark:bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-700"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
       </div>
@@ -212,11 +213,22 @@ const Login = () => {
         {/* Logo y título */}
         <div className="text-center mb-8">
           {/* Logo completo (reemplaza el ícono y texto) */}
-          <div className="flex justify-center mb-4">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            {/* Logo SIVEC */}
             <img
               src={sivecLogoPng}
               alt="SIVEC - Sistema de Control de Vehículos"
-              className="h-16 w-auto object-contain"
+              className="h-10 w-auto object-contain"
+            />
+
+            {/* Barra vertical divisoria */}
+            <div className="h-10 w-px bg-gray-300 dark:bg-slate-600"></div>
+
+            {/* Logo MADEYSO */}
+            <img
+              src={MadeysoLogo}
+              alt="MADEYSO"
+              className="h-10 w-auto object-contain"
             />
           </div>
 
@@ -250,7 +262,7 @@ const Login = () => {
               type="text"
               value={loginInput}
               onChange={(e) => setLoginInput(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-madeyso-primary dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
               placeholder="usuario123 o correo@ejemplo.com"
               required
               disabled={loading}
@@ -271,7 +283,7 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-madeyso-primary dark:focus:ring-blue-600 focus:border-transparent outline-none transition"
               placeholder="••••••••"
               required
               disabled={loading}
@@ -289,7 +301,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white font-semibold py-3 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

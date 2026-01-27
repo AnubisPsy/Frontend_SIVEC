@@ -141,8 +141,8 @@ const AsignarFacturas = () => {
       {/* Header */}
       <div className="mb-6 pb-4 border-b border-gray-200 dark:border-slate-700">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-            <Icons.document className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <div className="w-10 h-10 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+            <Icons.document className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
           </div>
           Asignar Facturas
         </h2>
@@ -163,7 +163,7 @@ const AsignarFacturas = () => {
             value={vehiculo}
             onChange={(e) => setVehiculo(e.target.value)}
             placeholder="Ej: C-25"
-            className="px-4 py-3 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+            className="px-4 py-3 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
           />
         </div>
 
@@ -177,7 +177,7 @@ const AsignarFacturas = () => {
             value={piloto}
             onChange={(e) => setPiloto(e.target.value)}
             placeholder="Nombre del piloto"
-            className="px-4 py-3 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+            className="px-4 py-3 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
           />
         </div>
       </div>
@@ -205,8 +205,8 @@ const AsignarFacturas = () => {
               className="p-4 bg-gray-50 dark:bg-slate-700/50 rounded-lg border-2 border-gray-200 dark:border-slate-600"
             >
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                  <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                <div className="w-8 h-8 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <span className="text-sm font-bold text-madeyso-primary dark:text-madeyso-primary-light">
                     {index + 1}
                   </span>
                 </div>
@@ -227,7 +227,7 @@ const AsignarFacturas = () => {
                           e.target.value
                         )
                       }
-                      className="px-3 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                      className="px-3 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                     />
                   </div>
 
@@ -242,7 +242,7 @@ const AsignarFacturas = () => {
                       onChange={(e) =>
                         actualizarFactura(index, "notas", e.target.value)
                       }
-                      className="px-3 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                      className="px-3 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:border-madeyso-primary dark:focus:border-blue-600 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
                     />
                   </div>
                 </div>
@@ -281,7 +281,7 @@ const AsignarFacturas = () => {
           className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
             loading
               ? "bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-slate-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
+              : "bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700 text-white"
           }`}
         >
           {loading ? (
@@ -299,12 +299,12 @@ const AsignarFacturas = () => {
       </div>
 
       {/* Info Helper */}
-      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-600 rounded-lg">
+      <div className="mt-4 p-3 bg-madeyso-green-50 dark:bg-blue-900/20 border-l-4 border-madeyso-primary dark:border-blue-600 rounded-lg">
         <div className="flex items-start gap-2">
-          <Icons.info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <Icons.info className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-800 dark:text-blue-300">
             <p className="font-semibold mb-1">Información:</p>
-            <ul className="text-xs space-y-1 text-blue-700 dark:text-blue-400">
+            <ul className="text-xs space-y-1 text-blue-700 dark:text-madeyso-primary-light">
               <li>• Debe agregar al menos una factura con número válido</li>
               <li>• Las notas son opcionales para cada factura</li>
               <li>• Puede agregar múltiples facturas al mismo viaje</li>

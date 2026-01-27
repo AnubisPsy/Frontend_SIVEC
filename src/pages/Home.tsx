@@ -8,7 +8,7 @@ import { facturasApi } from "../services/api";
 import FormularioAsignarFactura from "../components/FormularioAsignarFactura";
 import { Button } from "../components/ui/Button";
 import { Icons } from "../components/icons/IconMap";
-import { theme } from "../styles/theme";
+import { chartColors } from "../styles/theme";
 import { useNotification } from "../hooks/useNotification";
 import TablaViajesDashboard from "../components/TablaViajesDashboard";
 
@@ -107,7 +107,7 @@ const Home = () => {
         prevViajes.map((viaje) => {
           // Buscar si este viaje contiene la guía actualizada
           const facturaConGuia = viaje.facturas?.find((f) =>
-            f.guias?.some((g) => g.guia_id === data.guia_id)
+            f.guias?.some((g) => g.guia_id === data.guia_id),
           );
 
           if (!facturaConGuia) return viaje;
@@ -122,17 +122,17 @@ const Home = () => {
                     estado_id: data.estado_id,
                     fecha_entrega: data.fecha_entrega || guia.fecha_entrega,
                   }
-                : guia
+                : guia,
             ),
           }));
 
           // Recalcular guías entregadas y no entregadas
           const todasLasGuias = facturasActualizadas.flatMap((f) => f.guias);
           const nuevasGuiasEntregadas = todasLasGuias.filter(
-            (g) => g.estado_id === 4
+            (g) => g.estado_id === 4,
           ).length;
           const nuevasGuiasNoEntregadas = todasLasGuias.filter(
-            (g) => g.estado_id === 5
+            (g) => g.estado_id === 5,
           ).length;
 
           return {
@@ -141,7 +141,7 @@ const Home = () => {
             guias_entregadas: nuevasGuiasEntregadas,
             guias_no_entregadas: nuevasGuiasNoEntregadas,
           };
-        })
+        }),
       );
     };
 
@@ -158,8 +158,8 @@ const Home = () => {
                 guias_no_entregadas: data.guias_no_entregadas || 0,
                 total_guias: data.total_guias,
               }
-            : viaje
-        )
+            : viaje,
+        ),
       );
     };
 
@@ -176,8 +176,8 @@ const Home = () => {
                 guias_entregadas: data.guias_entregadas,
                 guias_no_entregadas: data.guias_no_entregadas || 0,
               }
-            : viaje
-        )
+            : viaje,
+        ),
       );
     };
 
@@ -189,8 +189,8 @@ const Home = () => {
         prevViajes.map((viaje) =>
           viaje.viaje_id === data.viaje_id
             ? { ...viaje, estado_viaje: data.estado_viaje }
-            : viaje
-        )
+            : viaje,
+        ),
       );
     };
 
@@ -203,7 +203,7 @@ const Home = () => {
         prevViajes.map((viaje) => {
           // Buscar si este viaje contiene la factura afectada
           const facturaAfectada = viaje.facturas?.find(
-            (f) => f.numero_factura === data.numero_factura
+            (f) => f.numero_factura === data.numero_factura,
           );
 
           if (!facturaAfectada) return viaje;
@@ -230,13 +230,13 @@ const Home = () => {
                   ...factura,
                   guias: [...(factura.guias || []), nuevaGuia],
                 }
-              : factura
+              : factura,
           );
 
           // Recalcular totales
           const nuevoTotalGuias = facturasActualizadas.reduce(
             (total, f) => total + (f.guias?.length || 0),
-            0
+            0,
           );
 
           return {
@@ -244,7 +244,7 @@ const Home = () => {
             facturas: facturasActualizadas,
             total_guias: nuevoTotalGuias,
           };
-        })
+        }),
       );
     };
 
@@ -289,7 +289,7 @@ const Home = () => {
   };
 
   const obtenerEstadoViaje = (
-    viaje: Viaje
+    viaje: Viaje,
   ): { texto: string; color: string; bgColor: string } => {
     // Priorizar estado_viaje de la BD si existe
     if (viaje.estado_viaje === 9) {
@@ -323,7 +323,7 @@ const Home = () => {
       return {
         texto: "En ruta",
         color: "text-blue-700 dark:text-blue-300",
-        bgColor: "bg-blue-100 dark:bg-blue-900/30",
+        bgColor: "bg-madeyso-green-100 dark:bg-blue-900/30",
       };
     }
 
@@ -348,10 +348,10 @@ const Home = () => {
     }
 
     const entregadas = Math.round(
-      (viaje.guias_entregadas / viaje.total_guias) * 100
+      (viaje.guias_entregadas / viaje.total_guias) * 100,
     );
     const noEntregadas = Math.round(
-      ((viaje.guias_no_entregadas || 0) / viaje.total_guias) * 100
+      ((viaje.guias_no_entregadas || 0) / viaje.total_guias) * 100,
     );
     const pendientes = 100 - entregadas - noEntregadas;
 
@@ -373,7 +373,7 @@ const Home = () => {
         "http://localhost:3000/api/viajes?estado=activo",
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       // ✅ Manejar ambos formatos de respuesta
@@ -397,7 +397,7 @@ const Home = () => {
       console.error(
         "❌ Error cargando viajes:",
         err.response?.status,
-        err.message
+        err.message,
       );
 
       if (err.response?.status === 401) {
@@ -418,7 +418,7 @@ const Home = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
         <div className="text-center">
-          <Icons.refresh className="w-16 h-16 text-blue-600 dark:text-blue-500 animate-spin mx-auto mb-4" />
+          <Icons.refresh className="w-16 h-16 text-madeyso-primary dark:text-madeyso-primary-light animate-spin mx-auto mb-4" />
           <p className="text-gray-600 dark:text-slate-300 font-medium">
             Cargando viajes activos...
           </p>
@@ -435,7 +435,7 @@ const Home = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-4">
             {/* Lado izquierdo */}
             <div className="flex items-center gap-3">
-              <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <Icons.truck className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
               <div>
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
                   Viajes Activos
@@ -468,7 +468,7 @@ const Home = () => {
                   onClick={() => cambiarVista("cards")}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
                     vistaActual === "cards"
-                      ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm"
+                      ? "bg-white dark:bg-slate-800 text-madeyso-primary dark:text-madeyso-primary-light shadow-sm"
                       : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100"
                   }`}
                 >
@@ -479,7 +479,7 @@ const Home = () => {
                   onClick={() => cambiarVista("tabla")}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
                     vistaActual === "tabla"
-                      ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm"
+                      ? "bg-white dark:bg-slate-800 text-madeyso-primary dark:text-madeyso-primary-light shadow-sm"
                       : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100"
                   }`}
                 >
@@ -492,7 +492,7 @@ const Home = () => {
               {puedeAsignar && (
                 <button
                   onClick={() => setMostrarFormulario(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+                  className="px-4 py-2 bg-madeyso-primary-dark hover:bg-madeyso-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
                 >
                   <Icons.plus className="w-4 h-4" />
                   Asignar Factura
@@ -572,11 +572,11 @@ const Home = () => {
                   <div className="p-6 border-b border-gray-100 dark:border-slate-700">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                          <Icons.truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        <div className="w-12 h-12 bg-madeyso-green-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                          <Icons.truck className="w-6 h-6 text-madeyso-primary dark:text-madeyso-primary-light" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 group-hover:text-madeyso-primary dark:group-hover:text-madeyso-primary-light transition-colors">
                             {viaje.numero_vehiculo}
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-slate-400">
@@ -715,7 +715,7 @@ const Home = () => {
                             className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full" />
+                              <div className="w-2 h-2 bg-madeyso-primary dark:bg-blue-400 rounded-full" />
                               <div>
                                 <p className="font-semibold text-gray-900 dark:text-slate-100 text-sm">
                                   {factura.numero_factura}
@@ -733,8 +733,8 @@ const Home = () => {
                                   porcentaje === 100
                                     ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                                     : porcentaje > 0
-                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                    : "bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-slate-300"
+                                      ? "bg-madeyso-green-100 text-blue-700 dark:bg-blue-900/30 dark:text-madeyso-primary-light"
+                                      : "bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-slate-300"
                                 }`}
                               >
                                 {guiasEntregadas}/{totalGuias}

@@ -81,10 +81,10 @@ const ConfiguradorColumnas: React.FC<Props> = ({
         </div>
 
         {/* Estadísticas */}
-        <div className="px-6 py-4 bg-blue-50 dark:bg-slate-700 border-b border-blue-100 dark:border-slate-600">
+        <div className="px-6 py-4 bg-madeyso-green-50 dark:bg-slate-700 border-b border-blue-100 dark:border-slate-600">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold text-lg shadow-md">
+              <div className="bg-madeyso-primary-dark dark:bg-madeyso-primary text-white px-4 py-2 rounded-lg font-bold text-lg shadow-md">
                 {columnasVisibles}
               </div>
               <div>
@@ -100,7 +100,7 @@ const ConfiguradorColumnas: React.FC<Props> = ({
             <div className="flex gap-2">
               <button
                 onClick={seleccionarTodas}
-                className="px-4 py-2 bg-white dark:bg-slate-600 border-2 border-blue-200 dark:border-slate-500 text-blue-700 dark:text-blue-300 rounded-lg text-sm font-semibold hover:bg-blue-50 dark:hover:bg-slate-500 transition-all flex items-center gap-2"
+                className="px-4 py-2 bg-white dark:bg-slate-600 border-2 border-blue-200 dark:border-slate-500 text-blue-700 dark:text-blue-300 rounded-lg text-sm font-semibold hover:bg-madeyso-green-50 dark:hover:bg-slate-500 transition-all flex items-center gap-2"
               >
                 <Icons.checkCircle className="w-4 h-4" />
                 Todas
@@ -125,14 +125,14 @@ const ConfiguradorColumnas: React.FC<Props> = ({
                 onClick={() => toggleColumna(columna.id)}
                 className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                   columna.visible
-                    ? "bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                    ? "bg-madeyso-green-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700 hover:bg-madeyso-green-100 dark:hover:bg-blue-900/30"
                     : "bg-gray-50 dark:bg-slate-700 border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600"
                 }`}
               >
                 <div
                   className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
                     columna.visible
-                      ? "bg-blue-600 dark:bg-blue-500 border-blue-600 dark:border-blue-500"
+                      ? "bg-madeyso-primary-dark dark:bg-madeyso-primary border-blue-600 dark:border-madeyso-primary"
                       : "bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-500"
                   }`}
                 >
@@ -172,7 +172,7 @@ const ConfiguradorColumnas: React.FC<Props> = ({
             className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
               columnasVisibles === 0
                 ? "bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-slate-400 cursor-not-allowed"
-                : "bg-blue-600 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-700"
+                : "bg-madeyso-primary-dark dark:bg-madeyso-primary-dark text-white hover:bg-madeyso-green-700 dark:hover:bg-madeyso-green-700"
             }`}
           >
             <Icons.save className="w-4 h-4" />

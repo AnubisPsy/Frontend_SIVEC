@@ -44,11 +44,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     },
     info: {
       icon: (
-        <Icons.info className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+        <Icons.info className="w-12 h-12 text-madeyso-primary dark:text-madeyso-primary-light" />
       ),
-      iconBg: "bg-blue-100 dark:bg-blue-900/30",
+      iconBg: "bg-madeyso-green-100 dark:bg-blue-900/30",
       button:
-        "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700",
+        "bg-madeyso-primary-dark hover:bg-madeyso-green-700 dark:bg-madeyso-primary-dark dark:hover:bg-madeyso-green-700",
     },
   };
 

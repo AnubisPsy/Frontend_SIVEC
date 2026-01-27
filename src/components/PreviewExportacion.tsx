@@ -129,7 +129,7 @@ const PreviewExportacion: React.FC<Props> = ({
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md">
+              <div className="bg-madeyso-primary-dark dark:bg-madeyso-primary text-white px-4 py-2 rounded-lg shadow-md">
                 <span className="text-2xl font-bold">{columnas.length}</span>
               </div>
               <div>
@@ -182,7 +182,7 @@ const PreviewExportacion: React.FC<Props> = ({
         <div className="flex-1 overflow-auto px-6 py-4">
           <div className="mb-4">
             <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-2 flex items-center gap-2">
-              <Icons.fileSpreadsheet className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Icons.fileSpreadsheet className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
               Hoja 1: Historial de Viajes
             </h3>
             <p className="text-sm text-gray-600 dark:text-slate-400 mb-4">
@@ -232,8 +232,8 @@ const PreviewExportacion: React.FC<Props> = ({
           </div>
 
           {viajes.length > registrosMostrados && (
-            <div className="text-center py-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-800 flex items-center justify-center gap-2">
-              <Icons.moreHorizontal className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="text-center py-3 bg-madeyso-green-50 dark:bg-blue-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-800 flex items-center justify-center gap-2">
+              <Icons.moreHorizontal className="w-5 h-5 text-madeyso-primary dark:text-madeyso-primary-light" />
               <p className="text-sm text-blue-800 dark:text-blue-300 font-medium">
                 + {viajes.length - registrosMostrados} registros más serán
                 exportados
